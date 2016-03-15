@@ -1,0 +1,2 @@
+# Tazbot
+Discord bot
