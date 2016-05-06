@@ -4,7 +4,6 @@ import com.tazzie02.tazbot.util.JDAUtil;
 import com.tazzie02.tazbot.util.MessageLogger;
 import com.tazzie02.tazbot.util.SendMessage;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -12,7 +11,6 @@ import org.apache.commons.lang3.StringUtils;
 import com.tazzie02.tazbot.managers.ConfigManager;
 import com.tazzie02.tazbot.managers.SettingsManager;
 
-import net.dv8tion.jda.Permission;
 import net.dv8tion.jda.entities.Guild;
 import net.dv8tion.jda.entities.User;
 import net.dv8tion.jda.events.InviteReceivedEvent;
@@ -20,7 +18,6 @@ import net.dv8tion.jda.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.hooks.ListenerAdapter;
-import net.dv8tion.jda.utils.PermissionUtil;
 
 public class Listeners extends ListenerAdapter {
 	
@@ -34,6 +31,13 @@ public class Listeners extends ListenerAdapter {
 	@Override
 	public void onGuildJoin(GuildJoinEvent e) {
 		Guild g = e.getGuild();
+		
+		// Check if bot is already in the guild.
+		// If there is a discord outage, onGuildJoin may be fired incorrectly.
+		if (SettingsManager.getInstance(g.getId()).getSettings().isJoined()) {
+			return;
+		}
+		
 		String message = "JOINED GUILD " + JDAUtil.guildToString(g);
 		
 		MessageLogger.guildEvent(g, message);
@@ -42,24 +46,15 @@ public class Listeners extends ListenerAdapter {
 		String botName = ConfigManager.getInstance().getConfig().getBotName();
 		StringBuilder sb = new StringBuilder()
 				.append("Hello! Thank you for adding ").append(botName).append(" to ").append(g.getName()).append(".\n");
+		
 		SettingsManager manager = SettingsManager.getInstance(g.getId());
 		
 		if (!manager.getSettings().getModerators().isEmpty()) {
 			sb.append("Since this is not the first time ").append(botName).append(" has been joined ").append(g.getName()).append(", please note that your settings have been reset.\n");
+			manager.resetSettings();
 		}
 		
-		// Permission required to add as moderator
-		Permission perm = Permission.MANAGE_SERVER;
-		List<User> us = new ArrayList<User>();
-		
-		g.getUsers().parallelStream().forEach(u -> {
-			if (PermissionUtil.checkPermission(u, perm, g)) {
-				us.add(u);
-			}
-		});
-		
-		us.stream().forEach(u -> manager.getSettings().addModerator(u.getId()));
-		manager.saveSettings();
+		List<User> us = JDAUtil.addDefaultModerators(g);
 		
 		sb.append("Added ").append(StringUtils.join(JDAUtil.userListToString(us), ", ")).append(" as moderators.\n")
 		.append("The guild owner (currently " + g.getOwner().getUsername() + ") may add or remove moderators at any time.\n")
@@ -73,6 +68,11 @@ public class Listeners extends ListenerAdapter {
 	public void onGuildLeave(GuildLeaveEvent e) {
 		Guild g = e.getGuild();
 		String message = "LEFT GUILD " + JDAUtil.guildToString(g);
+		
+		// Set joined to false in settings file
+		SettingsManager settingsManager = SettingsManager.getInstance(g.getId());
+		settingsManager.getSettings().setJoined(false);
+		settingsManager.saveSettings();
 		
 		MessageLogger.guildEvent(g, message);
 		SendMessage.sendDeveloper(message);

@@ -11,6 +11,7 @@ public class Settings {
 	private List<String> moderators = new ArrayList<String>();
 	private String prefix;
 	private boolean crySoundStatus;
+	private boolean joined;
 
 	public List<String> getModerators() {
 		return Collections.unmodifiableList(moderators);
@@ -48,6 +49,14 @@ public class Settings {
 	
 	public void setCrySoundStatus(boolean crySoundStatus) {
 		this.crySoundStatus = crySoundStatus;
+	}
+	
+	public boolean isJoined() {
+		return joined;
+	}
+	
+	public void setJoined(boolean joined) {
+		this.joined = joined;
 	}
 	
 }

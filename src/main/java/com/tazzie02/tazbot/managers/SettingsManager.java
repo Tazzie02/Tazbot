@@ -89,11 +89,17 @@ public class SettingsManager {
 			e.printStackTrace();
 		}
 	}
+	
+	public void resetSettings() {
+		this.settings = getDefaultSettings();
+		saveSettings();
+	}
 
 	private Settings getDefaultSettings() {
 		Settings newSettings = new Settings();
 		newSettings.setPrefix("!");
 		newSettings.setCrySoundStatus(true);
+		newSettings.setJoined(true);
 		
 		return newSettings;
 	}

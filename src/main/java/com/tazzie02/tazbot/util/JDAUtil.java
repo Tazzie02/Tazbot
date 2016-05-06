@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import com.tazzie02.tazbot.Bot;
 import com.tazzie02.tazbot.managers.ConfigManager;
+import com.tazzie02.tazbot.managers.SettingsManager;
 
 import net.dv8tion.jda.Permission;
 import net.dv8tion.jda.entities.Guild;
@@ -129,6 +130,28 @@ public class JDAUtil {
 		String url = String.format("https://discordapp.com/oauth2/authorize?&client_id=%s&scope=bot&permissions=0", clientId);
 
 		return "Note: You must have *Manage Server* pemission to add the bot to your guild.\n" + url;
+	}
+	
+	public static List<User> addDefaultModerators(Guild guild) {
+		SettingsManager manager = SettingsManager.getInstance(guild.getId());
+
+		// Remove current moderators
+		manager.getSettings().getModerators().stream().forEach(u -> manager.getSettings().removeModerator(u));
+		
+		// Permission required to add as moderator
+		Permission perm = Permission.MANAGE_SERVER;
+		List<User> us = new ArrayList<User>();
+
+		guild.getUsers().parallelStream().forEach(u -> {
+			if (PermissionUtil.checkPermission(u, perm, guild)) {
+				us.add(u);
+			}
+		});
+		
+		us.stream().forEach(u -> manager.getSettings().addModerator(u.getId()));
+		manager.saveSettings();
+		
+		return us;
 	}
 	
 }
