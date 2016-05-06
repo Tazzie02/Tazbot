@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import com.tazzie02.tazbot.commands.moderator.ModeratorCommand;
@@ -32,8 +33,16 @@ public class ModCommand extends ModeratorCommand {
 		}
 		// If moderator or developer
 		else if (UserUtil.isMod(e.getAuthor(), e.getGuild()) || UserUtil.isDev(e.getAuthor())) {
+			// mod <>
+			if (args.length == 2) {
+				// mod sync
+				if (args[1].equalsIgnoreCase("sync")) {
+					List<User> us = JDAUtil.addDefaultModerators(e.getGuild());
+					SendMessage.sendMessage(e, "Removed existing moderators and added " + StringUtils.join(JDAUtil.userListToString(us), ", ") + ".");
+				}
+			}
 			// mod <add/remove> <@user/userID>
-			if (args.length >= 3) {
+			else if (args.length >= 3) {
 				List<User> mentioned = new ArrayList<User>();
 				// Ensure a user is mentioned or a user ID is provided
 				for (int i = 2; i < args.length; i++) {
