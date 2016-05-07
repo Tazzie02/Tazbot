@@ -1,6 +1,7 @@
 package com.tazzie02.tazbot.util;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -136,7 +137,13 @@ public class JDAUtil {
 		SettingsManager manager = SettingsManager.getInstance(guild.getId());
 
 		// Remove current moderators
-		manager.getSettings().getModerators().stream().forEach(u -> manager.getSettings().removeModerator(u));
+		Iterator<String> it = manager.getSettings().getModerators().iterator();
+		while (it.hasNext()) {
+			manager.getSettings().removeModerator(it.next());
+		}
+		
+		// ConcurrentModificationException
+//		manager.getSettings().getModerators().stream().forEach(u -> manager.getSettings().removeModerator(u));
 		
 		// Permission required to add as moderator
 		Permission perm = Permission.MANAGE_SERVER;
