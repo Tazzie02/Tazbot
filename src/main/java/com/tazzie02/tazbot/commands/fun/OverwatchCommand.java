@@ -20,7 +20,7 @@ public class OverwatchCommand extends Command {
 		Calendar ends = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 		
 		release.set(2016, 4, 25, 0, 0, 0);
-		ends.set(2016, 4, 10, 0, 0, 0);
+		ends.set(2016, 4, 10, 17, 0, 0);
 		
 		long releaseMs = release.getTimeInMillis() - current.getTimeInMillis();
 		long endsMs = ends.getTimeInMillis() - current.getTimeInMillis();
