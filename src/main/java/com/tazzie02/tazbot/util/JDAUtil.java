@@ -137,13 +137,11 @@ public class JDAUtil {
 		SettingsManager manager = SettingsManager.getInstance(guild.getId());
 
 		// Remove current moderators
-		Iterator<String> it = manager.getSettings().getModerators().iterator();
-		while (it.hasNext()) {
-			manager.getSettings().removeModerator(it.next());
+		List<String> currentMods = manager.getSettings().getModerators();
+		for (int i = 0; i < currentMods.size(); i++) {
+			String mod = currentMods.get(i);
+			manager.getSettings().removeModerator(mod);
 		}
-		
-		// ConcurrentModificationException
-//		manager.getSettings().getModerators().stream().forEach(u -> manager.getSettings().removeModerator(u));
 		
 		// Permission required to add as moderator
 		Permission perm = Permission.MANAGE_SERVER;
