@@ -66,9 +66,11 @@ public class Bot {
 
 		// Moderator commands
 		jdaBuilder.addListener(help.registerCommand(new LeaveCommand()));
+		jdaBuilder.addListener(help.registerCommand(new LinkCommand()));
 		jdaBuilder.addListener(help.registerCommand(new ModCommand()));
 		jdaBuilder.addListener(help.registerCommand(new PrefixCommand()));
 		jdaBuilder.addListener(help.registerCommand(new PurgeCommand()));
+		jdaBuilder.addListener(help.registerCommand(new UnlinkCommand()));
 
 		// General listeners
 		jdaBuilder.addListener(new Listeners());
