@@ -31,7 +31,10 @@ public class SendMessage {
 	}
 
 	public static void sendMessage(TextChannel c, String message) {
-		sendMessage(c, new MessageBuilder().appendString(message).build());
+		List<Message> messages = splitMessage(message);
+		for (Message m : messages) {
+			sendMessage(c, m);
+		}
 	}
 
 	public static void sendMessage(MessageReceivedEvent e, Message message) {
@@ -81,7 +84,10 @@ public class SendMessage {
 	}
 
 	public static void sendPrivate(PrivateChannel c, String message) {
-		sendPrivate(c, new MessageBuilder().appendString(message).build());
+		List<Message> messages = splitMessage(message);
+		for (Message m : messages) {
+			sendPrivate(c, m);
+		}
 	}
 
 	public static void sendPrivate(User u, Message message) {
@@ -89,7 +95,10 @@ public class SendMessage {
 	}
 
 	public static void sendPrivate(User u, String message) {
-		sendPrivate(u, new MessageBuilder().appendString(message).build());
+		List<Message> messages = splitMessage(message);
+		for (Message m : messages) {
+			sendPrivate(u, m);
+		}
 	}
 
 	public static void sendPrivate(MessageReceivedEvent e, Message message) {
@@ -102,7 +111,10 @@ public class SendMessage {
 	}
 
 	public static void sendPrivate(MessageReceivedEvent e, String message) {
-		sendPrivate(e, new MessageBuilder().appendString(message).build());
+		List<Message> messages = splitMessage(message);
+		for (Message m : messages) {
+			sendPrivate(e, m);
+		}
 	}
 	
 	// Developer message sending happens here. Logging is done in sendPrivate
@@ -125,7 +137,10 @@ public class SendMessage {
 	}
 	
 	public static void sendDeveloper(String message) {
-		sendDeveloper(new MessageBuilder().appendString(message).build());
+		List<Message> messages = splitMessage(message);
+		for (Message m : messages) {
+			sendDeveloper(m);
+		}
 	}
 
 	private static List<Message> splitMessage(String message) {
