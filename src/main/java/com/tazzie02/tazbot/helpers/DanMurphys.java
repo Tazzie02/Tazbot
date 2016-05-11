@@ -15,7 +15,7 @@ import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import com.tazzie02.tazbot.exceptions.ProductNotFoundException;
+import com.tazzie02.tazbot.exceptions.NotFoundException;
 
 public class DanMurphys {
 	
@@ -23,7 +23,7 @@ public class DanMurphys {
 	private String searchUrl;
 	private Elements products = new Elements();
 	
-	public DanMurphys(String product) throws IOException, ProductNotFoundException {
+	public DanMurphys(String product) throws IOException {
 		try {
 			StringBuilder sb = new StringBuilder();
 			sb.append(searchBase).append(URLEncoder.encode(product, "UTF-8"));
@@ -127,7 +127,7 @@ public class DanMurphys {
 		return doc;
 	}
 	
-	private void search(String html) throws ProductNotFoundException {
+	private void search(String html) {
 //		try {
 //			Document doc = Jsoup.connect(url)
 //					.userAgent("Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36")
@@ -139,7 +139,7 @@ public class DanMurphys {
 		Document doc = Jsoup.parse(html);
 		List<Element> elements = doc.select("div.product-grid");
 		if (elements.size() == 0) {
-			throw new ProductNotFoundException();
+			throw new NotFoundException();
 		}
 		
 		for (Element el : elements) {

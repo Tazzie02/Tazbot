@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.tazzie02.tazbot.commands.Command;
-import com.tazzie02.tazbot.exceptions.ProductNotFoundException;
+import com.tazzie02.tazbot.exceptions.NotFoundException;
 import com.tazzie02.tazbot.helpers.DanMurphys;
 import com.tazzie02.tazbot.util.SendMessage;
 
@@ -54,7 +54,7 @@ public class DanMurphysCommand extends Command {
 			
 		} catch (IOException ex) {
 			SendMessage.sendMessage(e, "Error: Could not connect to web page.");
-		} catch (ProductNotFoundException ex) {
+		} catch (NotFoundException ex) {
 			SendMessage.sendMessage(e, "*No results found for \"" + search + "\".*");
 		}
 	}
