@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.tazzie02.tazbot.commands.Command;
+import com.tazzie02.tazbot.exceptions.NotFoundException;
 import com.tazzie02.tazbot.exceptions.QuotaExceededException;
 import com.tazzie02.tazbot.helpers.BingImageSearch;
 import com.tazzie02.tazbot.helpers.GoogleImageSearch;
@@ -41,6 +42,8 @@ public class ImageSearchCommand extends Command {
 			SendMessage.sendMessage(e, "Error: Could not connect to web page.");
 		} catch (QuotaExceededException ex) {
 			SendMessage.sendMessage(e, "Error: Cannot process any more API requests.");
+		} catch (NotFoundException ex) {
+			SendMessage.sendMessage(e, "*No results found for " + search + ".*");
 		}
 		
 		if (imageSearch != null) {

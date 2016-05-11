@@ -10,6 +10,7 @@ import java.util.Base64;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.tazzie02.tazbot.exceptions.NotFoundException;
 import com.tazzie02.tazbot.exceptions.QuotaExceededException;
 import com.tazzie02.tazbot.managers.ConfigManager;
 import com.tazzie02.tazbot.util.WebUtil;
@@ -121,6 +122,9 @@ public class BingImageSearch implements ImageSearch {
 		
 		JSONObject obj = new JSONObject(json);
 		items = obj.getJSONObject("d").getJSONArray("results");
+		if (items.length() == 0) {
+			throw new NotFoundException("No results found.");
+		}
 	}
 	
 }
