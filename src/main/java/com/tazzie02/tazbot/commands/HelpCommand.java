@@ -135,13 +135,10 @@ public class HelpCommand extends Command {
 				.append(hidden.toString());
 			}
 			
-			SendMessage.sendPrivate(e, new StringBuilder()
-					.append("Get more information on a command with \"help <command>\".\n")
-					.append(sb.toString())
-					.append("\n")
-					.append("Github Wiki: <").append(ConfigManager.getInstance().getConfig().getPublicHelp()).append(">\n")
-					.append("Official Guild: ").append(ConfigManager.getInstance().getConfig().getPublicGuildInvite())
-					.toString());
+			SendMessage.sendPrivate(e, "Get more information on a command with \"help <command>\".\n"
+					+ sb.toString() + "\n"
+					+ "Github Wiki: <" + ConfigManager.getInstance().getConfig().getPublicHelp() + ">\n"
+					+ "Official Guild: " + ConfigManager.getInstance().getConfig().getPublicGuildInvite());
 		}
 		else {
 			String prefix;
@@ -175,18 +172,14 @@ public class HelpCommand extends Command {
 					description = (description == null || description.isEmpty()) ? NO_DESCRIPTION : description;
 					usageInstructions = (usageInstructions == null || usageInstructions.isEmpty()) ? NO_USAGE : usageInstructions;
 					
-					SendMessage.sendPrivate(e, new MessageBuilder()
-							.appendString("**Name:** " + name + "\n")
-							.appendString("**Description:** " + description + "\n")
-							.appendString("**Aliases:** " + StringUtils.join(c.getAliases(), ", ") + "\n")
-							.appendString("**Usage:** " + usageInstructions)
-							.build());
+					SendMessage.sendPrivate(e, "**Name:** " + name + "\n"
+							+ "**Description:** " + description + "\n"
+							+ "**Aliases:** " + StringUtils.join(c.getAliases(), ", ") + "\n"
+							+ "**Usage:** " + usageInstructions);
 					return;
 				}
 			}
-			SendMessage.sendMessage(e, new MessageBuilder()
-					.appendString("Error: '**" + command + "**' does not exist. Use help to list all commands.")
-					.build());
+			SendMessage.sendMessage(e, "Error: '**" + command + "**' does not exist. Use help to list all commands.");
 		}
 	}
 	
