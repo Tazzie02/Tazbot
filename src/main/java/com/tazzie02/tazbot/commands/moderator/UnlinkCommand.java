@@ -20,8 +20,13 @@ public class UnlinkCommand extends ModeratorCommand {
 	public void onCommand(MessageReceivedEvent e, String[] args) {
 		LinkUnlink instance = LinkUnlink.getInstance(e.getGuild().getId());
 		if (args.length == 1) {
-			instance.unlinkChannels();
-			SendMessage.sendMessage(e, "Unlinked channels.");
+			if (instance.isLinked()) {
+				instance.unlinkChannels();
+				SendMessage.sendMessage(e, "Unlinked channels.");
+			}
+			else {
+				SendMessage.sendMessage(e, "Error: No channels are currently linked.");
+			}
 		}
 		else {
 			Set<Integer> positions = new HashSet<Integer>(); 
