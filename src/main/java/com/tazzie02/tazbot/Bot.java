@@ -38,7 +38,6 @@ public class Bot {
 		jdaBuilder.addListener(help.registerCommand(new CivDraftCommand()));
 		jdaBuilder.addListener(help.registerCommand(new CivInfoCommand()));
 		jdaBuilder.addListener(help.registerCommand(new CryCommand()));
-		jdaBuilder.addListener(help.registerCommand(new DanMurphysCommand()));
 		jdaBuilder.addListener(help.registerCommand(new GoogleImageSearchCommand()));
 		jdaBuilder.addListener(help.registerCommand(new GoogleSearchCommand()));
 		jdaBuilder.addListener(help.registerCommand(new GuildInfoCommand()));
