@@ -44,6 +44,7 @@ public class Bot {
 		jdaBuilder.addListener(help.registerCommand(new InsultCommand()));
 		jdaBuilder.addListener(help.registerCommand(new ImageSearchCommand()));
 		jdaBuilder.addListener(help.registerCommand(new JoinCommand()));
+		jdaBuilder.addListener(help.registerCommand(new MentionCommand()));
 		jdaBuilder.addListener(help.registerCommand(new OverwatchCommand()));
 		jdaBuilder.addListener(help.registerCommand(new PingCommand()));
 		jdaBuilder.addListener(help.registerCommand(new TeamCommand()));
