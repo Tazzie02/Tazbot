@@ -10,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.json.JSONObject;
 
+import com.tazzie02.tazbot.exceptions.NotFoundException;
 import com.tazzie02.tazbot.exceptions.QuotaExceededException;
 import com.tazzie02.tazbot.managers.ConfigManager;
 import com.tazzie02.tazbot.util.WebUtil;
@@ -160,6 +161,10 @@ public abstract class OpenWeatherMap {
 	protected void search(String url) throws IOException, QuotaExceededException {
 		String json = WebUtil.getWebPage(url);
 		data = new JSONObject(json);
+		
+		if (data.getString("cod").equals("404")) {
+			throw new NotFoundException("Location not found.");
+		}
 	}
 	
 }

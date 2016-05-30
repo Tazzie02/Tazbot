@@ -7,6 +7,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 
 import com.tazzie02.tazbot.commands.Command;
+import com.tazzie02.tazbot.exceptions.NotFoundException;
 import com.tazzie02.tazbot.exceptions.QuotaExceededException;
 import com.tazzie02.tazbot.helpers.OWMWeather;
 import com.tazzie02.tazbot.helpers.OpenWeatherMap;
@@ -20,17 +21,19 @@ public class WeatherCommand extends Command {
 
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
-		String s = StringUtils.join(args, " ", 1, args.length);
+		String search = StringUtils.join(args, " ", 1, args.length);
 		try {
-			OWMWeather weather = new OWMWeather(s);
-			
+			OWMWeather weather = new OWMWeather(search);
 			SendMessage.sendMessage(e, weatherInfo(weather));
+			
 		} catch (IOException ex) {
 			SendMessage.sendMessage(e, "Error: Could not connect to web page.");
 		} catch (QuotaExceededException ex) {
 			SendMessage.sendMessage(e, "Error: Cannot process any more API requests.");
 		} catch (NullPointerException ex) {
 			SendMessage.sendMessage(e, "Error: Search could not be created.");
+		} catch (NotFoundException ex) {
+			SendMessage.sendMessage(e, "*Could not find location " + search + ".*");
 		}
 	}
 	
