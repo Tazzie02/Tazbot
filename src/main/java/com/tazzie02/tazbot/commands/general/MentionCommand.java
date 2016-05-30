@@ -30,8 +30,9 @@ public class MentionCommand extends Command {
 		MessageBuilder mb = new MessageBuilder();
 		
 		String channelName = status.getChannel().getName();
-		if (channelName.length() > 15) {
-			channelName = channelName.substring(0, 15) + "...";
+		int maxNameLength = 25;
+		if (channelName.length() > maxNameLength) {
+			channelName = channelName.substring(0, maxNameLength) + "...";
 		}
 		
 		mb.appendMention(e.getAuthor())
