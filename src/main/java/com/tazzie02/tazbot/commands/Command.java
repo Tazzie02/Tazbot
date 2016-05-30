@@ -25,6 +25,11 @@ public abstract class Command extends ListenerAdapter{
 	
 	@Override
 	public void onMessageReceived(MessageReceivedEvent e) {
+		// Ignore messages from self
+		if (e.getAuthor().getId().equals(e.getJDA().getSelfInfo().getId())) {
+			return;
+		}
+		
 		Message message = e.getMessage();
 		boolean isDirected = false;
 		
@@ -47,6 +52,9 @@ public abstract class Command extends ListenerAdapter{
 			isDirected = true;
 			// Remove prefix from message
 			message = removePrefix(message, prefix);
+			if (message == null) {
+				return;
+			}
 		}
 		
 		// Return if message does not start with mention or prefix
@@ -56,7 +64,7 @@ public abstract class Command extends ListenerAdapter{
 		
 		String[] args = commandArgs(message);
 		
-		if (containsCommand(args[0]) && !e.getAuthor().getId().equals(e.getJDA().getSelfInfo().getId())) {
+		if (containsCommand(args[0])) {
 			// Log guild message when a command is used
 			logMessage(e);
 			
@@ -87,8 +95,11 @@ public abstract class Command extends ListenerAdapter{
 	
 	protected Message removePrefix(Message message, String prefix) {
 		String content = message.getContent().substring(prefix.length());
-		MessageBuilder mb = new MessageBuilder().appendString(content);
-		return mb.build();
+		if (!content.isEmpty()) {
+			MessageBuilder mb = new MessageBuilder().appendString(content);
+			return mb.build();
+		}
+		return null;
 	}
 	
 	protected boolean startsWithMention(Message message) {
@@ -119,6 +130,7 @@ public abstract class Command extends ListenerAdapter{
 	}
 	
 	protected void logMessage(MessageReceivedEvent e) {
+		// Private messages are logged elsewhere
 		if (!e.isPrivate()) {
 			MessageLogger.receiveGuildMessage(e);
 		}
