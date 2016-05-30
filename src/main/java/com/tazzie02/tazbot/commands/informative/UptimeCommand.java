@@ -56,7 +56,7 @@ public class UptimeCommand extends Command {
 
 	@Override
 	public boolean isHidden() {
-		return true;
+		return false;
 	}
 
 }
