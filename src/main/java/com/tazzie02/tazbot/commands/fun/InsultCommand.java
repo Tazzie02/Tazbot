@@ -12,7 +12,7 @@ import com.tazzie02.tazbot.util.SendMessage;
 
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 
-public class InsultCommand extends Command {
+public class InsultCommand implements Command {
 
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
@@ -26,6 +26,11 @@ public class InsultCommand extends Command {
 		} catch (IOException e1) {
 			SendMessage.sendMessage(e, "Error: Cannot get an insult at this time.");
 		}
+	}
+	
+	@Override
+	public CommandAccess getAccess() {
+		return CommandAccess.ALL;
 	}
 
 	@Override
@@ -52,7 +57,5 @@ public class InsultCommand extends Command {
 	public boolean isHidden() {
 		return false;
 	}
-	
-	
 
 }

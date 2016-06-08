@@ -12,7 +12,7 @@ import com.tazzie02.tazbot.util.SendMessage;
 
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 
-public class UsageCommand extends Command {
+public class UsageCommand implements Command {
 	private final int DEFAULT_AMOUNT = 5;
 
 	@Override
@@ -48,6 +48,11 @@ public class UsageCommand extends Command {
 			sb.append(cs.get(i).getKey() + ": " + cs.get(i).getValue() + "\n");
 		}
 		return sb.toString();
+	}
+	
+	@Override
+	public CommandAccess getAccess() {
+		return CommandAccess.ALL;
 	}
 	
 	@Override

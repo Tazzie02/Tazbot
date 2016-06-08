@@ -3,12 +3,13 @@ package com.tazzie02.tazbot.commands.moderator;
 import java.util.Arrays;
 import java.util.List;
 
+import com.tazzie02.tazbot.commands.Command;
 import com.tazzie02.tazbot.managers.SettingsManager;
 import com.tazzie02.tazbot.util.SendMessage;
 
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 
-public class PrefixCommand extends ModeratorCommand {
+public class PrefixCommand implements Command {
 
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
@@ -25,6 +26,11 @@ public class PrefixCommand extends ModeratorCommand {
 		else {
 			SendMessage.sendMessage(e, "Error: Incorrect usage. Prefix must not contain spaces.");
 		}
+	}
+	
+	@Override
+	public CommandAccess getAccess() {
+		return CommandAccess.MODERATOR;
 	}
 
 	@Override
@@ -45,6 +51,10 @@ public class PrefixCommand extends ModeratorCommand {
 	@Override
 	public String getUsageInstructions() {
 		return "prefix <newPrefix> - Set the guild command prefix to <newPrefix>.";
+	}
+	
+	public boolean isHidden() {
+		return false;
 	}
 
 }

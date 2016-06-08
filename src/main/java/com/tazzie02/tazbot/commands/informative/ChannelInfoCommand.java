@@ -14,7 +14,7 @@ import net.dv8tion.jda.entities.TextChannel;
 import net.dv8tion.jda.entities.VoiceChannel;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 
-public class ChannelInfoCommand extends Command {
+public class ChannelInfoCommand implements Command {
 	
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
@@ -68,6 +68,11 @@ public class ChannelInfoCommand extends Command {
 			
 			SendMessage.sendMessage(e, sb.toString());
 		}
+	}
+	
+	@Override
+	public CommandAccess getAccess() {
+		return CommandAccess.ALL;
 	}
 	
 	@Override

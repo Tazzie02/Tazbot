@@ -9,7 +9,7 @@ import com.tazzie02.tazbot.helpers.CivDraft;
 
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 
-public class CivDraftCommand extends Command {
+public class CivDraftCommand implements Command {
 	
 	private List<CivDraft> drafts = new ArrayList<CivDraft>();
 	
@@ -33,6 +33,11 @@ public class CivDraftCommand extends Command {
 	
 	public List<CivDraft> getDrafts() {
 		return this.drafts;
+	}
+	
+	@Override
+	public CommandAccess getAccess() {
+		return CommandAccess.ALL;
 	}
 	
 	@Override
@@ -63,5 +68,5 @@ public class CivDraftCommand extends Command {
 	public boolean isHidden() {
 		return false;
 	}
-	
+
 }

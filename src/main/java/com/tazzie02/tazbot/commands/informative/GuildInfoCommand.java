@@ -9,11 +9,16 @@ import com.tazzie02.tazbot.util.SendMessage;
 
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 
-public class GuildInfoCommand extends Command {
+public class GuildInfoCommand implements Command {
 	
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
 		SendMessage.sendMessage(e, CGUInformation.getGuildInfo(e.getGuild().getId(), e.getJDA()));
+	}
+	
+	@Override
+	public CommandAccess getAccess() {
+		return CommandAccess.ALL;
 	}
 	
 	@Override

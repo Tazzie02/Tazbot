@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.math.NumberUtils;
 
+import com.tazzie02.tazbot.commands.Command;
 import com.tazzie02.tazbot.managers.ConfigManager;
 import com.tazzie02.tazbot.managers.SettingsManager;
 import com.tazzie02.tazbot.util.JDAUtil;
@@ -15,7 +16,7 @@ import net.dv8tion.jda.MessageBuilder;
 import net.dv8tion.jda.entities.Guild;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 
-public class LeaveCommand extends ModeratorCommand {
+public class LeaveCommand implements Command {
 
 	// TODO This should be available in PM for developers but since it extends ModeratorCommand, this is not currently possible
 
@@ -75,6 +76,11 @@ public class LeaveCommand extends ModeratorCommand {
 			SendMessage.sendMessage(e, "Error: Could not find guild with ID " + guildId);
 		}
 	}
+	
+	@Override
+	public CommandAccess getAccess() {
+		return CommandAccess.MODERATOR;
+	}
 
 	@Override
 	public List<String> getAliases() {
@@ -95,6 +101,11 @@ public class LeaveCommand extends ModeratorCommand {
 	public String getUsageInstructions() {
 		return "leave - Prints leave guild confirmation message.\n"
 				+ "Prefix a bot mention if multiple bots respond.";
+	}
+	
+	@Override
+	public boolean isHidden() {
+		return false;
 	}
 
 }

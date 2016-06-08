@@ -3,6 +3,7 @@ package com.tazzie02.tazbot.commands.developer;
 import java.util.Arrays;
 import java.util.List;
 
+import com.tazzie02.tazbot.commands.Command;
 import com.tazzie02.tazbot.util.SendMessage;
 
 import net.dv8tion.jda.Permission;
@@ -11,7 +12,7 @@ import net.dv8tion.jda.entities.TextChannel;
 import net.dv8tion.jda.entities.VoiceChannel;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 
-public class MessageCommand extends DeveloperCommand {
+public class MessageCommand implements Command {
 
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
@@ -44,6 +45,11 @@ public class MessageCommand extends DeveloperCommand {
 			SendMessage.sendMessage(e, "Error: Incorrect usage.");
 		}
 	}
+	
+	@Override
+	public CommandAccess getAccess() {
+		return CommandAccess.DEVELOPER;
+	}
 
 	@Override
 	public List<String> getAliases() {
@@ -63,6 +69,11 @@ public class MessageCommand extends DeveloperCommand {
 	@Override
 	public String getUsageInstructions() {
 		return "message <channelID> <message> - Send message to channelID.";
+	}
+
+	@Override
+	public boolean isHidden() {
+		return false;
 	}
 
 }

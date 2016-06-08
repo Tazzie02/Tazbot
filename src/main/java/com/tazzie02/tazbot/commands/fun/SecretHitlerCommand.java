@@ -25,7 +25,7 @@ import net.dv8tion.jda.MessageBuilder;
 import net.dv8tion.jda.entities.User;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 
-public class SecretHitlerCommand extends Command {
+public class SecretHitlerCommand implements Command {
 	
 	// TODO Messy class
 	
@@ -861,6 +861,11 @@ public class SecretHitlerCommand extends Command {
 
 	public void removeGame(SecretHitler sh) {
 		games.remove(sh);
+	}
+	
+	@Override
+	public CommandAccess getAccess() {
+		return CommandAccess.ALL;
 	}
 
 	@Override

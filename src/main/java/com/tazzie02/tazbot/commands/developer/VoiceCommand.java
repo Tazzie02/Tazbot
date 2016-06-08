@@ -4,12 +4,13 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.tazzie02.tazbot.audio.AudioPlayer;
+import com.tazzie02.tazbot.commands.Command;
 import com.tazzie02.tazbot.util.SendMessage;
 
 import net.dv8tion.jda.entities.VoiceChannel;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 
-public class VoiceCommand extends DeveloperCommand {
+public class VoiceCommand implements Command {
 
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
@@ -125,6 +126,11 @@ public class VoiceCommand extends DeveloperCommand {
 			}
 		}
 	}
+	
+	@Override
+	public CommandAccess getAccess() {
+		return CommandAccess.DEVELOPER;
+	}
 
 	@Override
 	public List<String> getAliases() {
@@ -152,6 +158,11 @@ public class VoiceCommand extends DeveloperCommand {
 				+ "voice volume - View current volume."
 				+ "voice volume <0-1> - Set audio playback volume."
 				+ "voice <voice channel> - Join the specified voice channel.";
+	}
+
+	@Override
+	public boolean isHidden() {
+		return false;
 	}
 	
 }

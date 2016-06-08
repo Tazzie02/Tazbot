@@ -8,7 +8,7 @@ import com.tazzie02.tazbot.helpers.TempChannel;
 
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 
-public class TempCommand extends Command {
+public class TempCommand implements Command {
 	
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
@@ -39,8 +39,13 @@ public class TempCommand extends Command {
 	}
 	
 	@Override
+	public CommandAccess getAccess() {
+		return CommandAccess.ALL;
+	}
+	
+	@Override
 	public boolean isHidden() {
 		return false;
 	}
-	
+
 }

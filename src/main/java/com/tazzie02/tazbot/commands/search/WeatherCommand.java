@@ -17,7 +17,7 @@ import com.tazzie02.tazbot.util.TimeUtil;
 
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 
-public class WeatherCommand extends Command {
+public class WeatherCommand implements Command {
 
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
@@ -60,6 +60,11 @@ public class WeatherCommand extends Command {
 		info += "Last updated " + new TazzieTime(TimeUtil.unixTimeOffset(weather.getTime())).toStringIgnoreZero() + " ago";
 		
 		return info;
+	}
+	
+	@Override
+	public CommandAccess getAccess() {
+		return CommandAccess.ALL;
 	}
 	
 	@Override

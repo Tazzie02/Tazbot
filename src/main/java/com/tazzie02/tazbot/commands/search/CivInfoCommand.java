@@ -16,7 +16,7 @@ import com.tazzie02.tazbot.util.SendMessage;
 
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 
-public class CivInfoCommand extends Command {
+public class CivInfoCommand implements Command {
 
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
@@ -83,6 +83,11 @@ public class CivInfoCommand extends Command {
 		sb.append(el.text());
 		
 		return sb.toString();
+	}
+	
+	@Override
+	public CommandAccess getAccess() {
+		return CommandAccess.ALL;
 	}
 	
 	@Override

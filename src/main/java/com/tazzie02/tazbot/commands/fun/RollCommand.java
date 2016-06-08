@@ -11,7 +11,7 @@ import com.tazzie02.tazbot.util.SendMessage;
 
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 
-public class RollCommand extends Command {
+public class RollCommand implements Command {
 	
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
@@ -52,6 +52,11 @@ public class RollCommand extends Command {
 	}
 	
 	@Override
+	public CommandAccess getAccess() {
+		return CommandAccess.ALL;
+	}
+	
+	@Override
 	public List<String> getAliases() {
 		return Arrays.asList("roll", "random");
 	}
@@ -77,5 +82,5 @@ public class RollCommand extends Command {
 	public boolean isHidden() {
 		return false;
 	}
-	
+
 }

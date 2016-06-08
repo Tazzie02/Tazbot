@@ -16,7 +16,7 @@ import com.tazzie02.tazbot.util.SendMessage;
 
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 
-public class ImageSearchCommand extends Command {
+public class ImageSearchCommand implements Command {
 	
 	protected final int MAX_RANDOM_RANGE = 20;
 	private ImageSearch imageSearch = null;
@@ -141,6 +141,11 @@ public class ImageSearchCommand extends Command {
 			}
 		}
 		return sb.toString();
+	}
+	
+	@Override
+	public CommandAccess getAccess() {
+		return CommandAccess.ALL;
 	}
 
 	@Override

@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.math.NumberUtils;
 
+import com.tazzie02.tazbot.commands.Command;
 import com.tazzie02.tazbot.util.SendMessage;
 
 import net.dv8tion.jda.MessageHistory;
@@ -15,7 +16,7 @@ import net.dv8tion.jda.entities.User;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.utils.PermissionUtil;
 
-public class PurgeCommand extends ModeratorCommand {
+public class PurgeCommand implements Command {
 	
 	private final int DEFAULT_AMOUNT = 5;
 	
@@ -33,6 +34,31 @@ public class PurgeCommand extends ModeratorCommand {
 			SendMessage.sendMessage(e, "Error: Bot requires *Message Manage* permission to purge messages.");
 			return;
 		}
+		
+		// TODO THIS SHOULD BE THE NEW WAY OF PURGING
+		// MUCH FASTER WITH PARALLEL STREAM
+//		new Thread(new Runnable() {
+//			@Override
+//			public void run() {
+//				int amount = DEFAULT_AMOUNT;
+//				if (args.length == 2) {
+//					if (NumberUtils.isDigits(args[1])) {
+//						int tmpAmount = Integer.parseInt(args[1]);
+//						if (tmpAmount < 1) {
+//							return;
+//						}
+//						amount = tmpAmount;
+//					}
+//				}
+//				
+//				new MessageHistory(e.getChannel())
+//						.retrieveAll()
+//						.parallelStream()
+//						.filter(m -> m.getAuthor().getId().equals(e.getAuthor().getId()))
+//						.limit(amount)
+//						.forEach(Message::deleteMessage);
+//			}
+//		}).start();
 		
 		// TODO Check if this works as intended
 		new Thread(new Runnable() {
@@ -134,6 +160,11 @@ public class PurgeCommand extends ModeratorCommand {
 		}
 		return sb.toString();
 	}
+	
+	@Override
+	public CommandAccess getAccess() {
+		return CommandAccess.MODERATOR;
+	}
 
 	@Override
 	public List<String> getAliases() {
@@ -155,6 +186,11 @@ public class PurgeCommand extends ModeratorCommand {
 		return "purge <number> - Purge the last <number> of messages.\n"
 				+ "purge <@user> - Purge the last " + DEFAULT_AMOUNT + " messages from <@user>.\n"
 				+ "purge <@user> <amount> - Purge the last <amount> of messages from <@user>.";
+	}
+	
+	@Override
+	public boolean isHidden() {
+		return false;
 	}
 
 }

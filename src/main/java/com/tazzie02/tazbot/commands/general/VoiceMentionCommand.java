@@ -13,7 +13,7 @@ import net.dv8tion.jda.entities.User;
 import net.dv8tion.jda.entities.VoiceStatus;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 
-public class MentionCommand extends Command {
+public class VoiceMentionCommand implements Command {
 
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
@@ -51,10 +51,15 @@ public class MentionCommand extends Command {
 		
 		SendMessage.sendMessage(e, mb.build());
 	}
+	
+	@Override
+	public CommandAccess getAccess() {
+		return CommandAccess.ALL;
+	}
 
 	@Override
 	public List<String> getAliases() {
-		return Arrays.asList("mention");
+		return Arrays.asList("voicemention");
 	}
 
 	@Override
@@ -64,7 +69,7 @@ public class MentionCommand extends Command {
 
 	@Override
 	public String getName() {
-		return "Mention Command";
+		return "Voice Mention Command";
 	}
 
 	@Override
@@ -77,5 +82,5 @@ public class MentionCommand extends Command {
 	public boolean isHidden() {
 		return false;
 	}
-	
+
 }

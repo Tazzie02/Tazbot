@@ -8,13 +8,14 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.tazzie02.tazbot.commands.Command;
 import com.tazzie02.tazbot.helpers.LinkUnlink;
 import com.tazzie02.tazbot.util.SendMessage;
 
 import net.dv8tion.jda.entities.VoiceChannel;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 
-public class LinkCommand extends ModeratorCommand {
+public class LinkCommand implements Command {
 
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
@@ -79,6 +80,11 @@ public class LinkCommand extends ModeratorCommand {
 			return "No channels currently linked.";
 		}
 	}
+	
+	@Override
+	public CommandAccess getAccess() {
+		return CommandAccess.MODERATOR;
+	}
 
 	@Override
 	public List<String> getAliases() {
@@ -99,6 +105,10 @@ public class LinkCommand extends ModeratorCommand {
 	public String getUsageInstructions() {
 		return "link - Display currently linked channels.\n"
 				+ "link <#> <...> - Link channels with position number # or add to link if existing.";
+	}
+	
+	public boolean isHidden() {
+		return false;
 	}
 
 }

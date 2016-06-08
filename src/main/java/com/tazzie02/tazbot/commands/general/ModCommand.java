@@ -7,7 +7,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
-import com.tazzie02.tazbot.commands.moderator.ModeratorCommand;
+import com.tazzie02.tazbot.commands.Command;
 import com.tazzie02.tazbot.managers.SettingsManager;
 import com.tazzie02.tazbot.util.JDAUtil;
 import com.tazzie02.tazbot.util.SendMessage;
@@ -16,7 +16,7 @@ import com.tazzie02.tazbot.util.UserUtil;
 import net.dv8tion.jda.entities.User;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 
-public class ModCommand extends ModeratorCommand {
+public class ModCommand implements Command {
 
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
@@ -99,6 +99,11 @@ public class ModCommand extends ModeratorCommand {
 	}
 	
 	@Override
+	public CommandAccess getAccess() {
+		return CommandAccess.ALL;
+	}
+	
+	@Override
 	public List<String> getAliases() {
 		return Arrays.asList("mod", "mods", "moderator", "moderators");
 	}
@@ -118,6 +123,11 @@ public class ModCommand extends ModeratorCommand {
 		return "mod - List current moderators of the guild.\n"
 				+ "mod add <@user> - Add a moderator. (Guild owner only)\n"
 				+ "mod remove <@user> - Remove a moderator. (Guild owner only)";
+	}
+
+	@Override
+	public boolean isHidden() {
+		return false;
 	}
 
 }

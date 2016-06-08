@@ -13,7 +13,7 @@ import net.dv8tion.jda.JDA;
 import net.dv8tion.jda.entities.User;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 
-public class UserInfoCommand extends Command {
+public class UserInfoCommand implements Command {
 	
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
@@ -50,6 +50,11 @@ public class UserInfoCommand extends Command {
 			return jda.getUserById(s);
 		}
 		return null;
+	}
+	
+	@Override
+	public CommandAccess getAccess() {
+		return CommandAccess.ALL;
 	}
 	
 	@Override

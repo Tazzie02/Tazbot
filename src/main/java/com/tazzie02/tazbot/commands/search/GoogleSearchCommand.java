@@ -13,7 +13,7 @@ import com.tazzie02.tazbot.util.SendMessage;
 
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 
-public class GoogleSearchCommand extends Command {
+public class GoogleSearchCommand implements Command {
 
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
@@ -34,6 +34,11 @@ public class GoogleSearchCommand extends Command {
 		catch (QuotaExceededException ex) {
 			SendMessage.sendMessage(e, "Error: Cannot process any more API requests.");
 		}
+	}
+	
+	@Override
+	public CommandAccess getAccess() {
+		return CommandAccess.ALL;
 	}
 
 	@Override

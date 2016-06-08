@@ -3,11 +3,12 @@ package com.tazzie02.tazbot.commands.developer;
 import java.util.Arrays;
 import java.util.List;
 
+import com.tazzie02.tazbot.commands.Command;
 import com.tazzie02.tazbot.util.SendMessage;
 
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 
-public class ShutdownCommand extends DeveloperCommand {
+public class ShutdownCommand implements Command {
 
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
@@ -20,10 +21,15 @@ public class ShutdownCommand extends DeveloperCommand {
 		e.getJDA().shutdown(true);
 		System.exit(0);
 	}
+	
+	@Override
+	public CommandAccess getAccess() {
+		return CommandAccess.DEVELOPER;
+	}
 
 	@Override
 	public List<String> getAliases() {
-		return Arrays.asList("shutdown", "disconnect", "quit");
+		return Arrays.asList("shutdown");
 	}
 
 	@Override
@@ -39,6 +45,11 @@ public class ShutdownCommand extends DeveloperCommand {
 	@Override
 	public String getUsageInstructions() {
 		return "shutdown - Immediately shutdown the bot.";
+	}
+
+	@Override
+	public boolean isHidden() {
+		return false;
 	}
 
 }

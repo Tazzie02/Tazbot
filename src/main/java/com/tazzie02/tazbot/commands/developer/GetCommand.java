@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.math.NumberUtils;
 
+import com.tazzie02.tazbot.commands.Command;
 import com.tazzie02.tazbot.util.CGUInformation;
 import com.tazzie02.tazbot.util.SendMessage;
 
@@ -21,7 +22,7 @@ import net.dv8tion.jda.utils.InviteUtil;
 import net.dv8tion.jda.utils.InviteUtil.AdvancedInvite;
 import net.dv8tion.jda.utils.InviteUtil.InviteDuration;
 
-public class GetCommand extends DeveloperCommand {
+public class GetCommand implements Command {
 
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
@@ -252,6 +253,11 @@ public class GetCommand extends DeveloperCommand {
 			}
 		}
 	}
+	
+	@Override
+	public CommandAccess getAccess() {
+		return CommandAccess.DEVELOPER;
+	}
 
 	@Override
 	public List<String> getAliases() {
@@ -277,6 +283,11 @@ public class GetCommand extends DeveloperCommand {
 			 + "!get channel <channelID> - Get information about the channel with channelID.\n"
 			 + "!get channel users <channelID> - Get all the users in channelID."
 			 + "!get channels <guildID> - Get information about the channels in guildID.\n";
+	}
+
+	@Override
+	public boolean isHidden() {
+		return false;
 	}
 
 }

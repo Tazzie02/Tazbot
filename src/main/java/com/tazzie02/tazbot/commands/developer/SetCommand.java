@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.math.NumberUtils;
 
+import com.tazzie02.tazbot.commands.Command;
 import com.tazzie02.tazbot.helpers.structures.Config;
 import com.tazzie02.tazbot.helpers.structures.Settings;
 import com.tazzie02.tazbot.managers.ConfigManager;
@@ -17,7 +18,7 @@ import com.tazzie02.tazbot.util.SendMessage;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.utils.AvatarUtil;
 
-public class SetCommand extends DeveloperCommand {
+public class SetCommand implements Command {
 
 	// TODO Another messy class
 
@@ -96,6 +97,11 @@ public class SetCommand extends DeveloperCommand {
 		}
 		return sb.toString();
 	}
+	
+	@Override
+	public CommandAccess getAccess() {
+		return CommandAccess.DEVELOPER;
+	}
 
 	@Override
 	public List<String> getAliases() {
@@ -117,6 +123,11 @@ public class SetCommand extends DeveloperCommand {
 		return "set config name <name> - Set the bot's name to <name>.\n"
 				+ "set config game <game> - Set the bot's current game to <game>."
 				+ "set settings prefix null/<guildID> <prefix> - Set the prefix for null/<guildID> to <prefix>.";
+	}
+
+	@Override
+	public boolean isHidden() {
+		return false;
 	}
 
 }

@@ -4,7 +4,7 @@ import javax.security.auth.login.LoginException;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.tazzie02.tazbot.commands.HelpCommand;
+import com.tazzie02.tazbot.commands.CommandRegistry;
 import com.tazzie02.tazbot.commands.MentionedReply;
 import com.tazzie02.tazbot.commands.developer.*;
 import com.tazzie02.tazbot.commands.fun.*;
@@ -26,53 +26,9 @@ public class Bot {
 		Config config = ConfigManager.getInstance().getConfig();
 
 		JDABuilder jdaBuilder = new JDABuilder().setBotToken(config.getBotToken());
-
-		// Command listeners
-		HelpCommand help = new HelpCommand();
-		jdaBuilder.addListener(help);
-		jdaBuilder.addListener(new MentionedReply()); // Reply to @Tazbot
-		jdaBuilder.addListener(help.registerCommand(new AboutCommand()));
-		jdaBuilder.addListener(help.registerCommand(new AvatarCommand()));
-		jdaBuilder.addListener(help.registerCommand(new BingImageSearchCommand()));
-		jdaBuilder.addListener(help.registerCommand(new ChannelInfoCommand()));
-		jdaBuilder.addListener(help.registerCommand(new CivDraftCommand()));
-		jdaBuilder.addListener(help.registerCommand(new CivInfoCommand()));
-		jdaBuilder.addListener(help.registerCommand(new CryCommand()));
-		jdaBuilder.addListener(help.registerCommand(new GoogleImageSearchCommand()));
-		jdaBuilder.addListener(help.registerCommand(new GoogleSearchCommand()));
-		jdaBuilder.addListener(help.registerCommand(new GuildInfoCommand()));
-		jdaBuilder.addListener(help.registerCommand(new InsultCommand()));
-		jdaBuilder.addListener(help.registerCommand(new ImageSearchCommand()));
-		jdaBuilder.addListener(help.registerCommand(new JoinCommand()));
-		jdaBuilder.addListener(help.registerCommand(new MentionCommand()));
-		jdaBuilder.addListener(help.registerCommand(new OverwatchCommand()));
-		jdaBuilder.addListener(help.registerCommand(new PingCommand()));
-		jdaBuilder.addListener(help.registerCommand(new TeamCommand()));
-		jdaBuilder.addListener(help.registerCommand(new RollCommand()));
-		jdaBuilder.addListener(help.registerCommand(new SecretHitlerCommand()));
-		jdaBuilder.addListener(help.registerCommand(new SoundCommand()));
-		jdaBuilder.addListener(help.registerCommand(new TempCommand()));
-		jdaBuilder.addListener(help.registerCommand(new UptimeCommand()));
-		jdaBuilder.addListener(help.registerCommand(new UsageCommand()));
-		jdaBuilder.addListener(help.registerCommand(new UserInfoCommand()));
-		jdaBuilder.addListener(help.registerCommand(new VoiceCommand()));
-		jdaBuilder.addListener(help.registerCommand(new WeatherCommand()));
-
-		// Developer commands
-		jdaBuilder.addListener(help.registerCommand(new GetCommand()));
-		jdaBuilder.addListener(help.registerCommand(new MessageCommand()));
-		jdaBuilder.addListener(help.registerCommand(new SetCommand()));
-		jdaBuilder.addListener(help.registerCommand(new ShutdownCommand()));
-
-		// Moderator commands
-		jdaBuilder.addListener(help.registerCommand(new LeaveCommand()));
-		jdaBuilder.addListener(help.registerCommand(new LinkCommand()));
-		jdaBuilder.addListener(help.registerCommand(new ModCommand()));
-		jdaBuilder.addListener(help.registerCommand(new PrefixCommand()));
-		jdaBuilder.addListener(help.registerCommand(new PurgeCommand()));
-		jdaBuilder.addListener(help.registerCommand(new UnlinkCommand()));
-
-		// General listeners
+		
+		jdaBuilder.addListener(createCommandRegistry());
+		jdaBuilder.addListener(new MentionedReply());
 		jdaBuilder.addListener(new Listeners());
 
 		try {
@@ -93,6 +49,53 @@ public class Bot {
 			System.out.println("Error: Interrupted Exception");
 			System.exit(0); // TODO Change exit code
 		}
+	}
+	
+	private CommandRegistry createCommandRegistry() {
+		CommandRegistry registry = new CommandRegistry();
+
+		// General commands
+		registry.registerCommand(new AboutCommand());
+		registry.registerCommand(new AvatarCommand());
+		registry.registerCommand(new BingImageSearchCommand());
+		registry.registerCommand(new ChannelInfoCommand());
+		registry.registerCommand(new CivDraftCommand());
+		registry.registerCommand(new CivInfoCommand());
+		registry.registerCommand(new CryCommand());
+		registry.registerCommand(new GoogleImageSearchCommand());
+		registry.registerCommand(new GoogleSearchCommand());
+		registry.registerCommand(new GuildInfoCommand());
+		registry.registerCommand(new InsultCommand());
+		registry.registerCommand(new ImageSearchCommand());
+		registry.registerCommand(new JoinCommand());
+		registry.registerCommand(new VoiceMentionCommand());
+		registry.registerCommand(new PingCommand());
+		registry.registerCommand(new TeamCommand());
+		registry.registerCommand(new RollCommand());
+		registry.registerCommand(new SecretHitlerCommand());
+		registry.registerCommand(new SoundCommand());
+		registry.registerCommand(new TempCommand());
+		registry.registerCommand(new UptimeCommand());
+		registry.registerCommand(new UsageCommand());
+		registry.registerCommand(new UserInfoCommand());
+		registry.registerCommand(new VoiceCommand());
+		registry.registerCommand(new WeatherCommand());
+
+		// Developer commands
+		registry.registerCommand(new GetCommand());
+		registry.registerCommand(new MessageCommand());
+		registry.registerCommand(new SetCommand());
+		registry.registerCommand(new ShutdownCommand());
+
+		// Moderator commands
+		registry.registerCommand(new LeaveCommand());
+		registry.registerCommand(new LinkCommand());
+		registry.registerCommand(new ModCommand());
+		registry.registerCommand(new PrefixCommand());
+		registry.registerCommand(new PurgeCommand());
+		registry.registerCommand(new UnlinkCommand());
+		
+		return registry;
 	}
 
 	public static JDA getJDA() {

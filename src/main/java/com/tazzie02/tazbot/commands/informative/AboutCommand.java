@@ -13,7 +13,7 @@ import com.tazzie02.tazbot.util.UserUtil;
 
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 
-public class AboutCommand extends Command {
+public class AboutCommand implements Command {
 
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
@@ -47,6 +47,11 @@ public class AboutCommand extends Command {
 				.append("Version: ").append(botVersion);
 		
 		SendMessage.sendMessage(e, sb.toString());
+	}
+	
+	@Override
+	public CommandAccess getAccess() {
+		return CommandAccess.ALL;
 	}
 
 	@Override

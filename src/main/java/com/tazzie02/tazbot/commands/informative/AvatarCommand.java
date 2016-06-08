@@ -12,7 +12,7 @@ import net.dv8tion.jda.JDA;
 import net.dv8tion.jda.entities.User;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 
-public class AvatarCommand extends Command {
+public class AvatarCommand implements Command {
 	
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
@@ -49,6 +49,11 @@ public class AvatarCommand extends Command {
 			return jda.getUserById(s);
 		}
 		return null;
+	}
+	
+	@Override
+	public CommandAccess getAccess() {
+		return CommandAccess.ALL;
 	}
 	
 	@Override

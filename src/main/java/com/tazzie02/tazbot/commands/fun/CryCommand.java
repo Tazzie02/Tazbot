@@ -37,7 +37,7 @@ import net.dv8tion.jda.entities.User;
 import net.dv8tion.jda.entities.VoiceChannel;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 
-public class CryCommand extends Command {
+public class CryCommand implements Command {
 	private final int DEFAULT_AMOUNT = 5;
 	
 	// TODO Messy class
@@ -355,6 +355,11 @@ public class CryCommand extends Command {
 			}
 		};
 		thread.start();
+	}
+	
+	@Override
+	public CommandAccess getAccess() {
+		return CommandAccess.ALL;
 	}
 
 	@Override

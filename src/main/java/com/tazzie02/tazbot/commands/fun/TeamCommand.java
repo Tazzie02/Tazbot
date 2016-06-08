@@ -11,7 +11,7 @@ import com.tazzie02.tazbot.util.SendMessage;
 import net.dv8tion.jda.entities.User;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 
-public class TeamCommand extends Command {
+public class TeamCommand implements Command {
 	
 	// TODO Greater configuration options
 
@@ -47,6 +47,11 @@ public class TeamCommand extends Command {
 			
 			SendMessage.sendMessage(e, sb.toString());
 		}
+	}
+	
+	@Override
+	public CommandAccess getAccess() {
+		return CommandAccess.ALL;
 	}
 
 	@Override

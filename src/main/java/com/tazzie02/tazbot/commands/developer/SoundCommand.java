@@ -9,12 +9,13 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import org.apache.commons.lang3.StringUtils;
 
 import com.tazzie02.tazbot.audio.AudioPlayer;
+import com.tazzie02.tazbot.commands.Command;
 import com.tazzie02.tazbot.exceptions.NoVoiceChannelException;
 import com.tazzie02.tazbot.util.SendMessage;
 
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 
-public class SoundCommand extends DeveloperCommand {
+public class SoundCommand implements Command {
 
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
@@ -33,6 +34,12 @@ public class SoundCommand extends DeveloperCommand {
 	private String removeCommand(String[] args) {
 		return StringUtils.join(args, " ",  1, args.length);
 	}
+	
+	@Override
+	public CommandAccess getAccess() {
+		return CommandAccess.DEVELOPER;
+	}
+
 
 	@Override
 	public List<String> getAliases() {
@@ -52,6 +59,11 @@ public class SoundCommand extends DeveloperCommand {
 	@Override
 	public String getUsageInstructions() {
 		return "sound <path> - Play <path>.";
+	}
+
+	@Override
+	public boolean isHidden() {
+		return false;
 	}
 	
 }

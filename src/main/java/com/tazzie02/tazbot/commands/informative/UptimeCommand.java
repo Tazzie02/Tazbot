@@ -12,7 +12,7 @@ import com.tazzie02.tazbot.util.TazzieTime;
 import net.dv8tion.jda.JDA;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 
-public class UptimeCommand extends Command {
+public class UptimeCommand implements Command {
 
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
@@ -32,6 +32,11 @@ public class UptimeCommand extends Command {
 				.append("\nTotal Text Channels - ").append(textCount)
 				.append("\nTotal Voice Channels - ").append(voiceCount);
 		SendMessage.sendMessage(e, sb.toString());
+	}
+	
+	@Override
+	public CommandAccess getAccess() {
+		return CommandAccess.ALL;
 	}
 
 	@Override

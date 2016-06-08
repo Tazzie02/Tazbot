@@ -8,7 +8,7 @@ import com.tazzie02.tazbot.util.SendMessage;
 
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 
-public class PingCommand extends Command {
+public class PingCommand implements Command {
 	
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
@@ -36,8 +36,13 @@ public class PingCommand extends Command {
 	}
 	
 	@Override
+	public CommandAccess getAccess() {
+		return CommandAccess.ALL;
+	}
+	
+	@Override
 	public boolean isHidden() {
 		return true;
 	}
-	
+
 }
