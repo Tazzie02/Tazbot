@@ -62,7 +62,7 @@ public class MessageLogger {
 	}
 	
 	private static String stripNewLine(Message message) {
-		return stripNewLine(message.getContent());
+		return stripNewLine(message.getRawContent());
 	}
 	
 	private static String getDate() {
