@@ -13,7 +13,7 @@ import net.dv8tion.jda.entities.User;
 import net.dv8tion.jda.entities.VoiceStatus;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 
-public class VoiceMentionCommand implements Command {
+public class AtChannelCommand implements Command {
 
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
@@ -59,7 +59,7 @@ public class VoiceMentionCommand implements Command {
 
 	@Override
 	public List<String> getAliases() {
-		return Arrays.asList("voicemention");
+		return Arrays.asList("@channel");
 	}
 
 	@Override

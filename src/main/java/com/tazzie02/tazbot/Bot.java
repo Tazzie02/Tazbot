@@ -68,7 +68,7 @@ public class Bot {
 		registry.registerCommand(new InsultCommand());
 		registry.registerCommand(new ImageSearchCommand());
 		registry.registerCommand(new JoinCommand());
-		registry.registerCommand(new VoiceMentionCommand());
+		registry.registerCommand(new AtChannelCommand());
 		registry.registerCommand(new PingCommand());
 		registry.registerCommand(new TeamCommand());
 		registry.registerCommand(new RollCommand());
