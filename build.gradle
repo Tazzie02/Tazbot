@@ -1,8 +1,8 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
 
-def versionObj = new Version(major: 1, minor: 0, patch: 0)
-version = "${versionObj.toString()}"
+def versionObj = new Version(major: 1, minor: 0, revision: 0)
+version = "$versionObj"
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -22,7 +22,16 @@ task fatJar(type: Jar) {
         attributes 'Main-Class': "com.tazzie02.tazbot.Tazbot"
     }
     baseName = project.name + '-withDependencies'
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    from { 
+        configurations.compile.collect {
+            dependency ->
+            if (dependency.directory) { // If it is a folder, just include the folder in its entirety
+                return dependency
+            } else {    // If it isn't a folder, put it in a zipTree. if it is a zip or jar the contents will be extracted.
+                return zipTree(dependency)
+            }
+        }
+    }
     with jar
 }
 
@@ -45,27 +54,14 @@ dependencies {
 }
 
 class Version {
-    int major, minor, patch
-
-    String getMajor() {
-        "${major}"
-    }
-
-    String getMinor() {
-        "${minor}"
-    }
-
-    String getPatch() {
-        "${patch}"
-    }
+    int major, minor, revision
 
     String getBuild() {
-        //System.getenv("BUILD_NUMBER") ? System.getenv("BUILD_NUMBER") : "-1"
-        "BUILD"
+        System.getenv("BUILD_NUMBER") ?: System.getProperty("BUILD_NUMBER") ?: "DEV"
     }
 
     String toString() {
-        "${getMajor()}.${getMinor()}.${getPatch()}_${getBuild()}"
+        "${major}.${minor}.${revision}_$build"
     }
 }
 
