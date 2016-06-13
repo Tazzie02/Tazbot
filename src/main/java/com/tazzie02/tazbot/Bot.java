@@ -56,6 +56,7 @@ public class Bot {
 
 		// General commands
 		registry.registerCommand(new AboutCommand());
+		registry.registerCommand(new AtChannelCommand());
 		registry.registerCommand(new AvatarCommand());
 		registry.registerCommand(new BingImageSearchCommand());
 		registry.registerCommand(new ChannelInfoCommand());
@@ -68,7 +69,7 @@ public class Bot {
 		registry.registerCommand(new InsultCommand());
 		registry.registerCommand(new ImageSearchCommand());
 		registry.registerCommand(new JoinCommand());
-		registry.registerCommand(new AtChannelCommand());
+		registry.registerCommand(new OverwatchCommand());
 		registry.registerCommand(new PingCommand());
 		registry.registerCommand(new TeamCommand());
 		registry.registerCommand(new RollCommand());
