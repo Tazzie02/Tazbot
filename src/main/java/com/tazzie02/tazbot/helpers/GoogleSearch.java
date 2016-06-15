@@ -80,7 +80,7 @@ public class GoogleSearch {
 	
 	private void search(String url) throws IOException, QuotaExceededException {
 		String json = WebUtil.getWebPage(url);
-		System.out.println(json);
+		
 		JSONObject obj = new JSONObject(json);
 		try {
 			items = obj.getJSONArray("items");
