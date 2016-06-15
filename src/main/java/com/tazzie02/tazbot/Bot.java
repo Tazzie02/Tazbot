@@ -81,6 +81,7 @@ public class Bot {
 		registry.registerCommand(new UserInfoCommand());
 		registry.registerCommand(new VoiceCommand());
 		registry.registerCommand(new WeatherCommand());
+		registry.registerCommand(new YoutubeSearchCommand());
 
 		// Developer commands
 		registry.registerCommand(new GetCommand());
