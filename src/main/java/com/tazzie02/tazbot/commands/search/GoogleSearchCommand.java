@@ -4,9 +4,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import org.jsoup.Jsoup;
-
 import com.tazzie02.tazbot.commands.Command;
+import com.tazzie02.tazbot.exceptions.NotFoundException;
 import com.tazzie02.tazbot.exceptions.QuotaExceededException;
 import com.tazzie02.tazbot.helpers.GoogleSearch;
 import com.tazzie02.tazbot.util.SendMessage;
@@ -14,25 +13,28 @@ import com.tazzie02.tazbot.util.SendMessage;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 
 public class GoogleSearchCommand implements Command {
-
+	
+	private final int DEFAULT_START_INDEX = 1; // Google CSE starts at 1
+	private final int DEFAULT_RESULT_INDEX = 0; // Index of the result on the page 
+	
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
 		String search = e.getMessage().getContent().substring(e.getMessage().getContent().indexOf(" ") + 1);
 		try {
-			GoogleSearch googleSearch = new GoogleSearch(search, 0);
+			GoogleSearch googleSearch = new GoogleSearch(search, DEFAULT_START_INDEX);
 			
-			StringBuilder sb = new StringBuilder();
-			sb.append("*Result for \"" + search + "\".*\n")
-			.append(googleSearch.getTitleNoFormatting() + "\n")
-			.append(Jsoup.parse(googleSearch.getContent()).text() + "\n")
-			.append(googleSearch.getUrl() + "\n");
-			SendMessage.sendMessage(e, sb.toString());
-		}
-		catch (IOException ex) {
+			String output = "*Result for \"" + search + "\".*\n"
+					+ googleSearch.getTitle(DEFAULT_RESULT_INDEX) + "\n"
+					+ googleSearch.getSnippet(DEFAULT_RESULT_INDEX).replace("\n", " ") + "\n"
+					+ googleSearch.getLink(DEFAULT_RESULT_INDEX) + "\n";
+			
+			SendMessage.sendMessage(e, output);
+		} catch (IOException ex) {
 			SendMessage.sendMessage(e, "Error: Could not connect to web page.");
-		}
-		catch (QuotaExceededException ex) {
+		} catch (QuotaExceededException ex) {
 			SendMessage.sendMessage(e, "Error: Cannot process any more API requests.");
+		} catch (NotFoundException ex) {
+			SendMessage.sendMessage(e, "*No results found for " + search + ".*");
 		}
 	}
 	
