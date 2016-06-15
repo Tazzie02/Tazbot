@@ -15,11 +15,11 @@ import com.tazzie02.tazbot.util.WebUtil;
 
 public class GoogleImageSearch implements ImageSearch {
 	
-	private static final String key;
+	private static final String API_KEY;
 	private JSONArray items;
 	
 	static {
-		key = ConfigManager.getInstance().getConfig().getGoogleKey();
+		API_KEY = ConfigManager.getInstance().getConfig().getGoogleKey();
 	}
 	
 	public GoogleImageSearch(String query, int index) throws IOException, QuotaExceededException {
@@ -27,13 +27,14 @@ public class GoogleImageSearch implements ImageSearch {
 			index = 1;
 		}
 		try {
-			StringBuilder sb = new StringBuilder()
-					.append("https://www.googleapis.com/customsearch/v1?q=")
-					.append(URLEncoder.encode(query, "UTF-8"))
-					.append("&cx=008767657928653378542%3Aexkjxlpb2ug&safe=off&searchType=image")
-					.append("&start=" + index)
-					.append("&key=" + key);
-			search(sb.toString());
+			String url = "https://www.googleapis.com/customsearch/v1?q="
+					+ URLEncoder.encode(query, "UTF-8")
+					+ "&cx=008767657928653378542%3Aexkjxlpb2ug"
+					+ "&safe=off"
+					+ "&searchType=image"
+					+ "&start=" + index
+					+ "&key=" + API_KEY;
+			search(url);
 		}
 		catch (UnsupportedEncodingException ignored) {}
 	}
