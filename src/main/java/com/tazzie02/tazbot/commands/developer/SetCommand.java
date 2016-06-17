@@ -15,8 +15,12 @@ import com.tazzie02.tazbot.managers.ConfigManager;
 import com.tazzie02.tazbot.managers.SettingsManager;
 import com.tazzie02.tazbot.util.SendMessage;
 
+import net.dv8tion.jda.Permission;
+import net.dv8tion.jda.entities.Guild;
+import net.dv8tion.jda.entities.User;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.utils.AvatarUtil;
+import net.dv8tion.jda.utils.PermissionUtil;
 
 public class SetCommand implements Command {
 
@@ -33,6 +37,17 @@ public class SetCommand implements Command {
 					SendMessage.sendMessage(e, "Successfully set avatar.");
 				} catch (IOException ex) {
 					SendMessage.sendMessage(e, "Error: Failed to set avatar. " + ex.getMessage());
+				}
+			}
+			else if (args[1].equalsIgnoreCase("nickname")) {
+				User self = e.getJDA().getSelfInfo();
+				Guild guild = e.getGuild();
+				if (PermissionUtil.checkPermission(self, Permission.NICKNAME_CHANGE, guild)) {
+					guild.getManager().setNickname(self, args[2]);
+					SendMessage.sendMessage(e, "Successfully set nickname.");
+				}
+				else {
+					SendMessage.sendMessage(e, "Error: Requires NICKNAME_CHANGE permission.");
 				}
 			}
 		}
