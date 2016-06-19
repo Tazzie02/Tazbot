@@ -84,6 +84,7 @@ public class Bot {
 		registry.registerCommand(new YoutubeSearchCommand());
 
 		// Developer commands
+		registry.registerCommand(new EvalCommand());
 		registry.registerCommand(new GetCommand());
 		registry.registerCommand(new MessageCommand());
 		registry.registerCommand(new SetCommand());
@@ -93,6 +94,7 @@ public class Bot {
 		registry.registerCommand(new LeaveCommand());
 		registry.registerCommand(new LinkCommand());
 		registry.registerCommand(new ModCommand());
+		registry.registerCommand(new MoveCommand());
 		registry.registerCommand(new PrefixCommand());
 		registry.registerCommand(new PurgeCommand());
 		registry.registerCommand(new UnlinkCommand());
