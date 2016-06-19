@@ -12,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.tazzie02.tazbot.commands.Command;
 import com.tazzie02.tazbot.util.SendMessage;
 
+import net.dv8tion.jda.MessageBuilder;
 import net.dv8tion.jda.entities.Message;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 
@@ -32,11 +33,16 @@ public class EvalCommand implements Command {
 
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
-		Message message = e.getMessage();
 		String code = StringUtils.join(args, " ", 1, args.length);
 		String inputMessage = "*Input:*```js\n" + code + "```";
 		
-		message.updateMessageAsync(inputMessage, null);
+		// This does not go through SendMessage so that it can be
+		// sent without async. This means it can be instantly returned
+		// and edited later. However it will not be logged.
+		// There is the possibility that this might not be sent due to
+		// rate limit, but it is a developer only command anyway so they
+		// should be aware of this.
+		Message message = e.getChannel().sendMessage(inputMessage);
 		
 		engine.put("event", e);
 		engine.put("channel", e.getChannel());
@@ -84,6 +90,7 @@ public class EvalCommand implements Command {
 					SendMessage.sendMessage(e, outputMessage);
 				}
 				else {
+					// Update the message
 					message.updateMessageAsync(inputMessage + "\n" + outputMessage, null);
 				}
 			}
