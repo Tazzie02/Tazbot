@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -75,7 +76,7 @@ public class OverwatchCommand implements Command {
 		for (int i = 0; i < HEROES_TO_DISPLAY; i++) {
 			String line;
 			JSONObject obj = heroesArray.getJSONObject(i);
-			line = obj.getString("name");
+			line = StringEscapeUtils.unescapeHtml3(obj.getString("name"));
 			line += " - ";
 			line += obj.getString("playtime");
 			
@@ -84,7 +85,7 @@ public class OverwatchCommand implements Command {
 		
 		return output;
 	}
-
+	
 	@Override
 	public CommandAccess getAccess() {
 		return CommandAccess.ALL;
