@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.tazzie02.tazbot.commands.Command;
+import com.tazzie02.tazbot.util.JDAUtil;
 import com.tazzie02.tazbot.util.SendMessage;
 
 import net.dv8tion.jda.entities.Guild;
@@ -25,7 +26,7 @@ public class MoveCommand implements Command {
 		}
 		
 		Guild g = e.getGuild();
-		int maxPosition = g.getVoiceChannels().size() - 1; // Minus 1 for zero based positions 
+		int maxPosition = JDAUtil.getHighestVoiceChannelPosition(g); 
 		List<Integer> positions = new ArrayList<Integer>();
 		
 		for (int i = 1; i < args.length; i++) {
@@ -59,7 +60,7 @@ public class MoveCommand implements Command {
 				
 				List<VoiceChannel> allVoiceChannels = g.getVoiceChannels();
 				List<VoiceChannel> selectedChannels = positionsToChannels(allVoiceChannels, positions);
-				VoiceChannel destChannel = positionToChannel(allVoiceChannels, destPosition);
+				VoiceChannel destChannel = JDAUtil.getVoiceChannelAtPosition(allVoiceChannels, destPosition);
 				
 				moveToChannel(selectedChannels, destChannel);
 				
@@ -79,15 +80,6 @@ public class MoveCommand implements Command {
 		}
 		
 		return selectedChannels;
-	}
-	
-	private VoiceChannel positionToChannel(List<VoiceChannel> voiceChannels, int position) {
-		for (VoiceChannel c : voiceChannels) {
-			if (c.getPosition() == position) {
-				return c;
-			}
-		}
-		return null;
 	}
 	
 	private void moveToChannel(List<VoiceChannel> sourceChannels, VoiceChannel destChannel) {

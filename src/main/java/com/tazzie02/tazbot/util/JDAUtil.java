@@ -12,6 +12,7 @@ import net.dv8tion.jda.Permission;
 import net.dv8tion.jda.entities.Guild;
 import net.dv8tion.jda.entities.TextChannel;
 import net.dv8tion.jda.entities.User;
+import net.dv8tion.jda.entities.VoiceChannel;
 import net.dv8tion.jda.utils.PermissionUtil;
 
 public class JDAUtil {
@@ -156,6 +157,28 @@ public class JDAUtil {
 		manager.saveSettings();
 		
 		return us;
+	}
+	
+	public static VoiceChannel getVoiceChannelAtPosition(Guild guild, int position) {
+		return getVoiceChannelAtPosition(guild.getVoiceChannels(), position);
+	}
+	
+	public static VoiceChannel getVoiceChannelAtPosition(List<VoiceChannel> voiceChannels, int position) {
+		for (VoiceChannel c : voiceChannels) {
+			if (c.getPosition() == position) {
+				return c;
+			}
+		}
+		return null;
+	}
+	
+	public static int getHighestVoiceChannelPosition(Guild guild) {
+		return getHighestVoiceChannelPosition(guild.getVoiceChannels());
+	}
+	
+	public static int getHighestVoiceChannelPosition(List<VoiceChannel> voiceChannels) {
+		int position = voiceChannels.size() - 1; // Minus 1 for zero based positions
+		return position;
 	}
 	
 }
