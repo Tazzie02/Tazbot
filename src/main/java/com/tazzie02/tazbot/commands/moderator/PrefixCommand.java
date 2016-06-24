@@ -53,6 +53,7 @@ public class PrefixCommand implements Command {
 		return "prefix <newPrefix> - Set the guild command prefix to <newPrefix>.";
 	}
 	
+	@Override
 	public boolean isHidden() {
 		return false;
 	}

@@ -12,7 +12,6 @@ import org.apache.commons.lang3.StringUtils;
 import com.tazzie02.tazbot.commands.Command;
 import com.tazzie02.tazbot.util.SendMessage;
 
-import net.dv8tion.jda.MessageBuilder;
 import net.dv8tion.jda.entities.Message;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 
