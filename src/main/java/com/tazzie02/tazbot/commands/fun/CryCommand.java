@@ -52,13 +52,13 @@ public class CryCommand implements Command {
 		if (args.length == 1) {
 			List<Counter> cs = DataManager.getInstance(e.getGuild().getId()).getData().getCryCounter();
 			String cry = getOrderedOutput(cs, DEFAULT_AMOUNT, true);
-			SendMessage.sendMessage(e, "Cry Scores for " + e.getGuild().getName() + " (" + e.getGuild().getId() + "):\n" + cry);
+			SendMessage.sendMessage(e, "Cry Scores for " + e.getGuild().getName() + ":\n" + cry);
 		}
 		else if (args.length == 2) {
 			if (args[1].equalsIgnoreCase("all")) {
 				List<Counter> cs = DataManager.getInstance(e.getGuild().getId()).getData().getCryCounter();
 				String cry = getOrderedOutput(cs, cs.size(), true);
-				SendMessage.sendMessage(e, "All Cry Scores for " + e.getGuild().getName() + " (" + e.getGuild().getId() + "):\n" + cry);
+				SendMessage.sendMessage(e, "All Cry Scores for " + e.getGuild().getName() + ":\n" + cry);
 			}
 			else if (e.getMessage().getMentionedUsers().size() == 1) {
 				User mentioned = e.getMessage().getMentionedUsers().get(0);
@@ -72,7 +72,7 @@ public class CryCommand implements Command {
 				DataUtils dataUtils = new DataUtils(e.getGuild().getId());
 				long lastCryTime = dataUtils.getCryTime(mentioned.getId());
 				dataUtils.incrementCryCount(mentioned.getId());
-				SendMessage.sendMessage(e, "New Cry Score for " + mentioned.getUsername() + " (" + mentioned.getId() + "): "
+				SendMessage.sendMessage(e, "New Cry Score for " + mentioned.getUsername() + ": "
 						+ Math.abs(dataUtils.getCryCount(mentioned.getId())) + ". Time since last: " + (lastCryTime > 0 ? timeSinceLast(lastCryTime) : "never") + ".");
 			}
 			else {
@@ -275,7 +275,7 @@ public class CryCommand implements Command {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < amount; i++) {
 			User user = Bot.getJDA().getUserById(cs.get(i).getKey());
-			sb.append(user.getUsername() + " (" + user.getId() + "): " + cs.get(i).getValue());
+			sb.append(user.getUsername() + ": " + cs.get(i).getValue());
 			if (showTime) {
 				sb.append(". Time since last: ");
 				sb.append(timeSinceLast(cs.get(i).getTime()))
