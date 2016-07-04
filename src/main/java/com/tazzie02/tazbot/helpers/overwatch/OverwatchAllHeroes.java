@@ -2,12 +2,10 @@ package com.tazzie02.tazbot.helpers.overwatch;
 
 import java.io.IOException;
 
-import com.tazzie02.tazbot.exceptions.QuotaExceededException;
-
 public class OverwatchAllHeroes extends Overwatch {
 
-	public OverwatchAllHeroes(String battleTag, String platform, String region) throws IOException, QuotaExceededException {
-		super(battleTag, platform, region);
+	public OverwatchAllHeroes(String battleTag, String platform, String region, OverwatchGameMode mode) throws IOException {
+		super(battleTag, platform, region, mode);
 	}
 	
 	@Override
@@ -16,203 +14,444 @@ public class OverwatchAllHeroes extends Overwatch {
 	}
 	
 	public int getMeleeFinalBlows() {
-		return Integer.parseInt(data.getString("MeleeFinalBlows").replace(",", ""));
+		if (data.has("MeleeFinalBlows")) {
+			return Integer.parseInt(data.getString("MeleeFinalBlows").replace(",", ""));
+		}
+		else {
+			return 0;
+		}
 	}
 	
 	public int getSoloKills() {
-		return Integer.parseInt(data.getString("SoloKills").replace(",", ""));
+		if (data.has("SoloKills")) {
+			return Integer.parseInt(data.getString("SoloKills").replace(",", ""));
+		}
+		else {
+			return 0;
+		}
 	}
 	
 	public int getObjectiveKills() {
-		return Integer.parseInt(data.getString("ObjectiveKills").replace(",", ""));
+		if (data.has("ObjectiveKills")) {
+			return Integer.parseInt(data.getString("ObjectiveKills").replace(",", ""));
+		}
+		else {
+			return 0;
+		}
 	}
 	
 	public int getFinalBlows() {
-		return Integer.parseInt(data.getString("FinalBlows").replace(",", ""));
+		if (data.has("FinalBlows")) {
+			return Integer.parseInt(data.getString("FinalBlows").replace(",", ""));
+		}
+		else {
+			return 0;
+		}
 	}
 	
 	public int getDamageDone() {
-		return Integer.parseInt(data.getString("DamageDone").replace(",", ""));
+		if (data.has("DamageDone")) {
+			return Integer.parseInt(data.getString("DamageDone").replace(",", ""));
+		}
+		else {
+			return 0;
+		}
 	}
 	
 	public int getEliminations() {
-		return Integer.parseInt(data.getString("Eliminations").replace(",", ""));
+		if (data.has("Eliminations")) {
+			return Integer.parseInt(data.getString("Eliminations").replace(",", ""));
+		}
+		else {
+			return 0;
+		}
 	}
 	
 	public int getEnvironmentalKills() {
-		return Integer.parseInt(data.getString("EnvironmentalKills").replace(",", ""));
+		if (data.has("EnvironmentalKills")) {
+			return Integer.parseInt(data.getString("EnvironmentalKills").replace(",", ""));
+		}
+		else {
+			return 0;
+		}
 	}
 	
 	public int getMultikills() {
-		return Integer.parseInt(data.getString("Multikills").replace(",", ""));
+		if (data.has("Multikills")) {
+			return Integer.parseInt(data.getString("Multikills").replace(",", ""));
+		}
+		else {
+			return 0;
+		}
 	}
 	
 	public int getHealingDone() {
-		return Integer.parseInt(data.getString("HealingDone").replace(",", ""));
+		if (data.has("HealingDone")) {
+			return Integer.parseInt(data.getString("HealingDone").replace(",", ""));
+		}
+		else {
+			return 0;
+		}
 	}
 	
 	public int getReconAssists() {
-		return Integer.parseInt(data.getString("ReconAssists").replace(",", ""));
+		if (data.has("ReconAssists")) {
+			return Integer.parseInt(data.getString("ReconAssists").replace(",", ""));
+		}
+		else {
+			return 0;
+		}
 	}
 	
 	public int getTeleporterPadsDestroyed() {
-		return Integer.parseInt(data.getString("TeleporterPadsDestroyed").replace(",", ""));
+		if (data.has("TeleporterPadsDestroyed")) {
+			return Integer.parseInt(data.getString("TeleporterPadsDestroyed").replace(",", ""));
+		}
+		else {
+			return 0;
+		}
 	}
 	
 	public int getEliminationsMostinGame() {
-		return Integer.parseInt(data.getString("Eliminations-MostinGame").replace(",", ""));
+		if (data.has("Eliminations-MostinGame")) {
+			return Integer.parseInt(data.getString("Eliminations-MostinGame").replace(",", ""));
+		}
+		else {
+			return 0;
+		}
 	}
 	
 	public int getFinalBlowsMostinGame() {
-		return Integer.parseInt(data.getString("FinalBlows-MostinGame").replace(",", ""));
+		if (data.has("FinalBlows-MostinGame")) {
+			return Integer.parseInt(data.getString("FinalBlows-MostinGame").replace(",", ""));
+		}
+		else {
+			return 0;
+		}
 	}
 	
 	public int getDamageDoneMostinGame() {
-		return Integer.parseInt(data.getString("DamageDone-MostinGame").replace(",", ""));
+		if (data.has("DamageDone-MostinGame")) {
+			return Integer.parseInt(data.getString("DamageDone-MostinGame").replace(",", ""));
+		}
+		else {
+			return 0;
+		}
 	}
 	
 	public int getHealingDoneMostinGame() {
-		return Integer.parseInt(data.getString("HealingDone-MostinGame").replace(",", ""));
+		if (data.has("HealingDone-MostinGame")) {
+			return Integer.parseInt(data.getString("HealingDone-MostinGame").replace(",", ""));
+		}
+		else {
+			return 0;
+		}
 	}
 	
 	public int getDefensiveAssistsMostinGame() {
-		return Integer.parseInt(data.getString("DefensiveAssists-MostinGame").replace(",", ""));
+		if (data.has("DefensiveAssists-MostinGame")) {
+			return Integer.parseInt(data.getString("DefensiveAssists-MostinGame").replace(",", ""));
+		}
+		else {
+			return 0;
+		}
 	}
 	
 	public int getOffensiveAssistsMostinGame() {
-		return Integer.parseInt(data.getString("OffensiveAssists-MostinGame").replace(",", ""));
+		if (data.has("OffensiveAssists-MostinGame")) {
+			return Integer.parseInt(data.getString("OffensiveAssists-MostinGame").replace(",", ""));
+		}
+		else {
+			return 0;
+		}
 	}
 	
 	public int getObjectiveKillsMostinGame() {
-		return Integer.parseInt(data.getString("ObjectiveKills-MostinGame").replace(",", ""));
+		if (data.has("ObjectiveKills-MostinGame")) {
+			return Integer.parseInt(data.getString("ObjectiveKills-MostinGame").replace(",", ""));
+		}
+		else {
+			return 0;
+		}
 	}
 	
 	public String getObjectiveTimeMostinGame() {
-		return data.getString("ObjectiveTime-MostinGame");
+		if (data.has("ObjectiveTime-MostinGame")) {
+			return data.getString("ObjectiveTime-MostinGame");
+		}
+		else {
+			return "0";
+		}
 	}
 	
 	public int getMultikillBest() {
-		return Integer.parseInt(data.getString("Multikill-Best").replace(",", ""));
+		if (data.has("Multikill-Best")) {
+			return Integer.parseInt(data.getString("Multikill-Best").replace(",", ""));
+		}
+		else {
+			return 0;
+		}
 	}
 	
 	public int getSoloKillsMostinGame() {
-		return Integer.parseInt(data.getString("SoloKills-MostinGame").replace(",", ""));
+		if (data.has("SoloKills-MostinGame")) {
+			return Integer.parseInt(data.getString("SoloKills-MostinGame").replace(",", ""));
+		}
+		else {
+			return 0;
+		}
 	}
 	
 	public String getTimeSpentonFireMostinGame() {
-		return data.getString("TimeSpentonFire-MostinGame");
+		if (data.has("TimeSpentonFire-MostinGame")) {
+			return data.getString("TimeSpentonFire-MostinGame");
+		}
+		else {
+			return "0";
+		}
 	}
 	
 	public double getMeleeFinalBlowsAverage() {
-		return Double.parseDouble(data.getString("MeleeFinalBlows-Average").replace(",", ""));
+		if (data.has("MeleeFinalBlows-Average")) {
+			return Double.parseDouble(data.getString("MeleeFinalBlows-Average").replace(",", ""));
+		}
+		else {
+			return 0;
+		}
 	}
 	
 	public double getFinalBlowsAverage() {
-		return Double.parseDouble(data.getString("FinalBlows-Average").replace(",", ""));
+		if (data.has("FinalBlows-Average")) {
+			return Double.parseDouble(data.getString("FinalBlows-Average").replace(",", ""));
+		}
+		else {
+			return 0;
+		}
 	}
 	
 	public String getTimeSpentonFireAverage() {
-		return data.getString("TimeSpentonFire-Average");
+		if (data.has("TimeSpentonFire-Average")) {
+			return data.getString("TimeSpentonFire-Average");
+		}
+		else {
+			return "0";
+		}
 	}
 	
 	public double getSoloKillsAverage() {
-		return Double.parseDouble(data.getString("SoloKills-Average").replace(",", ""));
+		if (data.has("SoloKills-Average")) {
+			return Double.parseDouble(data.getString("SoloKills-Average").replace(",", ""));
+		}
+		else {
+			return 0;
+		}
 	}
 	
 	public String getObjectiveTimeAverage() {
-		return data.getString("ObjectiveTime-Average");
+		if (data.has("ObjectiveTime-Average")) {
+			return data.getString("ObjectiveTime-Average");
+		}
+		else {
+			return "0";
+		}
 	}
 	
 	public double getObjectiveKillsAverage() {
-		return Double.parseDouble(data.getString("ObjectiveKills-Average").replace(",", ""));
+		if (data.has("ObjectiveKills-Average")) {
+			return Double.parseDouble(data.getString("ObjectiveKills-Average").replace(",", ""));
+		}
+		else {
+			return 0;
+		}
 	}
 	
 	public int getHealingDoneAverage() {
-		return Integer.parseInt(data.getString("HealingDone-Average").replace(",", ""));
+		if (data.has("HealingDone-Average")) {
+			return Integer.parseInt(data.getString("HealingDone-Average").replace(",", ""));
+		}
+		else {
+			return 0;
+		}
 	}
 	
 	public double getDeathsAverage() {
-		return Double.parseDouble(data.getString("Deaths-Average").replace(",", ""));
+		if (data.has("Deaths-Average")) {
+			return Double.parseDouble(data.getString("Deaths-Average").replace(",", ""));
+		}
+		else {
+			return 0;
+		}
 	}
 	
 	public int getDamageDoneAverage() {
-		return Integer.parseInt(data.getString("DamageDone-Average").replace(",", ""));
+		if (data.has("DamageDone-Average")) {
+			return Integer.parseInt(data.getString("DamageDone-Average").replace(",", ""));
+		}
+		else {
+			return 0;
+		}
 	}
 	
 	public double getEliminationsAverage() {
-		return Double.parseDouble(data.getString("Eliminations-Average").replace(",", ""));
+		if (data.has("Eliminations-Average")) {
+			return Double.parseDouble(data.getString("Eliminations-Average").replace(",", ""));
+		}
+		else {
+			return 0;
+		}
 	}
 	
 	public int getDeaths() {
-		return Integer.parseInt(data.getString("Deaths").replace(",", ""));
+		if (data.has("Deaths")) {
+			return Integer.parseInt(data.getString("Deaths").replace(",", ""));
+		}
+		else {
+			return 0;
+		}
 	}
 	
 	public int getEnvironmentalDeaths() {
-		return Integer.parseInt(data.getString("EnvironmentalDeaths").replace(",", ""));
+		if (data.has("EnvironmentalDeaths")) {
+			return Integer.parseInt(data.getString("EnvironmentalDeaths").replace(",", ""));
+		}
+		else {
+			return 0;
+		}
 	}
 	
 	public int getCards() {
-		return Integer.parseInt(data.getString("Cards").replace(",", ""));
+		if (data.has("Cards")) {
+			return Integer.parseInt(data.getString("Cards").replace(",", ""));
+		}
+		else {
+			return 0;
+		}
 	}
 	
 	public int getMedals() {
-		return Integer.parseInt(data.getString("Medals").replace(",", ""));
+		if (data.has("Medals")) {
+			return Integer.parseInt(data.getString("Medals").replace(",", ""));
+		}
+		else {
+			return 0;
+		}
 	}
 	
 	public int getMedalsGold() {
-		return Integer.parseInt(data.getString("Medals-Gold").replace(",", ""));
+		if (data.has("Medals-Gold")) {
+			return Integer.parseInt(data.getString("Medals-Gold").replace(",", ""));
+		}
+		else {
+			return 0;
+		}
 	}
 	
 	public int getMedalsSilver() {
-		return Integer.parseInt(data.getString("Medals-Silver").replace(",", ""));
+		if (data.has("Medals-Silver")) {
+			return Integer.parseInt(data.getString("Medals-Silver").replace(",", ""));
+		}
+		else {
+			return 0;
+		}
 	}
 	
 	public int getMedalsBronze() {
-		return Integer.parseInt(data.getString("Medals-Bronze").replace(",", ""));
+		if (data.has("Medals-Bronze")) {
+			return Integer.parseInt(data.getString("Medals-Bronze").replace(",", ""));
+		}
+		else {
+			return 0;
+		}
 	}
 	
 	public int getGamesWon() {
-		return Integer.parseInt(data.getString("GamesWon").replace(",", ""));
+		if (data.has("GamesWon")) {
+			return Integer.parseInt(data.getString("GamesWon").replace(",", ""));
+		}
+		else {
+			return 0;
+		}
 	}
 	
 	public int getGamesPlayed() {
-		return Integer.parseInt(data.getString("GamesPlayed").replace(",", ""));
+		if (data.has("GamesPlayed")) {
+			return Integer.parseInt(data.getString("GamesPlayed").replace(",", ""));
+		}
+		else {
+			return 0;
+		}
 	}
 	
 	public String getTimeSpentonFire() {
-		return data.getString("TimeSpentonFire");
+		if (data.has("TimeSpentonFire")) {
+			return data.getString("TimeSpentonFire");
+		}
+		else {
+			return "0";
+		}
 	}
 	
 	public String getObjectiveTime() {
-		return data.getString("ObjectiveTime");
-	}
-	
-	public int getScore() {
-		return Integer.parseInt(data.getString("Score").replace(",", ""));
+		if (data.has("ObjectiveTime")) {
+			return data.getString("ObjectiveTime");
+		}
+		else {
+			return "0";
+		}
 	}
 	
 	public String getTimePlayed() {
-		return data.getString("TimePlayed");
+		if (data.has("TimePlayed")) {
+			return data.getString("TimePlayed");
+		}
+		else {
+			return "0";
+		}
 	}
 	
 	public int getMeleeFinalBlowsMostinGame() {
-		return Integer.parseInt(data.getString("MeleeFinalBlows-MostinGame").replace(",", ""));
+		if (data.has("MeleeFinalBlows-MostinGame")) {
+			return Integer.parseInt(data.getString("MeleeFinalBlows-MostinGame").replace(",", ""));
+		}
+		else {
+			return 0;
+		}
 	}
 	
 	public int getDefensiveAssists() {
-		return Integer.parseInt(data.getString("DefensiveAssists").replace(",", ""));
+		if (data.has("DefensiveAssists")) {
+			return Integer.parseInt(data.getString("DefensiveAssists").replace(",", ""));
+		}
+		else {
+			return 0;
+		}
 	}
 	
 	public int getDefensiveAssistsAverage() {
-		return Integer.parseInt(data.getString("DefensiveAssists-Average").replace(",", ""));
+		if (data.has("DefensiveAssists-Average")) {
+			return Integer.parseInt(data.getString("DefensiveAssists-Average").replace(",", ""));
+		}
+		else {
+			return 0;
+		}
 	}
 	
 	public int getOffensiveAssists() {
-		return Integer.parseInt(data.getString("OffensiveAssists").replace(",", ""));
+		if (data.has("OffensiveAssists")) {
+			return Integer.parseInt(data.getString("OffensiveAssists").replace(",", ""));
+		}
+		else {
+			return 0;
+		}
 	}
 	
 	public int getOffensiveAssistsAverage() {
-		return Integer.parseInt(data.getString("OffensiveAssists-Average").replace(",", ""));
+		if (data.has("OffensiveAssists-Average")) {
+			return Integer.parseInt(data.getString("OffensiveAssists-Average").replace(",", ""));
+		}
+		else {
+			return 0;
+		}
 	}
 
 }

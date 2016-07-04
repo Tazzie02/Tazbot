@@ -3,24 +3,30 @@ package com.tazzie02.tazbot.commands.search;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import com.tazzie02.tazbot.commands.Command;
 import com.tazzie02.tazbot.exceptions.NotFoundException;
-import com.tazzie02.tazbot.exceptions.QuotaExceededException;
 import com.tazzie02.tazbot.helpers.overwatch.OverwatchHeroes;
 import com.tazzie02.tazbot.helpers.overwatch.OverwatchProfile;
+import com.tazzie02.tazbot.helpers.overwatch.Overwatch.OverwatchGameMode;
 import com.tazzie02.tazbot.util.SendMessage;
 
+import net.dv8tion.jda.entities.Message;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 
 public class OverwatchCommand implements Command {
 	
 	private final String DEFAULT_PLATFORM = "pc";
 	private final String DEFAULT_REGION = "us";
+	private final int TIMEOUT = 15000;
 	
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
@@ -29,25 +35,42 @@ public class OverwatchCommand implements Command {
 		}
 		else if (args.length == 2) {
 			if (args[1].contains("#") || args[1].contains("-")) {
+				Message message = e.getTextChannel().sendMessage("*Looking up stats for " + args[1] + ".*");
 				
-				new Thread(new Runnable() {
+				Runnable runnable = new Runnable() {
 					@Override
 					public void run() {
-						SendMessage.sendMessage(e, "*Looking up stats for " + args[1] + ".*");
 						String battleTag = args[1].replace("#", "-");
 						try {
 							OverwatchProfile profile = new OverwatchProfile(battleTag, DEFAULT_PLATFORM, DEFAULT_REGION);
-							OverwatchHeroes heroes = new OverwatchHeroes(battleTag, DEFAULT_PLATFORM, DEFAULT_REGION);
-							
-							SendMessage.sendMessage(e, getOutput(battleTag.replace("-", "#"), profile, heroes));
-							
+							OverwatchHeroes heroesQuick = new OverwatchHeroes(battleTag, DEFAULT_PLATFORM, DEFAULT_REGION, OverwatchGameMode.QUICK);
+							OverwatchHeroes heroesComp = new OverwatchHeroes(battleTag, DEFAULT_PLATFORM, DEFAULT_REGION, OverwatchGameMode.COMPETITIVE);
+
+							message.updateMessage(getOutput(battleTag.replace("-", "#"), profile, heroesQuick, heroesComp));
+
 						} catch (IOException ex) {
-							SendMessage.sendMessage(e, "Error: Could not connect to web page.");
+							message.updateMessage("Error: Could not connect to web page.");
 							ex.printStackTrace();
-						} catch (QuotaExceededException ignored) {
 						} catch (NotFoundException ex) {
-							SendMessage.sendMessage(e, "Error: Could not find user " + args[1] + ".");
+							message.updateMessage("Error: Could not find user " + args[1] + ".");
 						}
+					}
+				};
+
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						ExecutorService executor = Executors.newSingleThreadExecutor();
+						Future<?> future = executor.submit(runnable);
+
+						try {
+							future.get(TIMEOUT, TimeUnit.MILLISECONDS);
+						}
+						catch (TimeoutException | InterruptedException | ExecutionException ex) {
+							message.updateMessage("Error: Connection timed out.");
+						}
+
+						executor.shutdownNow();
 					}
 				}).start();
 				
@@ -61,29 +84,49 @@ public class OverwatchCommand implements Command {
 		}
 	}
 	
-	// TODO Fix output formatting
-	private String getOutput(String battleTag, OverwatchProfile profile, OverwatchHeroes heroes) {
-		JSONArray heroesArray = heroes.getHeroes();
-		String output = "**" + battleTag + ":**\n"
-				+ "Level " + profile.getLevel() + "\n"
-				+ "Total playtime: " + profile.getPlaytime() + "\n"
-				+ "Win/Loss (Win %): " + profile.getWins() + "/" + profile.getLost() + " (" + profile.getWinPercentage() + "%)\n"
-				+ "\n"
-				+ "Total playtime: " + profile.getPlaytime() + "\n";
+	private String getOutput(String battleTag, OverwatchProfile profile, OverwatchHeroes heroesQuick, OverwatchHeroes heroesComp) {
+		int winsQuick = profile.getWinsQuick();
+		int lostQuick = profile.getLostQuick();
+		int winsComp = profile.getWinsCompetitive();
+		int lostComp = profile.getLostCompetitive();
 		
-		// TODO This and heroesArray are bad
-		final int HEROES_TO_DISPLAY = 3;
-		for (int i = 0; i < HEROES_TO_DISPLAY; i++) {
-			String line;
-			JSONObject obj = heroesArray.getJSONObject(i);
-			line = StringEscapeUtils.unescapeHtml3(obj.getString("name"));
-			line += " - ";
-			line += obj.getString("playtime");
-			
-			output += line + "\n";
-		}
+		String output = "**Stats for " + profile.getUsername() + "**\n"
+				+ "Level " + profile.getLevel() + "\n"
+				+ "\n"
+				+ "*Quick Play*\n"
+				+ "Playtime: " + profile.getPlaytimeQuick() + "\n"
+				+ "Win/Loss (Win %): " + winsQuick + "/" + lostQuick + " (" + calcPercentage(winsQuick, lostQuick) + "%)\n"
+				+ topHeroesToString(heroesQuick)
+				+ "\n"
+				+ "*Competitive*\n"
+				+ "Rank: " + profile.getRankCompetitive() + "\n"
+				+ "Playtime: " + profile.getPlaytimeCompetitive() + "\n"
+				+ "Win/Loss (Win %): " + winsComp + "/" + lostComp + " (" + calcPercentage(winsComp, lostComp) + "%)\n"
+				+ topHeroesToString(heroesComp);
 		
 		return output;
+	}
+	
+	private String topHeroesToString(OverwatchHeroes heroes) {
+		final int HEROES_TO_DISPLAY = 3;
+		
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < HEROES_TO_DISPLAY; i++) {
+			sb.append(StringEscapeUtils.unescapeHtml3(heroes.getName(i)))
+			.append(" - ")
+			.append(heroes.getPlaytime(i))
+			.append("\n");
+		}
+		
+		return sb.toString();
+	}
+	
+	private int calcPercentage(int won, int lost) {
+		float total = won + lost;
+		if (total <= 0) {
+			return 0;
+		}
+		return Math.round(won / total * 100);
 	}
 	
 	@Override
@@ -109,7 +152,8 @@ public class OverwatchCommand implements Command {
 	@Override
 	public String getUsageInstructions() {
 		return "overwatch <battleTag> - Get information for user with battleTag.\n"
-				+ "battleTag format: name#123";
+				+ "battleTag format: Name#1234\n"
+				+ "Case sensitive.";
 	}
 
 	@Override
