@@ -1,8 +1,9 @@
 package com.tazzie02.tazbot.exceptions;
 
-@SuppressWarnings("serial")
 public class MaxDurationException extends Exception {
 	
+	private static final long serialVersionUID = 6238478030811049501L;
+
 	public MaxDurationException() {
 		super();
 	}

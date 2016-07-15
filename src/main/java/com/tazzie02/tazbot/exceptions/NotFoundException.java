@@ -1,8 +1,9 @@
 package com.tazzie02.tazbot.exceptions;
 
-@SuppressWarnings("serial")
 public class NotFoundException extends RuntimeException {
 	
+	private static final long serialVersionUID = -8836756251043242953L;
+
 	public NotFoundException() {
 		super();
 	}

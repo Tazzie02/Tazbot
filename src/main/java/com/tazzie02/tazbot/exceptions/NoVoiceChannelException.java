@@ -1,8 +1,9 @@
 package com.tazzie02.tazbot.exceptions;
 
-@SuppressWarnings("serial")
 public class NoVoiceChannelException extends Exception {
 	
+	private static final long serialVersionUID = -6955871131210947057L;
+
 	public NoVoiceChannelException() {
 		super();
 	}
