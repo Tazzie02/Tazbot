@@ -12,13 +12,20 @@ import com.tazzie02.tazbot.commands.Command;
 import com.tazzie02.tazbot.helpers.LinkUnlink;
 import com.tazzie02.tazbot.util.SendMessage;
 
+import net.dv8tion.jda.Permission;
 import net.dv8tion.jda.entities.VoiceChannel;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.utils.PermissionUtil;
 
 public class LinkCommand implements Command {
 
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
+		if (!PermissionUtil.checkPermission(e.getJDA().getSelfInfo(), Permission.VOICE_MOVE_OTHERS, e.getGuild())) {
+			SendMessage.sendMessage(e, "Error: Bot requires Move Users permission.");
+			return;
+		}
+		
 		LinkUnlink instance = LinkUnlink.getInstance(e.getGuild().getId());
 		if (args.length == 1) {
 			SendMessage.sendMessage(e, getLinkedAsString(instance));

@@ -9,16 +9,18 @@ import java.util.Set;
 
 import com.tazzie02.tazbot.Bot;
 
+import net.dv8tion.jda.Permission;
 import net.dv8tion.jda.entities.Guild;
 import net.dv8tion.jda.entities.User;
 import net.dv8tion.jda.entities.VoiceChannel;
 import net.dv8tion.jda.events.voice.VoiceJoinEvent;
 import net.dv8tion.jda.events.voice.VoiceLeaveEvent;
 import net.dv8tion.jda.hooks.ListenerAdapter;
+import net.dv8tion.jda.utils.PermissionUtil;
 
 public class LinkUnlink {
 	
-	public static final String PREFIX = "(L) ";
+	public static final String PREFIX = "*";
 	
 	private static List<LinkUnlink> instances = new ArrayList<LinkUnlink>();
 	private final String guildId;
@@ -94,8 +96,11 @@ public class LinkUnlink {
 		Guild g = Bot.getJDA().getGuildById(guildId);
 		usersInChannel.stream().forEach(u -> g.getManager().moveVoiceUser(u, linkChannel));
 		
-		c.getManager().setName(PREFIX + c.getName());
-		c.getManager().update();
+		// If bot has manage channel permission in the guild to edit channel name
+		if (PermissionUtil.checkPermission(Bot.getJDA().getSelfInfo(), Permission.MANAGE_CHANNEL, g)) {
+			c.getManager().setName(PREFIX + c.getName());
+			c.getManager().update();
+		}
 	}
 	
 	public void unlinkChannels() {
@@ -137,8 +142,11 @@ public class LinkUnlink {
 		
 		String name = c.getName();
 		if (name.startsWith(PREFIX)) {
-			c.getManager().setName(name.substring(PREFIX.length()));
-			c.getManager().update();
+			// If bot has manage channel permission in the guild to edit channel name
+			if (PermissionUtil.checkPermission(Bot.getJDA().getSelfInfo(), Permission.MANAGE_CHANNEL, g)) {
+				c.getManager().setName(name.substring(PREFIX.length()));
+				c.getManager().update();
+			}
 		}
 	}
 	
