@@ -43,7 +43,7 @@ dependencies {
     // The production code uses the SLF4J logging API at compile time
     //compile 'org.slf4j:slf4j-api:1.7.12'
 
-	compile 'net.dv8tion:JDA:2.1.1_308'
+	compile 'net.dv8tion:JDA:2.1.3_327'
 	compile 'com.google.code.gson:gson:2.6.1'
 	compile 'org.jsoup:jsoup:1.8.3'
 	compile 'com.googlecode.soundlibs:mp3spi:1.9.5-1'

@@ -27,6 +27,8 @@ public class Bot {
 
 		JDABuilder jdaBuilder = new JDABuilder().setBotToken(config.getBotToken());
 		
+		jdaBuilder.setBulkDeleteSplittingEnabled(false);
+		
 		jdaBuilder.addListener(createCommandRegistry());
 		jdaBuilder.addListener(new MentionedReply());
 		jdaBuilder.addListener(new Listeners());
