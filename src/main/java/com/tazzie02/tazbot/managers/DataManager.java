@@ -95,4 +95,7 @@ public class DataManager {
 		return newData;
 	}
 	
+	public Path getDataPath() {
+		return dataFile.getParent();
+	}
 }

@@ -93,6 +93,7 @@ public class Bot {
 		registry.registerCommand(new ShutdownCommand());
 
 		// Moderator commands
+		registry.registerCommand(new LaughCommand());
 		registry.registerCommand(new LeaveCommand());
 		registry.registerCommand(new LinkCommand());
 		registry.registerCommand(new ModCommand());
