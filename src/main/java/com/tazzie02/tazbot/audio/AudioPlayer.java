@@ -77,42 +77,46 @@ public class AudioPlayer {
 		player.play();
 	}
 	
-	public void stop() {
-		if (player == null) {
-			return;
+	public boolean stop() {
+		if (player != null) {
+			if (player.isPlaying()) {
+				player.stop();
+				return true;
+			}
 		}
 		
-		if (player.isPlaying()) {
-			player.stop();
-		}
+		return false;
 	}
 	
-	public void pause() {
-		if (player == null) {
-			return;
+	public boolean pause() {
+		if (player != null) {
+			if (player.isPlaying()) {
+				player.pause();
+				return true;
+			}
 		}
 		
-		if (player.isPlaying()) {
-			player.pause();
-		}
+		return false;
 	}
 	
-	public void resume() {
+	public boolean resume() {
 		if (player == null) {
-			return;
+			if (player.isPaused()) {
+				player.play();
+				return true;
+			}
 		}
 		
-		if (player.isPaused()) {
-			player.play();
-		}
+		return false;
 	}
 	
-	public void restart() {
-		if (player == null) {
-			return;
+	public boolean restart() {
+		if (player != null) {
+			player.restart();
+			return true;
 		}
 		
-		player.restart();
+		return false;
 	}
 	
 	public void setVolume(float volume) {
