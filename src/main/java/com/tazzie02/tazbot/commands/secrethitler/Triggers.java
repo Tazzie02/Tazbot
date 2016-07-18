@@ -19,7 +19,7 @@ public class Triggers {
 	
 	private void sound(String s) {
 		try {
-			AudioPlayer.play(s, guild);
+			AudioPlayer.getInstance(guild.getId()).play(s);
 		} catch (NoVoiceChannelException ex) {
 			System.out.println("NoVoiceChannelException: Bot is not in a channel.");
 //			ex.printStackTrace();

@@ -583,7 +583,7 @@ public class SecretHitler {
 	private VoiceChannel createVoiceChannel(MessageReceivedEvent e, String name) {
 		ChannelManager cm = e.getGuild().createVoiceChannel(name);
 		VoiceChannel vc = e.getJDA().getVoiceChannelById(cm.getChannel().getId());
-		AudioPlayer.join(vc);
+		AudioPlayer.getInstance(e.getGuild().getId()).join(vc);
 		return vc;
 	}
 	
