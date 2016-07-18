@@ -101,6 +101,7 @@ public class Bot {
 		registry.registerCommand(new PrefixCommand());
 		registry.registerCommand(new PurgeCommand());
 		registry.registerCommand(new UnlinkCommand());
+		registry.registerCommand(new VolumeCommand());
 		
 		return registry;
 	}
