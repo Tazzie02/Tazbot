@@ -297,6 +297,7 @@ public class CryCommand implements Command {
 	
 	private void playSound(Guild g, User u) {
 		JDA jda = Bot.getJDA();
+		AudioPlayer player = AudioPlayer.getInstance(g.getId());
 		VoiceChannel vc = g.getVoiceStatusOfUser(u).getChannel();
 		// Return if user not in a voice channel
 		if (vc == null) {
@@ -310,7 +311,7 @@ public class CryCommand implements Command {
 		
 		// Join user's channel if bot is not in a channel
 		if (jda.getAudioManager(g).getConnectedChannel() == null) {
-			AudioPlayer.join(vc);
+			player.join(vc);
 		}
 		
 		final String SOUND = DataManager.getInstance(g.getId()).getData().getCrySound(u.getId());
@@ -333,11 +334,11 @@ public class CryCommand implements Command {
 				}
 				
 				try {
-					AudioPlayer.play(SOUND, g);
+					player.play(SOUND);
 					
 					if (joined) {
 						while (true) {
-							if (!AudioPlayer.isPlaying()) {
+							if (player.isPlaying()) {
 								jda.getAudioManager(g).closeAudioConnection();
 								break;
 							}

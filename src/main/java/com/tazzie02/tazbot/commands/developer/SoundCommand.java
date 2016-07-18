@@ -17,11 +17,13 @@ import net.dv8tion.jda.events.message.MessageReceivedEvent;
 
 public class SoundCommand implements Command {
 
+	// TODO This should have threads etc
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
 		String path = removeCommand(args);
 		try {
-			AudioPlayer.play(path, e.getGuild());
+			AudioPlayer player = AudioPlayer.getInstance(e.getGuild().getId());
+			player.play(path);
 		} catch (NoVoiceChannelException ex) {
 			SendMessage.sendMessage(e, "Error: Bot must be in a voice channel.");
 		} catch (IOException ex) {

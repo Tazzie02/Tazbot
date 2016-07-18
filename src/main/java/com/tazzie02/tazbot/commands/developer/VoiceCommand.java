@@ -14,6 +14,8 @@ public class VoiceCommand implements Command {
 
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
+		AudioPlayer player = AudioPlayer.getInstance(e.getGuild().getId());
+		
 		if (args.length == 1) {
 			SendMessage.sendMessage(e, "Error: Incorrect usage.");
 			return;
@@ -23,7 +25,7 @@ public class VoiceCommand implements Command {
 			if (args[1].equalsIgnoreCase("join")) {
 				VoiceChannel vc = e.getGuild().getVoiceStatusOfUser(e.getAuthor()).getChannel();
 				if (vc != null) {
-					AudioPlayer.join(vc);
+					player.join(vc);
 				}
 				else {
 					SendMessage.sendMessage(e, "Error: Cannot join a user who is not in a voice channel.");
@@ -31,7 +33,7 @@ public class VoiceCommand implements Command {
 			}
 			// Leave the current voice channel
 			else if (args[1].equalsIgnoreCase("leave")) {
-				if (AudioPlayer.leave(e.getGuild())) {
+				if (player.leave()) {
 					SendMessage.sendMessage(e, "Successfully left the voice channel.");
 				}
 				else {
@@ -40,30 +42,9 @@ public class VoiceCommand implements Command {
 			}
 			// Stop playback
 			else if (args[1].equalsIgnoreCase("stop")) {
-				AudioPlayer.stop();
-				SendMessage.sendMessage(e, "Playback has been stopped.");
-			}
-			// Pause playback
-			else if (args[1].equalsIgnoreCase("pause")) {
-				AudioPlayer.pause();
-				SendMessage.sendMessage(e, "Playback has been paused.");
-			}
-			// Unpause playback
-			else if (args[1].equalsIgnoreCase("unpause") || args[1].equalsIgnoreCase("resume")) {
-				AudioPlayer.resume();
-				SendMessage.sendMessage(e, "Playback has been resumed.");
-			}
-			// Restart playback
-			else if (args[1].equalsIgnoreCase("restart")) {
-				AudioPlayer.restart();
-				SendMessage.sendMessage(e, "Playback has been restarted.");
-			}
-			// View current volume
-			else if (args[1].equalsIgnoreCase("volume")) {
-				SendMessage.sendMessage(e, "Volume is " + AudioPlayer.getVolume());
-			}
-			else {
-				SendMessage.sendMessage(e, "Error: Incorrect usage.");
+				if (player.stop()) {
+					SendMessage.sendMessage(e, "Playback has been stopped.");
+				}
 			}
 		}
 		else if (args.length >= 3) {
@@ -101,27 +82,17 @@ public class VoiceCommand implements Command {
 						}
 					}
 					if (channel != null) {
-						AudioPlayer.join(channel);
-						SendMessage.sendMessage(e, "Joined " + name);
+						player.join(channel);
+						SendMessage.sendMessage(e, "Joined " + name + ".");
 					}
 					else {
-						SendMessage.sendMessage(e, "Error: Could not find voice channel " + name);
+						SendMessage.sendMessage(e, "Error: Could not find voice channel " + name + ".");
 					}
 				}
 				// If command from private message
 				else {
 					SendMessage.sendMessage(e, "Error: Cannot join from private message.");
 					return;
-				}
-			}
-			// Set volume
-			else if (args[1].equalsIgnoreCase("volume")) {
-				try {
-					float volume = Float.parseFloat(args[2]);
-					AudioPlayer.setVolume(volume);
-					SendMessage.sendMessage(e, "Volume has been set.");
-				} catch (NumberFormatException ex) {
-					SendMessage.sendMessage(e, "Error: Number must be a float between 0.0 and 1.0.");
 				}
 			}
 		}
@@ -152,11 +123,6 @@ public class VoiceCommand implements Command {
 		return "voice join - Join the voice channel the author is in."
 				+ "voice leave - Leave the current voice channel."
 				+ "voice stop - Stop audio playback."
-				+ "voice pause - Pause audio playback."
-				+ "voice unpause - Unpause playback."
-				+ "voice restart - Restart playback."
-				+ "voice volume - View current volume."
-				+ "voice volume <0-1> - Set audio playback volume."
 				+ "voice <voice channel> - Join the specified voice channel.";
 	}
 
