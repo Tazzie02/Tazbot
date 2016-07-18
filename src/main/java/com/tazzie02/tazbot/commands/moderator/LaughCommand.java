@@ -58,8 +58,8 @@ public class LaughCommand implements Command {
 		
 		Path dataPath = DataManager.getInstance(channel.getGuild().getId()).getDataPath();
 		Path file = dataPath.resolve(LAUGH_FILE_NAME);
-		if (file == null) {
-			SendMessage.sendMessage(e, "Error: Could not play file.");
+		if (!file.toFile().isFile()) {
+			SendMessage.sendMessage(e, "Error: Sound is not set for this guild.");
 			return;
 		}
 		
@@ -101,6 +101,7 @@ public class LaughCommand implements Command {
 			}
 			
 		} catch (NoVoiceChannelException | IOException | UnsupportedAudioFileException e) {
+			e.printStackTrace();
 			return false;
 			
 		} finally {
@@ -122,7 +123,7 @@ public class LaughCommand implements Command {
 
 	@Override
 	public List<String> getAliases() {
-		return Arrays.asList("laugh");
+		return Arrays.asList("laugh", "lol");
 	}
 
 	@Override
@@ -138,7 +139,8 @@ public class LaughCommand implements Command {
 	@Override
 	public String getUsageInstructions() {
 		return "laugh - Join the author's voice channel and play laugh.\n"
-				+ "laugh <@user> - Join <@user>'s voice channel and play laugh.";
+				+ "laugh <@user> - Join <@user>'s voice channel and play laugh.\n"
+				+ "laugh <position> - Join the voice channel at <position>. Top is 0.";
 	}
 
 	@Override
