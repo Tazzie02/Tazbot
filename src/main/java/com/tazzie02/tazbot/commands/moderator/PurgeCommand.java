@@ -1,5 +1,6 @@
 package com.tazzie02.tazbot.commands.moderator;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -8,97 +9,49 @@ import org.apache.commons.lang3.math.NumberUtils;
 import com.tazzie02.tazbot.commands.Command;
 import com.tazzie02.tazbot.util.SendMessage;
 
-import net.dv8tion.jda.MessageHistory;
 import net.dv8tion.jda.Permission;
 import net.dv8tion.jda.entities.Message;
-import net.dv8tion.jda.entities.MessageChannel;
+import net.dv8tion.jda.entities.TextChannel;
 import net.dv8tion.jda.entities.User;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.utils.PermissionUtil;
 
 public class PurgeCommand implements Command {
 	
-	private final int DEFAULT_AMOUNT = 5;
+	final int MAX_RETRIEVE_SIZE = 100;
+	
+	// Class-wide so thread works. Must be a better way.
+	private User user;
+	private int amount;
 	
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
-		// isPrivate is not needed when extending ModeratorCommand
-		if (e.isPrivate()) {
-			SendMessage.sendMessage(e, "Error: Cannot purge private messages.");
-			return;
-		}
-		
 		// If bot does not have Messgae Manage AND (mentioned size == 1 AND does not contain self info)
 		if (!PermissionUtil.checkPermission(e.getJDA().getSelfInfo(), Permission.MESSAGE_MANAGE, e.getTextChannel())
 				&& (e.getMessage().getMentionedUsers().size() == 1 && !e.getMessage().getMentionedUsers().contains(e.getJDA().getSelfInfo()))) {
-			SendMessage.sendMessage(e, "Error: Bot requires *Message Manage* permission to purge messages.");
+			SendMessage.sendMessage(e, "Error: Bot requires *Manage Messages* permission to purge messages.");
 			return;
 		}
 		
-		// TODO THIS SHOULD BE THE NEW WAY OF PURGING
-		// MUCH FASTER WITH PARALLEL STREAM
-//		new Thread(new Runnable() {
-//			@Override
-//			public void run() {
-//				int amount = DEFAULT_AMOUNT;
-//				if (args.length == 2) {
-//					if (NumberUtils.isDigits(args[1])) {
-//						int tmpAmount = Integer.parseInt(args[1]);
-//						if (tmpAmount < 1) {
-//							return;
-//						}
-//						amount = tmpAmount;
-//					}
-//				}
-//				
-//				new MessageHistory(e.getChannel())
-//						.retrieveAll()
-//						.parallelStream()
-//						.filter(m -> m.getAuthor().getId().equals(e.getAuthor().getId()))
-//						.limit(amount)
-//						.forEach(Message::deleteMessage);
-//			}
-//		}).start();
+		TextChannel channel = e.getTextChannel();
+		user = null;
+		amount = 0;
 		
-		// TODO Check if this works as intended
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				MessageChannel c = e.getChannel();
-				synchronized(c) {
-					executingMethod(e, args, c);
-				}
-			}
-		}).start();
-	}
-	
-	private void executingMethod(MessageReceivedEvent e, String[] args, MessageChannel c) {
 		if (args.length == 2) {
-			// purge <@user>
-			if (!e.getMessage().getMentionedUsers().isEmpty()) {
-				User mentioned = e.getMessage().getMentionedUsers().get(0);
-				SendMessage.sendMessage(e, deleteMessages(mentioned, c, DEFAULT_AMOUNT));
-			}
 			// purge <amount>
-			else if (NumberUtils.isDigits(args[1])) {
-				int amount = Integer.parseInt(args[1]);
-				if (amount > 0) {
-					SendMessage.sendMessage(e, deleteMessages(null, c, amount));
-				}
-				else {
-					SendMessage.sendMessage(e, "Error: Purge number must be greater than 0.");
-				}
+			if (NumberUtils.isDigits(args[1])) {
+				amount = Integer.parseInt(args[1]);
 			}
 			else {
 				SendMessage.sendMessage(e, "Error: Unknown argument \"" + args[1] + "\".");
+				return;
 			}
 		}
 		else if (args.length == 3) {
 			// purge <@user> <amount>
 			// purge <amount> <@user>
-			if (!e.getMessage().getMentionedUsers().isEmpty()) {
-				User mentioned = e.getMessage().getMentionedUsers().get(0);
-				int amount = 0;
+			if (e.getMessage().getMentionedUsers().size() == 1) {
+				user = e.getMessage().getMentionedUsers().get(0);
 				if (NumberUtils.isDigits(args[1])) {
 					amount = Integer.parseInt(args[1]);
 				}
@@ -107,58 +60,120 @@ public class PurgeCommand implements Command {
 				}
 				else {
 					SendMessage.sendMessage(e, "Error: Unknown argument. Not a number.");
-				}
-				
-				if (amount > 0) {
-					SendMessage.sendMessage(e, deleteMessages(mentioned, c, amount));
-				}
-				else {
-					SendMessage.sendMessage(e, "Error: Purge number must be greater than 0.");
+					return;
 				}
 			}
 			else {
-				SendMessage.sendMessage(e, "Error: A user must be mentioned.");
+				SendMessage.sendMessage(e, "Error: A single user must be mentioned.");
+				return;
 			}
 		}
 		else {
 			SendMessage.sendMessage(e, "Error: Incorrect usage.");
+			return;
 		}
+		
+		if (amount <= 0) {
+			SendMessage.sendMessage(e, "Error: Purge number must be greater than 0.");
+			return;
+		}
+		
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				List<Message> messages;
+				if (user == null) {
+					messages = getMessages(channel, amount);
+				}
+				else {
+					messages = getMessages(channel, amount, user);
+				}
+				
+				deleteMessages(channel, messages);
+				SendMessage.sendMessage(e, "Deleted " + messages.size() + " messages" + (user == null ? "." : " by " + user.getUsername() + "."));
+			}
+		})
+		.start();
 	}
-	// TODO new MessageHistory(channel).retrieve(X).parallelStream().forEach(Message::deleteMessage)
-	// Should be faster ^^
-	private String deleteMessages(User user, MessageChannel channel, int amount) {
-		MessageHistory history = new MessageHistory(channel);
-		int count = 0;
-		while (count < amount) {
-			List<Message> messages = history.retrieve();
-			if (messages == null) {
+	
+	private List<Message> getMessages(TextChannel c, int amount) {
+		List<Message> messages = new ArrayList<Message>();
+		while (amount > 0) {
+			int numToRetrieve = amount;
+			if (amount > MAX_RETRIEVE_SIZE) {
+				numToRetrieve = MAX_RETRIEVE_SIZE;
+			}
+			List<Message> retrieved = c.getHistory().retrieve(numToRetrieve);
+			if (retrieved == null) {
 				break;
 			}
-			for (int i = 0; i < messages.size(); i++) {
-				Message m = messages.get(i);
-				
-				if (user == null) {
-					m.deleteMessage();
-					count++;
+			messages.addAll(retrieved);
+			amount -= numToRetrieve;
+		}
+		return messages;
+	}
+	
+	private List<Message> getMessages(TextChannel c, int amount, User user) {
+		List<Message> messages = new ArrayList<Message>();
+		while (amount > 0) {
+			int numToRetrieve = amount;
+			if (amount > MAX_RETRIEVE_SIZE) {
+				numToRetrieve = MAX_RETRIEVE_SIZE;
+			}
+			List<Message> retrieved = c.getHistory().retrieve(numToRetrieve);
+			if (retrieved == null) {
+				break;
+			}
+			
+			int numFoundByUser = 0;
+			for (Message m : retrieved) {
+				if (m.getAuthor().getId().equals(user.getId())) {
+					messages.add(m);
+					numFoundByUser++;
 				}
-				else if (m.getAuthor().getId().equals(user.getId())) {
-					m.deleteMessage();
-					count++;
+			}
+			amount -= numFoundByUser;
+		}
+		
+		return messages;
+	}
+	
+	private void deleteMessages(List<Message> messages) {
+		messages.parallelStream().forEach(Message::deleteMessage);
+	}
+	
+	private void deleteMessages(TextChannel c, List<Message> messages) {
+		final int MAX_BULK_DELETE = 100;
+		final int MIN_BULK_DELETE = 3;
+		
+		if (messages.size() <= MAX_BULK_DELETE) {
+			c.deleteMessages(messages);
+		}
+		else {
+			while (messages.size() > 0) {
+				List<Message> batch = new ArrayList<Message>();
+				if (messages.size() > MAX_BULK_DELETE) {
+					for (int i = 0; i < MAX_BULK_DELETE; i++) {
+						batch.add(messages.get(i));
+					}
+					messages.removeAll(batch);
+					c.deleteMessages(batch);
+					
+					// Prevent rate-limit by sleeping for 1 second
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 				}
-				if (count == amount) {
-					break;
+				else if (messages.size() < MIN_BULK_DELETE) {
+					deleteMessages(messages);
+				}
+				else {
+					c.deleteMessages(messages);
 				}
 			}
 		}
-		StringBuilder sb = new StringBuilder()
-				.append("Deleted " + count + " messages");
-		if (user == null) {
-			sb.append(".");
-		}
-		else {
-			sb.append(" sent by " + user.getUsername() + ".");
-		}
-		return sb.toString();
 	}
 	
 	@Override
@@ -184,7 +199,6 @@ public class PurgeCommand implements Command {
 	@Override
 	public String getUsageInstructions() {
 		return "purge <number> - Purge the last <number> of messages.\n"
-				+ "purge <@user> - Purge the last " + DEFAULT_AMOUNT + " messages from <@user>.\n"
 				+ "purge <@user> <amount> - Purge the last <amount> of messages from <@user>.";
 	}
 	
