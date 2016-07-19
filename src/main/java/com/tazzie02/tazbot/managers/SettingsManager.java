@@ -100,6 +100,7 @@ public class SettingsManager {
 		newSettings.setPrefix("!");
 		newSettings.setCrySoundStatus(true);
 		newSettings.setJoined(true);
+		newSettings.setVolume(50);
 		
 		return newSettings;
 	}

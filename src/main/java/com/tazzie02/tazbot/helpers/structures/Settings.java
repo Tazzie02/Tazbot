@@ -12,6 +12,7 @@ public class Settings {
 	private String prefix;
 	private boolean crySoundStatus;
 	private boolean joined;
+	private int volume;
 
 	public List<String> getModerators() {
 		return Collections.unmodifiableList(moderators);
@@ -57,6 +58,14 @@ public class Settings {
 	
 	public void setJoined(boolean joined) {
 		this.joined = joined;
+	}
+	
+	public int getVolume() {
+		return volume;
+	}
+	
+	public void setVolume(int volume) {
+		this.volume = volume;
 	}
 	
 }

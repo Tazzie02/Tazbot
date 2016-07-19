@@ -9,6 +9,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import com.tazzie02.tazbot.Bot;
 import com.tazzie02.tazbot.exceptions.NoVoiceChannelException;
+import com.tazzie02.tazbot.managers.SettingsManager;
 
 import net.dv8tion.jda.audio.player.FilePlayer;
 import net.dv8tion.jda.audio.player.Player;
@@ -39,6 +40,7 @@ public class AudioPlayer {
 	private AudioPlayer(String guildId) {
 		instances.add(this);
 		this.guildId = guildId;
+		this.volume = SettingsManager.getInstance(guildId).getSettings().getVolume() / 100.0f;
 		audioManager = Bot.getJDA().getAudioManager(Bot.getJDA().getGuildById(guildId));
 	}
 	
