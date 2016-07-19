@@ -18,7 +18,7 @@ public class VolumeCommand implements Command {
 		AudioPlayer player = AudioPlayer.getInstance(e.getGuild().getId());
 		
 		if (args.length == 1) {
-			SendMessage.sendMessage(e, "Current volume is " + player.getVolume() + ".");
+			SendMessage.sendMessage(e, "Current volume is " + (int)(player.getVolume() * 100) + ".");
 		}
 		else if (args.length == 2) {
 			if (NumberUtils.isDigits(args[1])) {
