@@ -26,7 +26,7 @@ public class PurgeCommand implements Command {
 	
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
-		// If bot does not have Messgae Manage AND (mentioned size == 1 AND does not contain self info)
+		// If bot does not have Message Manage AND (mentioned size == 1 AND does not contain self info)
 		if (!PermissionUtil.checkPermission(e.getJDA().getSelfInfo(), Permission.MESSAGE_MANAGE, e.getTextChannel())
 				&& (e.getMessage().getMentionedUsers().size() == 1 && !e.getMessage().getMentionedUsers().contains(e.getJDA().getSelfInfo()))) {
 			SendMessage.sendMessage(e, "Error: Bot requires *Manage Messages* permission to purge messages.");
@@ -89,8 +89,9 @@ public class PurgeCommand implements Command {
 					messages = getMessages(channel, amount, user);
 				}
 				
+				int size = messages.size();
 				deleteMessages(channel, messages);
-				SendMessage.sendMessage(e, "Deleted " + messages.size() + " messages" + (user == null ? "." : " by " + user.getUsername() + "."));
+				SendMessage.sendMessage(e, "Deleted " + size + " messages" + (user == null ? "." : " by " + user.getUsername() + "."));
 			}
 		})
 		.start();
