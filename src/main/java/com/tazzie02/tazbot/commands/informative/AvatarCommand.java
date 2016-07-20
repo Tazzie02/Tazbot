@@ -1,14 +1,17 @@
 package com.tazzie02.tazbot.commands.informative;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import com.tazzie02.tazbot.commands.Command;
 import com.tazzie02.tazbot.util.SendMessage;
 
 import net.dv8tion.jda.JDA;
+import net.dv8tion.jda.entities.Guild;
 import net.dv8tion.jda.entities.User;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 
@@ -21,34 +24,66 @@ public class AvatarCommand implements Command {
 			return;
 		}
 		
-		StringBuilder sb = new StringBuilder();
-		String[] raw = e.getMessage().getRawContent().split(" ");
+		String content = StringUtils.join(args, " ", 1, args.length);
 		
-		for (int i = 1; i < raw.length; i++) {
-			User u = resolveUser(raw[i], e.getJDA());
-			if (u != null) {
-				sb.append(getAvatarString(u)).append("\n");
-			}
-			else {
-				sb.append("Could not resolve \"").append(raw[i]).append("\" as mention or ID.\n");
-			}
+		List<User> users = new ArrayList<User>();
+		
+		users.addAll(e.getMessage().getMentionedUsers());
+		users.addAll(idStringToUser(Arrays.asList(args).subList(1, args.length), e.getJDA()));
+		users.addAll(stringToUsername(content, e.getJDA()));
+		users.addAll(stringToNickname(content, e.getGuild()));
+		
+		if (users.isEmpty()) {
+			SendMessage.sendMessage(e, "Error: Could not find user.");
+			return;
+		}
+		
+		StringBuilder sb = new StringBuilder();
+		for (User u : users) {
+			sb.append(getAvatarString(u) + "\n");
 		}
 		
 		SendMessage.sendMessage(e, sb.toString());
 	}
 	
 	private String getAvatarString(User u) {
-		return u.getUsername() + "'s avatar: " + u.getAvatarUrl();
+		String avatar = u.getAvatarUrl();
+		if (avatar == null) {
+			avatar = "(default) " + u.getDefaultAvatarUrl();
+		}
+		return u.getUsername() + "'s avatar: " + avatar;
 	}
 	
-	private User resolveUser(String s, JDA jda) {
-		if (s.matches("(<@\\d+>)")) {
-			return jda.getUserById(s.replaceAll("[^0-9]", ""));
+	private List<User> idStringToUser(List<String> args, JDA jda) {
+		List<User> users = new ArrayList<User>();
+		
+		for (int i = 0; i < args.size(); i++) {
+			if (NumberUtils.isDigits(args.get(i))) {
+				User u = jda.getUserById(args.get(i));
+				if (u != null) {
+					users.add(u);
+				}
+			}
 		}
-		else if (NumberUtils.isDigits(s)) {
-			return jda.getUserById(s);
+		return users;
+	}
+	
+	private List<User> stringToUsername(String string, JDA jda) {
+		return jda.getUsersByName(string);
+	}
+	
+	private List<User> stringToNickname(String string, Guild guild) {
+		List<User> users = new ArrayList<User>();
+		
+		for (User u : guild.getUsers()) {
+			String nickname = guild.getNicknameForUser(u);
+			if (nickname != null) {
+				if (nickname.equalsIgnoreCase(string)) {
+					users.add(u);
+				}
+			}
 		}
-		return null;
+		return users;
 	}
 	
 	@Override
@@ -63,7 +98,7 @@ public class AvatarCommand implements Command {
 	
 	@Override
 	public String getDescription() {
-		return "Link a single or multiple user's avatars.";
+		return "Link a user's avatar.";
 	}
 	
 	@Override
@@ -73,7 +108,9 @@ public class AvatarCommand implements Command {
 	
 	@Override
 	public String getUsageInstructions() {
-		return "avatar <@user/userId> <...> - Return a link to the mentioned user's avatar/s.";
+		return "avatar - Return a link to the user's avatar.\n"
+				+ "avatar <@user/userId> <...> - Return a link to the user's avatar.\n"
+				+ "avatar <username/nickname> - Return a link to the user's avatar.";
 	}
 	
 	@Override
