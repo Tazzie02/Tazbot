@@ -147,7 +147,7 @@ public class PurgeCommand implements Command {
 		final int MAX_BULK_DELETE = 100;
 		final int MIN_BULK_DELETE = 3;
 		
-		if (messages.size() <= MAX_BULK_DELETE) {
+		if (messages.size() <= MAX_BULK_DELETE && messages.size() >= MIN_BULK_DELETE) {
 			c.deleteMessages(messages);
 		}
 		else {
