@@ -9,6 +9,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import com.tazzie02.tazbot.commands.Command;
 import com.tazzie02.tazbot.util.SendMessage;
 
+import net.dv8tion.jda.MessageHistory;
 import net.dv8tion.jda.Permission;
 import net.dv8tion.jda.entities.Message;
 import net.dv8tion.jda.entities.TextChannel;
@@ -99,35 +100,45 @@ public class PurgeCommand implements Command {
 	
 	private List<Message> getMessages(TextChannel c, int amount) {
 		List<Message> messages = new ArrayList<Message>();
+		MessageHistory history = c.getHistory();
+		
 		while (amount > 0) {
 			int numToRetrieve = amount;
+			
 			if (amount > MAX_RETRIEVE_SIZE) {
 				numToRetrieve = MAX_RETRIEVE_SIZE;
 			}
-			List<Message> retrieved = c.getHistory().retrieve(numToRetrieve);
+			
+			List<Message> retrieved = history.retrieve(numToRetrieve);
 			if (retrieved == null) {
 				break;
 			}
+			
 			messages.addAll(retrieved);
 			amount -= numToRetrieve;
 		}
+		
 		return messages;
 	}
 	
 	private List<Message> getMessages(TextChannel c, int amount, User user) {
 		List<Message> messages = new ArrayList<Message>();
+		MessageHistory history = c.getHistory();
+		
 		while (amount > 0) {
-			int numToRetrieve = amount;
-			if (amount > MAX_RETRIEVE_SIZE) {
-				numToRetrieve = MAX_RETRIEVE_SIZE;
-			}
-			List<Message> retrieved = c.getHistory().retrieve(numToRetrieve);
+			int numToRetrieve = MAX_RETRIEVE_SIZE;
+			
+			List<Message> retrieved = history.retrieve(numToRetrieve);
 			if (retrieved == null) {
 				break;
 			}
 			
 			int numFoundByUser = 0;
 			for (Message m : retrieved) {
+				if (numFoundByUser == amount) {
+					break;
+				}
+				
 				if (m.getAuthor().getId().equals(user.getId())) {
 					messages.add(m);
 					numFoundByUser++;
@@ -136,6 +147,7 @@ public class PurgeCommand implements Command {
 			amount -= numFoundByUser;
 		}
 		
+		System.out.println("Returning " + messages.size() + " messages by " + user.getUsername());
 		return messages;
 	}
 	
@@ -147,32 +159,30 @@ public class PurgeCommand implements Command {
 		final int MAX_BULK_DELETE = 100;
 		final int MIN_BULK_DELETE = 3;
 		
-		if (messages.size() <= MAX_BULK_DELETE && messages.size() >= MIN_BULK_DELETE) {
-			c.deleteMessages(messages);
-		}
-		else {
-			while (messages.size() > 0) {
+		while (!messages.isEmpty()) {
+			if (messages.size() > MAX_BULK_DELETE) {
 				List<Message> batch = new ArrayList<Message>();
-				if (messages.size() > MAX_BULK_DELETE) {
-					for (int i = 0; i < MAX_BULK_DELETE; i++) {
-						batch.add(messages.get(i));
-					}
-					messages.removeAll(batch);
-					c.deleteMessages(batch);
-					
-					// Prevent rate-limit by sleeping for 1 second
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
+				
+				for (int i = 0; i < MAX_BULK_DELETE; i++) {
+					batch.add(messages.get(i));
 				}
-				else if (messages.size() < MIN_BULK_DELETE) {
-					deleteMessages(messages);
+				messages.removeAll(batch);
+				c.deleteMessages(batch);
+				
+				// Prevent rate-limit by sleeping for 1 second
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
 				}
-				else {
-					c.deleteMessages(messages);
-				}
+			}
+			else if (messages.size() < MIN_BULK_DELETE) {
+				deleteMessages(messages);
+				messages.clear();
+			}
+			else {
+				c.deleteMessages(messages);
+				messages.clear();
 			}
 		}
 	}
