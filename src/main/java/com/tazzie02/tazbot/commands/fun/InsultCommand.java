@@ -24,7 +24,7 @@ public class InsultCommand implements Command {
 		try {
 			String insult = null;
 			
-			if (args.length > 1 && args[1].equalsIgnoreCase("shakespeare") || args[1].equalsIgnoreCase("shakespearean")) { 
+			if (args.length > 1 && (args[1].equalsIgnoreCase("shakespeare") || args[1].equalsIgnoreCase("shakespearean"))) { 
 				insult = getInsultShakespeare();
 			}
 			else {
