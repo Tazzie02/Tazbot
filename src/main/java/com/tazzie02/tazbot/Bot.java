@@ -16,6 +16,7 @@ import com.tazzie02.tazbot.managers.ConfigManager;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
+import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import net.dv8tion.jda.core.managers.AccountManager;
 
@@ -40,7 +41,7 @@ public class Bot {
 			AccountManager manager = jda.getSelfUser().getManager();
 			
 			manager.setName(config.getBotName());
-//			jda.getAccountManager().setGame(ConfigManager.getInstance().getConfig().getBotGame());
+			jda.getPresence().setGame(Game.of(ConfigManager.getInstance().getConfig().getBotGame()));
 
 			System.out.println("Number of Guilds: " + jda.getGuilds().size());
 			System.out.println("Number of Users: " + jda.getUsers().size());

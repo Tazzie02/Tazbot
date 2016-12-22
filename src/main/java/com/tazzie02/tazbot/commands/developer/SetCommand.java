@@ -15,6 +15,7 @@ import com.tazzie02.tazbot.managers.ConfigManager;
 import com.tazzie02.tazbot.managers.SettingsManager;
 import com.tazzie02.tazbot.util.SendMessage;
 
+import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Icon;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
@@ -55,10 +56,9 @@ public class SetCommand implements Command {
 				}
 				// !set config game <newGame>
 				else if (args[2].equalsIgnoreCase("game")) {
-//					String newGame = remainingArgs(args, 3);
-					// TODO Fix
-//					config.setBotGame(newGame);
-//					e.getJDA().getAccountManager().setGame(newGame);
+					String newGame = remainingArgs(args, 3);
+					config.setBotGame(newGame);
+					e.getJDA().getPresence().setGame(Game.of(newGame));
 				}
 				ConfigManager.getInstance().saveConfig();
 			}
