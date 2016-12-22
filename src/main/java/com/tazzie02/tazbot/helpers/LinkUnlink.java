@@ -9,14 +9,14 @@ import java.util.Set;
 
 import com.tazzie02.tazbot.Bot;
 
-import net.dv8tion.jda.Permission;
-import net.dv8tion.jda.entities.Guild;
-import net.dv8tion.jda.entities.User;
-import net.dv8tion.jda.entities.VoiceChannel;
-import net.dv8tion.jda.events.voice.VoiceJoinEvent;
-import net.dv8tion.jda.events.voice.VoiceLeaveEvent;
-import net.dv8tion.jda.hooks.ListenerAdapter;
-import net.dv8tion.jda.utils.PermissionUtil;
+import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.VoiceChannel;
+import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent;
+import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent;
+import net.dv8tion.jda.core.hooks.ListenerAdapter;
+import net.dv8tion.jda.core.utils.PermissionUtil;
 
 public class LinkUnlink {
 	
@@ -26,7 +26,7 @@ public class LinkUnlink {
 	private final String guildId;
 	private boolean linked;
 	private List<VoiceChannel> channelsToLink = new ArrayList<VoiceChannel>(); 
-	private Map<VoiceChannel, Set<User>> channelsAndUsers = new HashMap<VoiceChannel, Set<User>>();
+	private Map<VoiceChannel, Set<Member>> channelsAndMembers = new HashMap<>();
 	private VoiceChannel linkChannel;
 	private UserMoveListener listener;
 	
@@ -89,17 +89,16 @@ public class LinkUnlink {
 	}
 	
 	private void linkChannel(VoiceChannel c) {
-		Set<User> usersInChannel = new HashSet<User>();
-		usersInChannel.addAll(c.getUsers());
-		channelsAndUsers.put(c, usersInChannel);
+		Set<Member> membersInChannel = new HashSet<Member>();
+		membersInChannel.addAll(c.getMembers());
+		channelsAndMembers.put(c, membersInChannel);
 		
 		Guild g = Bot.getJDA().getGuildById(guildId);
-		usersInChannel.stream().forEach(u -> g.getManager().moveVoiceUser(u, linkChannel));
+		membersInChannel.stream().forEach(m -> g.getController().moveVoiceMember(m, linkChannel).queue());
 		
 		// If bot has manage channel permission in the guild to edit channel name
-		if (PermissionUtil.checkPermission(Bot.getJDA().getSelfInfo(), Permission.MANAGE_CHANNEL, g)) {
-			c.getManager().setName(PREFIX + c.getName());
-			c.getManager().update();
+		if (PermissionUtil.checkPermission(g, g.getSelfMember(), Permission.MANAGE_CHANNEL)) {
+			c.getManager().setName(PREFIX + c.getName()).queue();
 		}
 	}
 	
@@ -108,7 +107,7 @@ public class LinkUnlink {
 			return;
 		}
 		
-		channelsAndUsers.forEach((c,us) -> unlinkChannel(c, us, true));
+		channelsAndMembers.forEach((c, ms) -> unlinkChannel(c, ms, true));
 		
 		linkChannel = null;
 		linked = false;
@@ -116,7 +115,7 @@ public class LinkUnlink {
 		instances.remove(this);
 	}
 	
-	private void unlinkChannel(VoiceChannel c, Set<User> users, boolean unlinkingAll) {
+	private void unlinkChannel(VoiceChannel c, Set<Member> members, boolean unlinkingAll) {
 		Guild g = Bot.getJDA().getGuildById(guildId);
 		
 		if (!unlinkingAll) {
@@ -126,16 +125,16 @@ public class LinkUnlink {
 			}
 			linkChannel = channelsToLink.get(channelsToLink.lastIndexOf(c) != 0 ? 0 : 1);
 			
-			users.forEach(u -> {
-				if (!c.getUsers().contains(u)) {
-					g.getManager().moveVoiceUser(u, linkChannel);
+			members.forEach(m -> {
+				if (!c.getMembers().contains(m)) {
+					g.getController().moveVoiceMember(m, linkChannel);
 				}
 			});
 		}
 		else {
-			users.forEach(u -> {
-				if (linkChannel.getUsers().contains(u)) {
-					g.getManager().moveVoiceUser(u, c);
+			members.forEach(m -> {
+				if (linkChannel.getMembers().contains(m)) {
+					g.getController().moveVoiceMember(m, c);
 				}
 			});
 		}
@@ -143,16 +142,15 @@ public class LinkUnlink {
 		String name = c.getName();
 		if (name.startsWith(PREFIX)) {
 			// If bot has manage channel permission in the guild to edit channel name
-			if (PermissionUtil.checkPermission(Bot.getJDA().getSelfInfo(), Permission.MANAGE_CHANNEL, g)) {
-				c.getManager().setName(name.substring(PREFIX.length()));
-				c.getManager().update();
+			if (PermissionUtil.checkPermission(g, g.getSelfMember(), Permission.MANAGE_CHANNEL)) {
+				c.getManager().setName(name.substring(PREFIX.length())).queue();
 			}
 		}
 	}
 	
 	private void unlinkChannel(VoiceChannel c) {
-		if (channelsAndUsers.containsKey(c)) {
-			unlinkChannel(c, channelsAndUsers.get(c), false);
+		if (channelsAndMembers.containsKey(c)) {
+			unlinkChannel(c, channelsAndMembers.get(c), false);
 		}
 	}
 	
@@ -167,42 +165,42 @@ public class LinkUnlink {
 	
 	private class UserMoveListener extends ListenerAdapter {
 		@Override
-		public void onVoiceJoin(VoiceJoinEvent e) {
+		public void onGuildVoiceJoin(GuildVoiceJoinEvent e) {
 			// Ignore guilds that are not related to this instance
 			if (e.getGuild().getId() != guildId) {
 				return;
 			}
 			// Ignore voice channels that are not linked
-			if (!channelsAndUsers.containsKey(e.getChannel())) {
+			if (!channelsAndMembers.containsKey(e.getChannelJoined())) {
 				return;
 			}
 			// Ignore link channel
-			if (linkChannel.getId().equals(e.getChannel().getId())) {
+			if (linkChannel.getId().equals(e.getChannelJoined().getId())) {
 				return;
 			}
 			
-			User user = e.getUser();
-			channelsAndUsers.forEach((c,us) -> us.remove(user));
-			channelsAndUsers.get(e.getChannel()).add(user);
-			e.getGuild().getManager().moveVoiceUser(user, linkChannel);
+			Member member = e.getMember();
+			channelsAndMembers.forEach((c, ms) -> ms.remove(member));
+			channelsAndMembers.get(e.getChannelJoined()).add(member);
+			e.getGuild().getController().moveVoiceMember(member, linkChannel);
 		}
 		
 		@Override
-		public void onVoiceLeave(VoiceLeaveEvent e) {
+		public void onGuildVoiceLeave(GuildVoiceLeaveEvent e) {
 			// Ignore guilds that are not related to this instance
 			if (e.getGuild().getId() != guildId) {
 				return;
 			}
 			// Ignore voice channels that are not linked
-			if (!channelsAndUsers.containsKey(e.getOldChannel())) {
+			if (!channelsAndMembers.containsKey(e.getChannelLeft())) {
 				return;
 			}
 			// Ignore if the user joins a linked channel
-			if (channelsAndUsers.containsKey(e.getGuild().getVoiceStatusOfUser(e.getUser()).getChannel())) {
+			if (channelsAndMembers.containsKey(e.getMember().getVoiceState().getChannel())) {
 				return;
 			}
 			
-			channelsAndUsers.forEach((c,us) -> us.remove(e.getUser()));
+			channelsAndMembers.forEach((c, ms) -> ms.remove(e.getMember()));
 		}
 	}
 

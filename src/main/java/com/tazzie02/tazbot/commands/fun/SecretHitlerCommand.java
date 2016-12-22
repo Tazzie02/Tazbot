@@ -21,9 +21,10 @@ import com.tazzie02.tazbot.helpers.Youtube;
 import com.tazzie02.tazbot.util.SendMessage;
 import com.tazzie02.tazbot.util.UserUtil;
 
-import net.dv8tion.jda.MessageBuilder;
-import net.dv8tion.jda.entities.User;
-import net.dv8tion.jda.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.entities.ChannelType;
+import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 public class SecretHitlerCommand implements Command {
 	
@@ -65,7 +66,7 @@ public class SecretHitlerCommand implements Command {
 			StringBuilder sb = new StringBuilder();
 
 			sb.append("Secret Hitler. View information using !sh <config/description/rules>.");
-			if (e.isPrivate()) {
+			if (e.isFromType(ChannelType.PRIVATE)) {
 				sb.append("\nNote: Game can not be started from private message.");
 			}
 
@@ -100,15 +101,15 @@ public class SecretHitlerCommand implements Command {
 						games.add(game);
 					}
 					if (game.setPlayers(e.getAuthor(), mentions)) {
-						MessageBuilder mb = new MessageBuilder().appendString("Successfully added ");
+						MessageBuilder mb = new MessageBuilder().append("Successfully added ");
 						for (int i = 0; i < game.getPlayers().size(); i++) {
 							Player p = game.getPlayers().get(i);
-							mb.appendMention(p.getUser());
+							mb.append(p.getUser());
 							if (i < game.getPlayers().size() - 1) {
-								mb.appendString(", ");
+								mb.append(", ");
 							}
 						}
-						mb.appendString(" to the game.");
+						mb.append(" to the game.");
 						SendMessage.sendMessage(e, mb.build());
 						return;
 					}
@@ -282,20 +283,20 @@ public class SecretHitlerCommand implements Command {
 			if (args.length == 2) {
 				// !sh getsound - Print all sounds for the user
 				MessageBuilder mb = new MessageBuilder()
-						.appendString("Triggers and values for ")
-						.appendMention(e.getAuthor())
-						.appendString(":\n```")
-						.appendString(SetSounds.getKeyValues(e.getAuthor()) + " ```");
+						.append("Triggers and values for ")
+						.append(e.getAuthor())
+						.append(":\n```")
+						.append(SetSounds.getKeyValues(e.getAuthor()) + " ```");
 				SendMessage.sendMessage(e, mb.build());
 			}
 			else if (args.length == 3) {
 				// !sh getsound <@user> - Getall sounds for that user
 				if (!e.getMessage().getMentionedUsers().isEmpty()) {
 					MessageBuilder mb = new MessageBuilder()
-							.appendString("Triggers and values for ")
-							.appendMention(e.getMessage().getMentionedUsers().get(0))
-							.appendString(":\n```")
-							.appendString(SetSounds.getKeyValues(e.getMessage().getMentionedUsers().get(0)) + " ```");
+							.append("Triggers and values for ")
+							.append(e.getMessage().getMentionedUsers().get(0))
+							.append(":\n```")
+							.append(SetSounds.getKeyValues(e.getMessage().getMentionedUsers().get(0)) + " ```");
 					SendMessage.sendMessage(e, mb.build());
 				}
 				// !sh getsound <ID> - Get sounds for user with ID
@@ -303,10 +304,10 @@ public class SecretHitlerCommand implements Command {
 					User u = e.getJDA().getUserById(args[2]);
 					if (u != null) {
 						MessageBuilder mb = new MessageBuilder()
-								.appendString("Triggers and values for ")
-								.appendMention(u)
-								.appendString(":\n```")
-								.appendString(SetSounds.getKeyValues(u) + " ```");
+								.append("Triggers and values for ")
+								.append(u)
+								.append(":\n```")
+								.append(SetSounds.getKeyValues(u) + " ```");
 						SendMessage.sendMessage(e, mb.build());
 					}
 					else {
@@ -347,10 +348,10 @@ public class SecretHitlerCommand implements Command {
 				// !sh getsound <trigger> - Get sounds for the trigger for the user
 				else if (SetSounds.matchUserKey(args[2])) {
 					MessageBuilder mb = new MessageBuilder()
-							.appendString(args[2] + " values for ")
-							.appendMention(e.getAuthor())
-							.appendString("\n```")
-							.appendString(SetSounds.getKeyValue(e.getAuthor(), args[2]) + " ```");
+							.append(args[2] + " values for ")
+							.append(e.getAuthor())
+							.append("\n```")
+							.append(SetSounds.getKeyValue(e.getAuthor(), args[2]) + " ```");
 					SendMessage.sendMessage(e, mb.build());
 				}
 				// !sh getsound ???
@@ -375,10 +376,10 @@ public class SecretHitlerCommand implements Command {
 					// !sh getsound <trigger> <@user> - Get sounds for that trigger for that user
 					if (!e.getMessage().getMentionedUsers().isEmpty()) {
 						MessageBuilder mb = new MessageBuilder()
-								.appendString(args[2] + " values for ")
-								.appendMention(e.getMessage().getMentionedUsers().get(0))
-								.appendString(":\n```")
-								.appendString(SetSounds.getKeyValue(e.getMessage().getMentionedUsers().get(0), args[2]) + " ```");
+								.append(args[2] + " values for ")
+								.append(e.getMessage().getMentionedUsers().get(0))
+								.append(":\n```")
+								.append(SetSounds.getKeyValue(e.getMessage().getMentionedUsers().get(0), args[2]) + " ```");
 						SendMessage.sendMessage(e, mb.build());
 					}
 					// !sh getsound <trigger> <ID> - Get sounds for that trigger for that user with ID
@@ -386,10 +387,10 @@ public class SecretHitlerCommand implements Command {
 						User u = e.getJDA().getUserById(args[3]);
 						if (u != null) {
 							MessageBuilder mb = new MessageBuilder()
-									.appendString(args[2] + " values for ")
-									.appendMention(u)
-									.appendString(":\n```")
-									.appendString(SetSounds.getKeyValue(u, args[2]) + " ```");
+									.append(args[2] + " values for ")
+									.append(u)
+									.append(":\n```")
+									.append(SetSounds.getKeyValue(u, args[2]) + " ```");
 							SendMessage.sendMessage(e, mb.build());
 						}
 						else {
@@ -452,9 +453,9 @@ public class SecretHitlerCommand implements Command {
 							if (file != null) {
 								if (SetSounds.setSound(args[2], file.getPath(), e.getAuthor())) {
 									MessageBuilder mb = new MessageBuilder()
-											.appendString("Set " + args[2] + " for ")
-											.appendMention(e.getAuthor())
-											.appendString(" to " + file.getPath());
+											.append("Set " + args[2] + " for ")
+											.append(e.getAuthor())
+											.append(" to " + file.getPath());
 									SendMessage.sendMessage(e, mb.build());
 								}
 								else {
@@ -509,9 +510,9 @@ public class SecretHitlerCommand implements Command {
 									if (file != null) {
 										if (SetSounds.setSound(args[2], file.getPath(), e.getMessage().getMentionedUsers().get(0))) {
 											MessageBuilder mb = new MessageBuilder()
-													.appendString("Set " + args[2] + " for ")
-													.appendMention(e.getMessage().getMentionedUsers().get(0))
-													.appendString(" to " + file.getPath());
+													.append("Set " + args[2] + " for ")
+													.append(e.getMessage().getMentionedUsers().get(0))
+													.append(" to " + file.getPath());
 											SendMessage.sendMessage(e, mb.build());
 										}
 										else {
@@ -546,9 +547,9 @@ public class SecretHitlerCommand implements Command {
 										if (file != null) {
 											if (SetSounds.setSound(args[2], file.getPath(), u)) {
 												MessageBuilder mb = new MessageBuilder()
-														.appendString("Set " + args[2] + " for ")
-														.appendMention(u)
-														.appendString(" to " + file.getPath());
+														.append("Set " + args[2] + " for ")
+														.append(u)
+														.append(" to " + file.getPath());
 												SendMessage.sendMessage(e, mb.build());
 											}
 											else {
@@ -583,9 +584,9 @@ public class SecretHitlerCommand implements Command {
 						if (file.isFile() || args[3].equalsIgnoreCase("-") || args[3].equalsIgnoreCase("null")) {
 							if (SetSounds.setSound(args[2], args[3], e.getAuthor())) {
 								MessageBuilder mb = new MessageBuilder()
-										.appendString("Set " + args[2] + " for ")
-										.appendMention(e.getAuthor())
-										.appendString(" to " + args[3]);
+										.append("Set " + args[2] + " for ")
+										.append(e.getAuthor())
+										.append(" to " + args[3]);
 								SendMessage.sendMessage(e, mb.build());
 							}
 							else {
@@ -602,9 +603,9 @@ public class SecretHitlerCommand implements Command {
 									if (file.exists()) { // Check file downloaded
 										if (SetSounds.setSound(args[2], file.getPath(), e.getAuthor())) {
 											MessageBuilder mb = new MessageBuilder()
-													.appendString("Set " + args[2] + " for ")
-													.appendMention(e.getAuthor())
-													.appendString(" to " + file.getPath());
+													.append("Set " + args[2] + " for ")
+													.append(e.getAuthor())
+													.append(" to " + file.getPath());
 											SendMessage.sendMessage(e, mb.build());
 										}
 										else {
@@ -679,9 +680,9 @@ public class SecretHitlerCommand implements Command {
 							if (file.isFile() || args[3].equalsIgnoreCase("-") || args[3].equalsIgnoreCase("null")) {
 								if (SetSounds.setSound(args[2], args[3], e.getMessage().getMentionedUsers().get(0))) {
 									MessageBuilder mb = new MessageBuilder()
-											.appendString("Set " + args[2] + " for ")
-											.appendMention(e.getMessage().getMentionedUsers().get(0))
-											.appendString(" to " + args[3]);
+											.append("Set " + args[2] + " for ")
+											.append(e.getMessage().getMentionedUsers().get(0))
+											.append(" to " + args[3]);
 									SendMessage.sendMessage(e, mb.build());
 								}
 								else {
@@ -698,9 +699,9 @@ public class SecretHitlerCommand implements Command {
 										if (file.exists()) { // Check file downloaded
 											if (SetSounds.setSound(args[2], file.getPath(), e.getMessage().getMentionedUsers().get(0))) {
 												MessageBuilder mb = new MessageBuilder()
-														.appendString("Set " + args[2] + " for ")
-														.appendMention(e.getMessage().getMentionedUsers().get(0))
-														.appendString(" to " + file.getPath());
+														.append("Set " + args[2] + " for ")
+														.append(e.getMessage().getMentionedUsers().get(0))
+														.append(" to " + file.getPath());
 												SendMessage.sendMessage(e, mb.build());
 											}
 											else {
@@ -736,9 +737,9 @@ public class SecretHitlerCommand implements Command {
 								if (file.isFile() || args[3].equalsIgnoreCase("-") || args[3].equalsIgnoreCase("null")) {
 									if (SetSounds.setSound(args[2], args[3], u)) {
 										MessageBuilder mb = new MessageBuilder()
-												.appendString("Set " + args[2] + " for ")
-												.appendMention(u)
-												.appendString(" to " + args[3]);
+												.append("Set " + args[2] + " for ")
+												.append(u)
+												.append(" to " + args[3]);
 										SendMessage.sendMessage(e, mb.build());
 									}
 									else {
@@ -755,9 +756,9 @@ public class SecretHitlerCommand implements Command {
 											if (file.exists()) { // Check file downloaded
 												if (SetSounds.setSound(args[2], file.getPath(), u)) {
 													MessageBuilder mb = new MessageBuilder()
-															.appendString("Set " + args[2] + " for ")
-															.appendMention(u)
-															.appendString(" to " + file.getPath());
+															.append("Set " + args[2] + " for ")
+															.append(u)
+															.append(" to " + file.getPath());
 													SendMessage.sendMessage(e, mb.build());
 												}
 												else {

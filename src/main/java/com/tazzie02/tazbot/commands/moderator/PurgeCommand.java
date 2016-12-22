@@ -9,13 +9,15 @@ import org.apache.commons.lang3.math.NumberUtils;
 import com.tazzie02.tazbot.commands.Command;
 import com.tazzie02.tazbot.util.SendMessage;
 
-import net.dv8tion.jda.MessageHistory;
-import net.dv8tion.jda.Permission;
-import net.dv8tion.jda.entities.Message;
-import net.dv8tion.jda.entities.TextChannel;
-import net.dv8tion.jda.entities.User;
-import net.dv8tion.jda.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.utils.PermissionUtil;
+import net.dv8tion.jda.core.MessageHistory;
+import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.ChannelType;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.exceptions.RateLimitedException;
+import net.dv8tion.jda.core.utils.PermissionUtil;
 
 public class PurgeCommand implements Command {
 	
@@ -27,9 +29,14 @@ public class PurgeCommand implements Command {
 	
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
+		if (e.isFromType(ChannelType.PRIVATE)) {
+			SendMessage.sendMessage(e, "Error: Must be a guild text channel.");
+			return;
+		}
+		
 		// If bot does not have Message Manage AND (mentioned size == 1 AND does not contain self info)
-		if (!PermissionUtil.checkPermission(e.getJDA().getSelfInfo(), Permission.MESSAGE_MANAGE, e.getTextChannel())
-				&& (e.getMessage().getMentionedUsers().size() == 1 && !e.getMessage().getMentionedUsers().contains(e.getJDA().getSelfInfo()))) {
+		if (!PermissionUtil.checkPermission(e.getTextChannel(), e.getGuild().getSelfMember(), Permission.MESSAGE_MANAGE)
+				&& (e.getMessage().getMentionedUsers().size() == 1 && !e.getMessage().getMentionedUsers().contains(e.getGuild().getSelfMember()))) {
 			SendMessage.sendMessage(e, "Error: Bot requires *Manage Messages* permission to purge messages.");
 			return;
 		}
@@ -82,23 +89,26 @@ public class PurgeCommand implements Command {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				List<Message> messages;
-				if (user == null) {
-					messages = getMessages(channel, amount);
+				try {
+					List<Message> messages;
+					if (user == null) {
+						messages = getMessages(channel, amount);
+					}
+					else {
+						messages = getMessages(channel, amount, user);
+					}
+					
+					int size = messages.size();
+					deleteMessages(channel, messages);
+					SendMessage.sendMessage(e, "Deleted " + size + " messages" + (user == null ? "." : " by " + user.getName() + "."));
 				}
-				else {
-					messages = getMessages(channel, amount, user);
-				}
-				
-				int size = messages.size();
-				deleteMessages(channel, messages);
-				SendMessage.sendMessage(e, "Deleted " + size + " messages" + (user == null ? "." : " by " + user.getUsername() + "."));
+				catch (RateLimitedException ignored) {}
 			}
 		})
 		.start();
 	}
 	
-	private List<Message> getMessages(TextChannel c, int amount) {
+	private List<Message> getMessages(TextChannel c, int amount) throws RateLimitedException {
 		List<Message> messages = new ArrayList<Message>();
 		MessageHistory history = c.getHistory();
 		
@@ -109,7 +119,7 @@ public class PurgeCommand implements Command {
 				numToRetrieve = MAX_RETRIEVE_SIZE;
 			}
 			
-			List<Message> retrieved = history.retrieve(numToRetrieve);
+			List<Message> retrieved = history.retrievePast(numToRetrieve).block();
 			if (retrieved == null) {
 				break;
 			}
@@ -121,14 +131,14 @@ public class PurgeCommand implements Command {
 		return messages;
 	}
 	
-	private List<Message> getMessages(TextChannel c, int amount, User user) {
+	private List<Message> getMessages(TextChannel c, int amount, User user) throws RateLimitedException {
 		List<Message> messages = new ArrayList<Message>();
 		MessageHistory history = c.getHistory();
 		
 		while (amount > 0) {
 			int numToRetrieve = MAX_RETRIEVE_SIZE;
 			
-			List<Message> retrieved = history.retrieve(numToRetrieve);
+			List<Message> retrieved = history.retrievePast(numToRetrieve).block();
 			if (retrieved == null) {
 				break;
 			}
@@ -147,7 +157,7 @@ public class PurgeCommand implements Command {
 			amount -= numFoundByUser;
 		}
 		
-		System.out.println("Returning " + messages.size() + " messages by " + user.getUsername());
+		System.out.println("Returning " + messages.size() + " messages by " + user.getName());
 		return messages;
 	}
 	

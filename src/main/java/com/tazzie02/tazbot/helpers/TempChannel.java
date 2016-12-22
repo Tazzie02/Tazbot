@@ -1,17 +1,19 @@
 package com.tazzie02.tazbot.helpers;
 
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import net.dv8tion.jda.Permission;
-import net.dv8tion.jda.entities.Role;
-import net.dv8tion.jda.entities.TextChannel;
-import net.dv8tion.jda.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.events.voice.VoiceJoinEvent;
-import net.dv8tion.jda.events.voice.VoiceLeaveEvent;
-import net.dv8tion.jda.hooks.ListenerAdapter;
-import net.dv8tion.jda.managers.ChannelManager;
+import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.ChannelType;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.VoiceChannel;
+import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent;
+import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.exceptions.RateLimitedException;
+import net.dv8tion.jda.core.hooks.ListenerAdapter;
+import net.dv8tion.jda.core.managers.ChannelManager;
+import net.dv8tion.jda.core.utils.PermissionUtil;
 
 public class TempChannel extends ListenerAdapter {
 	
@@ -30,7 +32,7 @@ public class TempChannel extends ListenerAdapter {
 	private boolean ignoreTimer = false;
 	
 	public TempChannel(MessageReceivedEvent e) {
-		if (e.isPrivate()) {
+		if (e.isFromType(ChannelType.PRIVATE)) {
 			e.getAuthor().getPrivateChannel()
 						.sendMessage("Error: !temp may not be used in a private channel.");
 			return;
@@ -39,7 +41,7 @@ public class TempChannel extends ListenerAdapter {
 		
 		messageChannel = e.getTextChannel();
 		
-		if(!checkPermission()) {
+		if(!PermissionUtil.checkPermission(e.getGuild(), e.getGuild().getSelfMember(), Permission.MANAGE_CHANNEL)) {
 			return;
 		}
 		
@@ -52,20 +54,9 @@ public class TempChannel extends ListenerAdapter {
 		startTimer();
 	}
 	
-	private boolean checkPermission() {
-		List<Role> role = event.getGuild().getRolesForUser(event.getJDA().getSelfInfo());
-		
-		for (Role r : role) {
-			if (r.hasPermission(Permission.MANAGE_CHANNEL)) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
 	private ChannelManager createChannel() {
 		String fullMessage = event.getMessage().getContent();
-		String userName = event.getAuthor().getUsername();
+		String userName = event.getAuthor().getName();
 		String message;
 		
 		int index = (fullMessage.indexOf(" ") > 0)
@@ -81,20 +72,25 @@ public class TempChannel extends ListenerAdapter {
 			newChannelName = message;
 		}
 		
-		ChannelManager voiceChannel = event.getGuild().createVoiceChannel(newChannelName);
-		
-//		// Move voice channel above afk
-//		voiceChannel.setPosition(event.getGuild().getTextChannels().size());
-//		voiceChannel.update();
-		
-		// Increment number of temp channels
-		TEMP_NUMBER++;
-		
-		messageChannel.sendMessage(String.format("Created temp channel \"%s\" for %s. "
-				+ "Channel will be deleted in %d seconds if no user joins, or when all users disconnect.",
-				newChannelName, userName, TEMP_EXPIRE));
-		
-		return voiceChannel;
+		try {
+			VoiceChannel voiceChannel = event.getGuild().getController().createVoiceChannel(newChannelName).block();
+			
+//			// Move voice channel above afk
+//			voiceChannel.setPosition(event.getGuild().getTextChannels().size());
+//			voiceChannel.update();
+			
+			// Increment number of temp channels
+			TEMP_NUMBER++;
+			
+			messageChannel.sendMessage(String.format("Created temp channel \"%s\" for %s. "
+					+ "Channel will be deleted in %d seconds if no user joins, or when all users disconnect.",
+					newChannelName, userName, TEMP_EXPIRE));
+			
+			return voiceChannel.getManager();
+		}
+		catch (RateLimitedException e) {
+			return null;
+		}
 	}
 	
 	private void startTimer() {
@@ -115,7 +111,11 @@ public class TempChannel extends ListenerAdapter {
 	
 	private void deleteChannel() {
 		String channelName = voiceChannel.getChannel().getName();
-		voiceChannel.delete();
+		
+		try {
+			voiceChannel.getChannel().delete().block();
+		}
+		catch (RateLimitedException ignored) {}
 		
 		// Remove this voice listener
 		event.getJDA().removeEventListener(this);
@@ -132,22 +132,22 @@ public class TempChannel extends ListenerAdapter {
 	 */
 	
 	@Override
-	public void onVoiceJoin(VoiceJoinEvent e) {
+	public void onGuildVoiceJoin(GuildVoiceJoinEvent e) {
 		// If a user joins the voiceChannel that was created
-		if (voiceChannel.getChannel().getId().equals(e.getChannel().getId())) {
+		if (voiceChannel.getChannel().getId().equals(e.getChannelJoined().getId())) {
 			if (!ignoreTimer) {
 				messageChannel.sendMessage(String.format("%s has joined temp channel \"%s\". "
 						+ "Channel will be deleted when all users disconnect.",
-						e.getUser().getUsername(), e.getChannel().getName()));
+						e.getMember().getUser().getName(), e.getChannelJoined().getName()));
 			}
 			ignoreTimer = true;
 		}
 	}
 	
 	@Override
-	public void onVoiceLeave(VoiceLeaveEvent e) {
-		if (voiceChannel.getChannel().getId().equals(e.getOldChannel().getId())) {
-			if (voiceChannel.getChannel().getUsers().isEmpty()) {
+	public void onGuildVoiceLeave(GuildVoiceLeaveEvent e) {
+		if (voiceChannel.getChannel().getId().equals(e.getChannelLeft().getId())) {
+			if (voiceChannel.getChannel().getMembers().isEmpty()) {
 				deleteChannel();
 			}
 		}

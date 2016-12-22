@@ -10,10 +10,10 @@ import org.apache.commons.lang3.math.NumberUtils;
 import com.tazzie02.tazbot.commands.Command;
 import com.tazzie02.tazbot.util.SendMessage;
 
-import net.dv8tion.jda.JDA;
-import net.dv8tion.jda.entities.Guild;
-import net.dv8tion.jda.entities.User;
-import net.dv8tion.jda.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 public class AvatarCommand implements Command {
 	
@@ -51,7 +51,7 @@ public class AvatarCommand implements Command {
 		if (avatar == null) {
 			avatar = "(default) " + u.getDefaultAvatarUrl();
 		}
-		return u.getUsername() + "'s avatar: " + avatar;
+		return u.getName() + "'s avatar: " + avatar;
 	}
 	
 	private List<User> idStringToUser(List<String> args, JDA jda) {
@@ -69,20 +69,13 @@ public class AvatarCommand implements Command {
 	}
 	
 	private List<User> stringToUsername(String string, JDA jda) {
-		return jda.getUsersByName(string);
+		return jda.getUsersByName(string, true);
 	}
 	
 	private List<User> stringToNickname(String string, Guild guild) {
 		List<User> users = new ArrayList<User>();
+		guild.getMembersByNickname(string, true).forEach(m -> users.add(m.getUser()));;
 		
-		for (User u : guild.getUsers()) {
-			String nickname = guild.getNicknameForUser(u);
-			if (nickname != null) {
-				if (nickname.equalsIgnoreCase(string)) {
-					users.add(u);
-				}
-			}
-		}
 		return users;
 	}
 	

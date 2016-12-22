@@ -10,7 +10,8 @@ import com.tazzie02.tazbot.helpers.structures.Counter;
 import com.tazzie02.tazbot.managers.DataManager;
 import com.tazzie02.tazbot.util.SendMessage;
 
-import net.dv8tion.jda.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.entities.ChannelType;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 public class UsageCommand implements Command {
 	private final int DEFAULT_AMOUNT = 5;
@@ -19,7 +20,7 @@ public class UsageCommand implements Command {
 	public void onCommand(MessageReceivedEvent e, String[] args) {
 		
 		if (args.length == 1) {
-			if (!e.isPrivate()) {
+			if (!e.isFromType(ChannelType.PRIVATE)) {
 				String usage = getOrderedOutput(DataManager.getInstance(e.getGuild().getId()).getData().getCommandUsage(), DEFAULT_AMOUNT);
 				SendMessage.sendMessage(e, "Top commands used in " + e.getGuild().getName() + ":\n" + usage);
 			}

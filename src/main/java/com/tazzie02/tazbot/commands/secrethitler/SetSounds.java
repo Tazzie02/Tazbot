@@ -6,8 +6,8 @@ import org.json.JSONObject;
 import com.google.gson.Gson;
 import com.tazzie02.tazbot.Bot;
 
-import net.dv8tion.jda.MessageBuilder;
-import net.dv8tion.jda.entities.User;
+import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.entities.User;
 
 public class SetSounds {
 	
@@ -95,30 +95,30 @@ public class SetSounds {
 					JSONObject obj = js.getJSONObject(key);
 					String general = obj.getString("general");
 					if (!general.isEmpty()) {
-						mb.appendString(key + ": " + general + "\n");
+						mb.append(key + ": " + general + "\n");
 					}
 					JSONArray users = obj.getJSONArray("users");
 					for (int i = 0; i < users.length(); i++) {
 						JSONObject user = users.getJSONObject(i);
 						String value = user.getString("path");
 						if (!value.isEmpty()) {
-							mb.appendString(key + " for ")
-							.appendString(Bot.getJDA().getUserById(user.getString("id")).getUsername() + " ")
-							.appendMention(Bot.getJDA().getUserById(user.getString("id")))
-							.appendString(": " + user.getString("path") + "\n");
+							mb.append(key + " for ")
+							.append(Bot.getJDA().getUserById(user.getString("id")).getName() + " ")
+							.append(Bot.getJDA().getUserById(user.getString("id")))
+							.append(": " + user.getString("path") + "\n");
 						}
 					}
 				}
 				else {
 					String value = js.getString(key);
 					if (!value.isEmpty()) {
-						mb.appendString(key + ": " + value + "\n");
+						mb.append(key + ": " + value + "\n");
 					}
 				}
 			}
 		}
-		if (mb.getLength() == 0) {
-			mb.appendString(" ");
+		if (mb.length() == 0) {
+			mb.append(" ");
 		}
 //		return mb.build().getContent();
 		return mb.build().getRawContent();

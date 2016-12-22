@@ -1,6 +1,6 @@
 package com.tazzie02.tazbot.commands.secrethitler;
 
-import net.dv8tion.jda.entities.User;
+import net.dv8tion.jda.core.entities.User;
 
 public class Player {
 	

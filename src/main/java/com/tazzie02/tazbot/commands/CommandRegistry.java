@@ -16,9 +16,10 @@ import com.tazzie02.tazbot.managers.SettingsManager;
 import com.tazzie02.tazbot.util.MessageLogger;
 import com.tazzie02.tazbot.util.UserUtil;
 
-import net.dv8tion.jda.entities.User;
-import net.dv8tion.jda.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.hooks.ListenerAdapter;
+import net.dv8tion.jda.core.entities.ChannelType;
+import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
 public class CommandRegistry extends ListenerAdapter {
 	
@@ -51,7 +52,7 @@ public class CommandRegistry extends ListenerAdapter {
 		User author = e.getAuthor();
 		
 		// Ignore messages from self
-		if (author.getId().equals(e.getJDA().getSelfInfo().getId())) {
+		if (author.getId().equals(e.getJDA().getSelfUser().getId())) {
 			return;
 		}
 		
@@ -95,7 +96,7 @@ public class CommandRegistry extends ListenerAdapter {
 		CommandAccess access = command.getAccess();
 		if (access.equals(CommandAccess.MODERATOR)) {
 			// private OR NOT (mod of guild OR dev)
-			if (e.isPrivate() || !(UserUtil.isMod(author, e.getGuild()) || UserUtil.isDev(author))) {
+			if (e.isFromType(ChannelType.PRIVATE) || !(UserUtil.isMod(author, e.getGuild()) || UserUtil.isDev(author))) {
 				return;
 			}
 		}
@@ -117,7 +118,7 @@ public class CommandRegistry extends ListenerAdapter {
 	}
 	
 	protected boolean isMention(String text) {
-		if (text.equals("<@" + Bot.getJDA().getSelfInfo().getId() + ">")) {
+		if (text.equals("<@" + Bot.getJDA().getSelfUser().getId() + ">")) {
 			return true;
 		}
 		return false;
@@ -131,7 +132,7 @@ public class CommandRegistry extends ListenerAdapter {
 	}
 	
 	protected String getPrefix(MessageReceivedEvent e) {
-		if (e.isPrivate()) {
+		if (e.isFromType(ChannelType.PRIVATE)) {
 			return SettingsManager.getInstance(null).getSettings().getPrefix();
 		}
 		else {
@@ -176,14 +177,14 @@ public class CommandRegistry extends ListenerAdapter {
 	
 	protected void logMessage(MessageReceivedEvent e) {
 		// Private messages are logged elsewhere
-		if (!e.isPrivate()) {
+		if (!e.isFromType(ChannelType.PRIVATE)) {
 			MessageLogger.receiveGuildMessage(e);
 		}
 	}
 	
 	protected void incrementCommandCount(MessageReceivedEvent e, Command command) {
 		String alias = command.getAliases().get(0);
-		if (e.getMessage().isPrivate()) {
+		if (e.isFromType(ChannelType.PRIVATE)) {
 			new DataUtils(null).incrementCommandUsage(alias);
 		}
 		else {

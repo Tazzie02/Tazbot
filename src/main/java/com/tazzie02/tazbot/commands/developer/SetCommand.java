@@ -15,12 +15,9 @@ import com.tazzie02.tazbot.managers.ConfigManager;
 import com.tazzie02.tazbot.managers.SettingsManager;
 import com.tazzie02.tazbot.util.SendMessage;
 
-import net.dv8tion.jda.Permission;
-import net.dv8tion.jda.entities.Guild;
-import net.dv8tion.jda.entities.User;
-import net.dv8tion.jda.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.utils.AvatarUtil;
-import net.dv8tion.jda.utils.PermissionUtil;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Icon;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 public class SetCommand implements Command {
 
@@ -33,22 +30,16 @@ public class SetCommand implements Command {
 			// set avatar <>
 			if (args[1].equalsIgnoreCase("avatar")) {
 				try (InputStream is = new URL(args[2]).openStream()) {
-					e.getJDA().getAccountManager().setAvatar(AvatarUtil.getAvatar(is)).update();
+					e.getJDA().getSelfUser().getManager().setAvatar(Icon.from(is));
 					SendMessage.sendMessage(e, "Successfully set avatar.");
 				} catch (IOException ex) {
 					SendMessage.sendMessage(e, "Error: Failed to set avatar. " + ex.getMessage());
 				}
 			}
 			else if (args[1].equalsIgnoreCase("nickname")) {
-				User self = e.getJDA().getSelfInfo();
 				Guild guild = e.getGuild();
-				if (PermissionUtil.checkPermission(self, Permission.NICKNAME_CHANGE, guild)) {
-					guild.getManager().setNickname(self, args[2]);
-					SendMessage.sendMessage(e, "Successfully set nickname.");
-				}
-				else {
-					SendMessage.sendMessage(e, "Error: Requires NICKNAME_CHANGE permission.");
-				}
+				guild.getManager().setName(args[2]);
+				SendMessage.sendMessage(e, "Successfully set nickname.");
 			}
 		}
 		// !set <> <> <>
@@ -60,14 +51,14 @@ public class SetCommand implements Command {
 				if (args[2].equalsIgnoreCase("name") || args[2].equalsIgnoreCase("username")) {
 					String newName = remainingArgs(args, 3);
 					config.setBotName(newName);
-					e.getJDA().getAccountManager().setUsername(newName);
-					e.getJDA().getAccountManager().update();
+					e.getJDA().getSelfUser().getManager().setName(newName);
 				}
 				// !set config game <newGame>
 				else if (args[2].equalsIgnoreCase("game")) {
-					String newGame = remainingArgs(args, 3);
-					config.setBotGame(newGame);
-					e.getJDA().getAccountManager().setGame(newGame);
+//					String newGame = remainingArgs(args, 3);
+					// TODO Fix
+//					config.setBotGame(newGame);
+//					e.getJDA().getAccountManager().setGame(newGame);
 				}
 				ConfigManager.getInstance().saveConfig();
 			}

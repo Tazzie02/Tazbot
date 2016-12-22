@@ -10,16 +10,17 @@ import com.tazzie02.tazbot.commands.Command;
 import com.tazzie02.tazbot.util.CGUInformation;
 import com.tazzie02.tazbot.util.SendMessage;
 
-import net.dv8tion.jda.entities.TextChannel;
-import net.dv8tion.jda.entities.VoiceChannel;
-import net.dv8tion.jda.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.entities.ChannelType;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.VoiceChannel;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 public class ChannelInfoCommand implements Command {
 	
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
 		if (args.length == 1) {
-			if (e.isPrivate()) {
+			if (e.isFromType(ChannelType.PRIVATE)) {
 				SendMessage.sendMessage(e, CGUInformation.getChannelInfo(e.getPrivateChannel()));
 			}
 			else {
@@ -30,7 +31,7 @@ public class ChannelInfoCommand implements Command {
 			String name = StringUtils.join(args, " ", 1, args.length);
 			StringBuilder sb = new StringBuilder();
 			
-			List<TextChannel> tcs = e.getJDA().getTextChannelsByName(name);
+			List<TextChannel> tcs = e.getJDA().getTextChannelsByName(name, true);
 			// Text channels in the same guild as the message was sent from
 			if (!tcs.isEmpty()) {
 				for (TextChannel c : tcs) {
@@ -40,7 +41,7 @@ public class ChannelInfoCommand implements Command {
 				}
 			}
 			
-			List<VoiceChannel> vcs = e.getJDA().getVoiceChannelByName(name);
+			List<VoiceChannel> vcs = e.getJDA().getVoiceChannelByName(name, true);
 			// Voice channels in the same guild as the message was sent from
 			if (!vcs.isEmpty()) {
 				for (VoiceChannel c : vcs) {

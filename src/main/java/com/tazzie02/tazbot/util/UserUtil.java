@@ -7,8 +7,8 @@ import com.tazzie02.tazbot.helpers.structures.Config;
 import com.tazzie02.tazbot.managers.ConfigManager;
 import com.tazzie02.tazbot.managers.SettingsManager;
 
-import net.dv8tion.jda.entities.Guild;
-import net.dv8tion.jda.entities.User;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.User;
 
 public class UserUtil {
 	

@@ -10,7 +10,7 @@ import com.tazzie02.tazbot.exceptions.QuotaExceededException;
 import com.tazzie02.tazbot.helpers.GoogleSearch;
 import com.tazzie02.tazbot.util.SendMessage;
 
-import net.dv8tion.jda.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 public class GoogleSearchCommand implements Command {
 	

@@ -6,14 +6,15 @@ import java.util.List;
 import com.tazzie02.tazbot.Bot;
 import com.tazzie02.tazbot.managers.ConfigManager;
 
-import net.dv8tion.jda.MessageBuilder;
-import net.dv8tion.jda.Permission;
-import net.dv8tion.jda.entities.Message;
-import net.dv8tion.jda.entities.PrivateChannel;
-import net.dv8tion.jda.entities.TextChannel;
-import net.dv8tion.jda.entities.User;
-import net.dv8tion.jda.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.utils.PermissionUtil;
+import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.ChannelType;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.PrivateChannel;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.utils.PermissionUtil;
 
 public class SendMessage {
 	
@@ -21,8 +22,8 @@ public class SendMessage {
 
 	// Guild message sending and logging happens here
 	public static void sendMessage(TextChannel c, Message message) {
-		if (PermissionUtil.checkPermission(Bot.getJDA().getSelfInfo(), Permission.MESSAGE_WRITE, c)) {
-			c.sendMessageAsync(message, null);
+		if (PermissionUtil.checkPermission(c, c.getGuild().getSelfMember(), Permission.MESSAGE_WRITE)) {
+			c.sendMessage(message).queue();
 			MessageLogger.sendGuildMessage(c, message);
 		}
 		else {
@@ -38,7 +39,7 @@ public class SendMessage {
 	}
 
 	public static void sendMessage(MessageReceivedEvent e, Message message) {
-		if (e.isPrivate()) {
+		if (e.isFromType(ChannelType.PRIVATE)) {
 			sendPrivate(e.getPrivateChannel(), message);
 		}
 		else {
@@ -79,7 +80,7 @@ public class SendMessage {
 
 	// Private message sending and logging happens here
 	public static void sendPrivate(PrivateChannel c, Message message) {
-		c.sendMessageAsync(message, null);
+		c.sendMessage(message).queue();
 		MessageLogger.sendPrivateMessage(c, message);
 	}
 
@@ -102,7 +103,7 @@ public class SendMessage {
 	}
 
 	public static void sendPrivate(MessageReceivedEvent e, Message message) {
-		if (e.isPrivate()) {
+		if (e.isFromType(ChannelType.PRIVATE)) {
 			sendPrivate(e.getPrivateChannel(), message);
 		}
 		else {
@@ -160,16 +161,16 @@ public class SendMessage {
 
 				// Split if index found
 				if (index != -1) {
-					messages.add(new MessageBuilder().appendString(split.substring(0, index)).build());
+					messages.add(new MessageBuilder().append(split.substring(0, index)).build());
 					message = split.substring(index + 1) + message;
 				}
 				// Split on MAX_MESSAGE_SIZE if index found
 				else {
-					messages.add(new MessageBuilder().appendString(split).build());
+					messages.add(new MessageBuilder().append(split).build());
 				}
 			}
 			else {
-				messages.add(new MessageBuilder().appendString(message).build());
+				messages.add(new MessageBuilder().append(message).build());
 				message = "";
 			}
 		}

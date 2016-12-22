@@ -2,8 +2,6 @@ package com.tazzie02.tazbot;
 
 import javax.security.auth.login.LoginException;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.tazzie02.tazbot.commands.CommandRegistry;
 import com.tazzie02.tazbot.commands.MentionedReply;
 import com.tazzie02.tazbot.commands.developer.*;
@@ -15,8 +13,11 @@ import com.tazzie02.tazbot.commands.search.*;
 import com.tazzie02.tazbot.helpers.structures.Config;
 import com.tazzie02.tazbot.managers.ConfigManager;
 
-import net.dv8tion.jda.JDA;
-import net.dv8tion.jda.JDABuilder;
+import net.dv8tion.jda.core.AccountType;
+import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.JDABuilder;
+import net.dv8tion.jda.core.exceptions.RateLimitedException;
+import net.dv8tion.jda.core.managers.AccountManager;
 
 public class Bot {
 
@@ -25,7 +26,7 @@ public class Bot {
 	public void startBot() {
 		Config config = ConfigManager.getInstance().getConfig();
 
-		JDABuilder jdaBuilder = new JDABuilder().setBotToken(config.getBotToken());
+		JDABuilder jdaBuilder = new JDABuilder(AccountType.BOT).setToken(config.getBotToken());
 		
 		jdaBuilder.setBulkDeleteSplittingEnabled(false);
 		
@@ -35,11 +36,14 @@ public class Bot {
 
 		try {
 			jda = jdaBuilder.buildBlocking();
-			jda.getAccountManager().setUsername(ConfigManager.getInstance().getConfig().getBotName());
-			jda.getAccountManager().setGame(ConfigManager.getInstance().getConfig().getBotGame());
-			jda.getAccountManager().update();
+			
+			AccountManager manager = jda.getSelfUser().getManager();
+			
+			manager.setName(config.getBotName());
+//			jda.getAccountManager().setGame(ConfigManager.getInstance().getConfig().getBotGame());
 
-			System.out.println("Guilds " + jda.getGuilds().size() + ": " + StringUtils.join(jda.getGuilds(), " "));
+			System.out.println("Number of Guilds: " + jda.getGuilds().size());
+			System.out.println("Number of Users: " + jda.getUsers().size());
 
 		} catch (LoginException e) {
 			System.out.println("Error: Email and Password combination set in config.json was incorrect.");
@@ -49,6 +53,9 @@ public class Bot {
 			System.exit(0); // TODO Change exit code
 		} catch (InterruptedException e) {
 			System.out.println("Error: Interrupted Exception");
+			System.exit(0); // TODO Change exit code
+		} catch (RateLimitedException e) {
+			System.out.println("Error: Rate limited.");
 			System.exit(0); // TODO Change exit code
 		}
 	}
@@ -64,24 +71,24 @@ public class Bot {
 		registry.registerCommand(new ChannelInfoCommand());
 		registry.registerCommand(new CivDraftCommand());
 		registry.registerCommand(new CivInfoCommand());
-		registry.registerCommand(new CryCommand());
+//		registry.registerCommand(new CryCommand());
 		registry.registerCommand(new GoogleImageSearchCommand());
 		registry.registerCommand(new GoogleSearchCommand());
 		registry.registerCommand(new GuildInfoCommand());
 		registry.registerCommand(new InsultCommand());
 		registry.registerCommand(new ImageSearchCommand());
 		registry.registerCommand(new JoinCommand());
-		registry.registerCommand(new OverwatchCommand());
+//		registry.registerCommand(new OverwatchCommand());
 		registry.registerCommand(new PingCommand());
 		registry.registerCommand(new TeamCommand());
 		registry.registerCommand(new RollCommand());
 		registry.registerCommand(new SecretHitlerCommand());
-		registry.registerCommand(new SoundCommand());
+//		registry.registerCommand(new SoundCommand());
 		registry.registerCommand(new TempCommand());
 		registry.registerCommand(new UptimeCommand());
 		registry.registerCommand(new UsageCommand());
 		registry.registerCommand(new UserInfoCommand());
-		registry.registerCommand(new VoiceCommand());
+//		registry.registerCommand(new VoiceCommand());
 		registry.registerCommand(new WeatherCommand());
 		registry.registerCommand(new YoutubeSearchCommand());
 
@@ -93,7 +100,7 @@ public class Bot {
 		registry.registerCommand(new ShutdownCommand());
 
 		// Moderator commands
-		registry.registerCommand(new LaughCommand());
+//		registry.registerCommand(new LaughCommand());
 		registry.registerCommand(new LeaveCommand());
 		registry.registerCommand(new LinkCommand());
 		registry.registerCommand(new ModCommand());
@@ -101,7 +108,7 @@ public class Bot {
 		registry.registerCommand(new PrefixCommand());
 		registry.registerCommand(new PurgeCommand());
 		registry.registerCommand(new UnlinkCommand());
-		registry.registerCommand(new VolumeCommand());
+//		registry.registerCommand(new VolumeCommand());
 		
 		return registry;
 	}

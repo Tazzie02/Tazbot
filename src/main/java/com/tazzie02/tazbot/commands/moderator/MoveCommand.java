@@ -8,11 +8,11 @@ import com.tazzie02.tazbot.commands.Command;
 import com.tazzie02.tazbot.util.JDAUtil;
 import com.tazzie02.tazbot.util.SendMessage;
 
-import net.dv8tion.jda.entities.Guild;
-import net.dv8tion.jda.entities.User;
-import net.dv8tion.jda.entities.VoiceChannel;
-import net.dv8tion.jda.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.managers.GuildManager;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.VoiceChannel;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.managers.GuildController;
 
 public class MoveCommand implements Command {
 	
@@ -88,14 +88,13 @@ public class MoveCommand implements Command {
 	}
 	
 	private void moveToChannel(VoiceChannel sourceChannel, VoiceChannel destChannel) {
-		GuildManager manager = sourceChannel.getGuild().getManager();
+		GuildController manager = sourceChannel.getGuild().getController();
 		
 		// Copy to new list to avoid ConcurrentModificationException
-		List<User> users = new ArrayList<User>();
-		users.addAll(sourceChannel.getUsers());
+		List<Member> members = new ArrayList<Member>();
+		sourceChannel.getMembers().addAll(members);
 		
-		users.parallelStream()
-				.forEach(u -> manager.moveVoiceUser(u, destChannel));
+		members.parallelStream().forEach(m -> manager.moveVoiceMember(m, destChannel));
 	}
 	
 	@Override

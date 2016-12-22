@@ -2,7 +2,7 @@ package com.tazzie02.tazbot.commands.secrethitler;
 
 import java.util.List;
 
-import net.dv8tion.jda.MessageBuilder;
+import net.dv8tion.jda.core.MessageBuilder;
 
 public class PresidentialPower {
 	
@@ -26,9 +26,9 @@ public class PresidentialPower {
 	public void investigateLoyalty(Player p) {
 		StringBuilder sb = new StringBuilder()
 				.append("President ")
-				.append(president.getUser().getUsername())
+				.append(president.getUser().getName())
 				.append(" has chosen to investigate the loyalty of ")
-				.append(p.getUser().getUsername())
+				.append(p.getUser().getName())
 				.append(".");
 		sh.gameMessage(sb.toString());
 		
@@ -36,13 +36,13 @@ public class PresidentialPower {
 		if (p.isFascist()) {
 			sb.append(Images.PARTY_FASCIST)
 			.append("\n")
-			.append(p.getUser().getUsername())
+			.append(p.getUser().getName())
 			.append(" is a Fascist!");
 		}
 		else {
 			sb.append(Images.PARTY_LIBERAL)
 			.append("\n")
-			.append(p.getUser().getUsername())
+			.append(p.getUser().getName())
 			.append(" is a Liberal!");
 		}
 		
@@ -54,14 +54,14 @@ public class PresidentialPower {
 	
 	public void investigateLoyaltyMessage() {
 		MessageBuilder mb = new MessageBuilder()
-				.appendString("President ")
-				.appendString(president.getUser().getUsername())
-				.appendString(" has been granted to ability to investigate the loyalty a player.");
+				.append("President ")
+				.append(president.getUser().getName())
+				.append(" has been granted to ability to investigate the loyalty a player.");
 		sh.gameMessage(mb.build());
 		
-		mb = new MessageBuilder().appendString("President ")
-				.appendMention(president.getUser())
-				.appendString(" type `!sh investigate <@player>` to investigate that player's identity.");
+		mb = new MessageBuilder().append("President ")
+				.append(president.getUser())
+				.append(" type `!sh investigate <@player>` to investigate that player's identity.");
 		sh.gamePromptMessage(mb.build());
 		
 		setInvestigateLoyalty(true);
@@ -73,9 +73,9 @@ public class PresidentialPower {
 	public void callSpecialElection(Player p) {
 		StringBuilder sb = new StringBuilder()
 				.append("President ")
-				.append(president.getUser().getUsername())
+				.append(president.getUser().getName())
 				.append(" has chosen to elect ")
-				.append(p.getUser().getUsername())
+				.append(p.getUser().getName())
 				.append(" as the next Presidential Candidate.");
 		sh.gameMessage(sb.toString());
 		if (sh.getSound()) {
@@ -85,14 +85,14 @@ public class PresidentialPower {
 	
 	public void callSpecialElectionMessage() {
 		MessageBuilder mb = new MessageBuilder()
-				.appendString("President ")
-				.appendString(president.getUser().getUsername())
-				.appendString(" has been granted the ability to choose the next Presidential Candidate.");
+				.append("President ")
+				.append(president.getUser().getName())
+				.append(" has been granted the ability to choose the next Presidential Candidate.");
 		sh.gameMessage(mb.build());
 		
-		mb = new MessageBuilder().appendString("President ")
-				.appendMention(president.getUser())
-				.appendString(" type `!sh elect <@player>` to elect that player the as the next Presidential Candidate.");
+		mb = new MessageBuilder().append("President ")
+				.append(president.getUser())
+				.append(" type `!sh elect <@player>` to elect that player the as the next Presidential Candidate.");
 		sh.gamePromptMessage(mb.build());
 		
 		setCallSpecialElection(true);
@@ -122,7 +122,7 @@ public class PresidentialPower {
 	public void policyPeekMessage() {
 		StringBuilder sb = new StringBuilder()
 				.append("President ")
-				.append(president.getUser().getUsername())
+				.append(president.getUser().getName())
 				.append(" has been granted the ability to peek at the top three policy cards.");
 		sh.gameMessage(sb.toString());
 		if (sh.getSound()) {
@@ -132,20 +132,20 @@ public class PresidentialPower {
 	
 	public void execution(Player p) {
 		MessageBuilder mb = new MessageBuilder()
-				.appendString("President ")
-				.appendString(president.getUser().getUsername())
-				.appendString(" has chosen to execute ")
-				.appendString(p.getUser().getUsername())
-				.appendString(".");
+				.append("President ")
+				.append(president.getUser().getName())
+				.append(" has chosen to execute ")
+				.append(p.getUser().getName())
+				.append(".");
 		sh.gameMessage(mb.build());
 		
 		p.setAlive(false);
 		
-		mb = new MessageBuilder().appendMention(p.getUser())
-				.appendString(" has been executed.\n");
+		mb = new MessageBuilder().append(p.getUser())
+				.append(" has been executed.\n");
 		
 		if (p.isHitler()) {
-			mb.appendString("Hitler has been executed!");
+			mb.append("Hitler has been executed!");
 			if (sh.getSound()) {
 				sh.triggers.executionHitler(president, p);
 				sh.triggers.executedAsHitler(p);
@@ -153,8 +153,8 @@ public class PresidentialPower {
 			sh.results();
 		}
 		else {
-			mb.appendString(p.getUser().getUsername())
-			.appendString(" was not Hitler.");
+			mb.append(p.getUser().getName())
+			.append(" was not Hitler.");
 			if (sh.getSound()) {
 				sh.triggers.executionNotHitler(president, p);
 				sh.triggers.executedNotAsHitler(p);
@@ -166,14 +166,14 @@ public class PresidentialPower {
 	
 	public void executionMessage() {
 		MessageBuilder mb = new MessageBuilder()
-				.appendString("President ")
-				.appendString(president.getUser().getUsername())
-				.appendString(" has been granted the ability execute a player.");
+				.append("President ")
+				.append(president.getUser().getName())
+				.append(" has been granted the ability execute a player.");
 		sh.gameMessage(mb.build());
 		
-		mb = new MessageBuilder().appendString("President ")
-				.appendMention(president.getUser())
-				.appendString(" type `!sh execute <@player>` to execute a player.");
+		mb = new MessageBuilder().append("President ")
+				.append(president.getUser())
+				.append(" type `!sh execute <@player>` to execute a player.");
 		sh.gamePromptMessage(mb.build());
 		
 		setExecution(true);

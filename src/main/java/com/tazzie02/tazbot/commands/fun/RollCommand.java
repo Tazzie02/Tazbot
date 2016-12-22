@@ -9,7 +9,7 @@ import com.tazzie02.tazbot.commands.Command;
 import com.tazzie02.tazbot.helpers.Roll;
 import com.tazzie02.tazbot.util.SendMessage;
 
-import net.dv8tion.jda.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 public class RollCommand implements Command {
 	
@@ -44,7 +44,7 @@ public class RollCommand implements Command {
 				
 			}
 			SendMessage.sendMessage(e, String.format("%s rolled %d (%d-%d)",
-					e.getAuthor().getUsername(), number, min, max));
+					e.getAuthor().getName(), number, min, max));
 		}
 		catch (NumberFormatException ex) {
 			SendMessage.sendMessage(e, "Error: " + ex.getMessage());

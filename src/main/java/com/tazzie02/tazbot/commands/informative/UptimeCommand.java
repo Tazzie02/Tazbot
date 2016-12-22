@@ -9,8 +9,8 @@ import com.tazzie02.tazbot.commands.Command;
 import com.tazzie02.tazbot.util.SendMessage;
 import com.tazzie02.tazbot.util.TazzieTime;
 
-import net.dv8tion.jda.JDA;
-import net.dv8tion.jda.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 public class UptimeCommand implements Command {
 

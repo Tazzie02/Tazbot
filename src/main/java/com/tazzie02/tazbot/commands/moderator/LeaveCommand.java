@@ -12,9 +12,10 @@ import com.tazzie02.tazbot.util.JDAUtil;
 import com.tazzie02.tazbot.util.SendMessage;
 import com.tazzie02.tazbot.util.UserUtil;
 
-import net.dv8tion.jda.MessageBuilder;
-import net.dv8tion.jda.entities.Guild;
-import net.dv8tion.jda.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.exceptions.RateLimitedException;
 
 public class LeaveCommand implements Command {
 
@@ -25,11 +26,11 @@ public class LeaveCommand implements Command {
 		if (args.length == 1) {
 			// Please confirm that you wish <bot_name> to leave <guild_name> by typing "<prefix>leave <@author>" or "<@bot> leave <@author>" if multple bots respond.
 			MessageBuilder mb = new MessageBuilder()
-					.appendString("Please confirm that you wish ").appendString(ConfigManager.getInstance().getConfig().getBotName())
-					.appendString(" to leave ").appendString(e.getGuild().getName()).appendString(" by typing \"")
-					.appendString(SettingsManager.getInstance(e.getGuild().getId()).getSettings().getPrefix()).appendString(getAliases().get(0))
-					.appendString(" ").appendMention(e.getAuthor()).appendString("\" or \"").appendMention(e.getJDA().getSelfInfo()).appendString(" leave ")
-					.appendMention(e.getAuthor()).appendString("\" if multiple bots respond.");
+					.append("Please confirm that you wish ").append(ConfigManager.getInstance().getConfig().getBotName())
+					.append(" to leave ").append(e.getGuild().getName()).append(" by typing \"")
+					.append(SettingsManager.getInstance(e.getGuild().getId()).getSettings().getPrefix()).append(getAliases().get(0))
+					.append(" ").append(e.getAuthor()).append("\" or \"").append(e.getJDA().getSelfUser()).append(" leave ")
+					.append(e.getAuthor()).append("\" if multiple bots respond.");
 			SendMessage.sendMessage(e, mb.build());
 		}
 		else if (args.length == 2) {
@@ -59,18 +60,28 @@ public class LeaveCommand implements Command {
 	private void leaveGuild(MessageReceivedEvent e, Guild g) {
 		String botName = ConfigManager.getInstance().getConfig().getBotName();
 		StringBuilder sb = new StringBuilder()
-				.append("Leaving ").append(g.getName()).append(" at the request of ").append(e.getAuthor().getUsername()).append(".\n")
+				.append("Leaving ").append(g.getName()).append(" at the request of ").append(e.getAuthor().getName()).append(".\n")
 				.append("If you have issues, feedback, or simply wish ").append(botName).append(" to rejoin, ")
 				.append("check out the ").append(botName).append(" Official Guild at ").append(ConfigManager.getInstance().getConfig().getPublicGuildInvite()).append(".");
 		SendMessage.sendMessage(e, sb.toString());
-		g.getManager().leave();
+		try {
+			g.leave().block();
+		} catch (RateLimitedException ex) {
+			ex.printStackTrace();
+			SendMessage.sendMessage(e, "Error: Failed to leave guild.");
+		}
 	}
 
 	private void developerLeave(MessageReceivedEvent e, String guildId) {
 		Guild g = e.getJDA().getGuildById(guildId);
 		if (g != null) {
-			g.getManager().leave();
-			SendMessage.sendMessage(e, "Successfully left guild " + JDAUtil.guildToString(g) + ".");
+			try {
+				g.leave().block();
+				SendMessage.sendMessage(e, "Successfully left guild " + JDAUtil.guildToString(g) + ".");
+			} catch (RateLimitedException ex) {
+				ex.printStackTrace();
+				SendMessage.sendMessage(e, "Error: Failed to leave guild.");
+			}
 		}
 		else {
 			SendMessage.sendMessage(e, "Error: Could not find guild with ID " + guildId);

@@ -7,7 +7,6 @@ import java.util.List;
 public class Config {
 
 	private String botToken;
-	private String clientId;
 	private String botName;
 	private String botGame;
 	private String publicGuildInvite;
@@ -23,14 +22,6 @@ public class Config {
 	
 	public void setBotToken(String botToken) {
 		this.botToken = botToken;
-	}
-	
-	public String getClientId() {
-		return clientId;
-	}
-	
-	public void setCliendId(String clientId) {
-		this.clientId = clientId;
 	}
 	
 	public String getBotName() {

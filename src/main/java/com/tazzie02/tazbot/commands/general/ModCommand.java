@@ -13,14 +13,15 @@ import com.tazzie02.tazbot.util.JDAUtil;
 import com.tazzie02.tazbot.util.SendMessage;
 import com.tazzie02.tazbot.util.UserUtil;
 
-import net.dv8tion.jda.entities.User;
-import net.dv8tion.jda.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.entities.ChannelType;
+import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 public class ModCommand implements Command {
 
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
-		if (e.isPrivate()) {
+		if (e.isFromType(ChannelType.PRIVATE)) {
 			SendMessage.sendMessage(e, "Error: Moderator command can only be used in guild.");
 			return;
 		}
@@ -75,7 +76,7 @@ public class ModCommand implements Command {
 				else if (args[1].equalsIgnoreCase("remove") || args[1].equalsIgnoreCase("delete")) {
 					List<User> removed = new ArrayList<User>();
 					for (User u : mentioned) {
-						if (!u.getId().equals(e.getGuild().getOwnerId())) {
+						if (!u.getId().equals(e.getGuild().getOwner().getUser().getId())) {
 							settingsManager.getSettings().removeModerator(u);
 							removed.add(u);
 						}

@@ -4,14 +4,13 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Stream;
 
-import net.dv8tion.jda.JDA;
-import net.dv8tion.jda.entities.Guild;
-import net.dv8tion.jda.entities.PrivateChannel;
-import net.dv8tion.jda.entities.Role;
-import net.dv8tion.jda.entities.TextChannel;
-import net.dv8tion.jda.entities.User;
-import net.dv8tion.jda.entities.VoiceChannel;
-import net.dv8tion.jda.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.PrivateChannel;
+import net.dv8tion.jda.core.entities.Role;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.VoiceChannel;
 
 public class CGUInformation {
 	
@@ -26,7 +25,7 @@ public class CGUInformation {
 				+ "Users: %d\n"
 				+ "Guild: %s\n"
 				+ "Guild ID: %s```",
-				c.getName(), c.getId(), c.getTopic(), c.getPosition(), c.getUsers().size(),
+				c.getName(), c.getId(), c.getTopic(), c.getPosition(), c.getMembers().size(),
 				c.getGuild().getName(), c.getGuild().getId());
 	}
 	
@@ -37,7 +36,7 @@ public class CGUInformation {
 				+ "Users: %d\n"
 				+ "Guild: %s\n"
 				+ "Guild ID: %s```",
-				c.getName(), c.getId(), c.getPosition(), c.getUsers().size(),
+				c.getName(), c.getId(), c.getPosition(), c.getMembers().size(),
 				c.getGuild().getName(), c.getGuild().getId());
 	}
 	
@@ -45,7 +44,7 @@ public class CGUInformation {
 		return String.format("```Private Channel With: %s\n"
 				+ "User's ID: %s\n"
 				+ "ID: %s```",
-				c.getUser().getUsername(), c.getUser().getId(), c.getId());
+				c.getUser().getName(), c.getUser().getId(), c.getId());
 	}
 	
 	public static String getChannelInfo(String id, JDA jda) {
@@ -76,8 +75,8 @@ public class CGUInformation {
 				+ "Voice Channels: %d\n"
 				+ "Users: %d\n"
 				+ "Icon: %s```",
-				g.getName(), g.getId(), g.getOwnerId(), g.getRegion(), g.getTextChannels().size(),
-				g.getVoiceChannels().size(), g.getUsers().size(), g.getIconUrl());
+				g.getName(), g.getId(), g.getOwner().getUser().getId(), g.getRegion(), g.getTextChannels().size(),
+				g.getVoiceChannels().size(), g.getMembers().size(), g.getIconUrl());
 	}
 	
 	public static String getGuildInfo(String id, JDA jda) {
@@ -95,13 +94,11 @@ public class CGUInformation {
 		return String.format("User Name: %s\n"
 				+ "ID: %s\n"
 				+ "Discriminator: %s\n"
-				+ "Status: %s\n"
-				+ "Playing: %s\n"
 				+ "Private Channel ID: %s\n"
+				+ "Created Date/Time: %s\n"
 				+ "Avatar: %s",
-				u.getUsername(), u.getId(), u.getDiscriminator(), u.getOnlineStatus(),
-				u.getCurrentGame() != null ? u.getCurrentGame() : "Not in game",
-				u.getPrivateChannel().getId(), u.getAvatarUrl());
+				u.getName(), u.getId(), u.getDiscriminator(), u.getPrivateChannel().getId(),
+				u.getCreationTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")), u.getAvatarUrl());
 	}
 	
 	public static String getUserInfo(String id, JDA jda) {
@@ -112,14 +109,14 @@ public class CGUInformation {
 		return null;
 	}
 	
-	public static String getExtraUserInfo(MessageReceivedEvent e, User u, JDA jda) {
-		return String.format("Join Date/Time: %s\n"
-				+ "Roles: %s\n"
-				+ "Visible Guilds: %s",
-				e.getGuild().getJoinDateForUser(u).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")),
-				getRolesString(e.getGuild().getRolesForUser(u)),
-				getUsersGuilds(u, jda));
-	}
+//	public static String getExtraUserInfo(MessageReceivedEvent e, User u, JDA jda) {
+//		return String.format("Join Date/Time: %s\n"
+//				+ "Roles: %s\n"
+//				+ "Visible Guilds: %s",
+//				e.getGuild().getJoinDateForUser(u).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")),
+//				getRolesString(e.getGuild().getRolesForUser(u)),
+//				getUsersGuilds(u, jda));
+//	}
 	
 	private static String getRolesString(List<Role> roles) {
 		StringBuilder sb = new StringBuilder();
@@ -135,8 +132,8 @@ public class CGUInformation {
 	private static String getUsersGuilds(User user, JDA jda) {
 		StringBuilder sb = new StringBuilder();
 		Stream<Guild> guilds = jda.getGuilds().parallelStream()
-				.filter(g -> g.getUsers().parallelStream()
-				.anyMatch(u -> u.getId().equals(user.getId())));
+				.filter(g -> g.getMembers().parallelStream()
+				.anyMatch(m -> m.getUser().getId().equals(user.getId())));
 		
 		Object[] objs = guilds.toArray();
 		

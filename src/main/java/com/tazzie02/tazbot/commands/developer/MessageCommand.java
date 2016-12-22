@@ -6,11 +6,11 @@ import java.util.List;
 import com.tazzie02.tazbot.commands.Command;
 import com.tazzie02.tazbot.util.SendMessage;
 
-import net.dv8tion.jda.Permission;
-import net.dv8tion.jda.entities.PrivateChannel;
-import net.dv8tion.jda.entities.TextChannel;
-import net.dv8tion.jda.entities.VoiceChannel;
-import net.dv8tion.jda.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.entities.PrivateChannel;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.VoiceChannel;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.exceptions.PermissionException;
 
 public class MessageCommand implements Command {
 
@@ -23,15 +23,13 @@ public class MessageCommand implements Command {
 			VoiceChannel vc = e.getJDA().getVoiceChannelById(args[1]);
 			PrivateChannel pc = e.getJDA().getPrivateChannelById(args[1]);
 			if (tc != null) {
-				if (tc.checkPermission(e.getJDA().getSelfInfo(), Permission.MESSAGE_WRITE)
-						&& tc.checkPermission(e.getJDA().getSelfInfo(), Permission.MESSAGE_READ)) {
+				try {
 					tc.sendMessage(message);
 					SendMessage.sendMessage(e, "Successfully sent message.");
 				}
-				else {
+				catch (PermissionException ex) {
 					SendMessage.sendMessage(e, "Error: Could not send message. The bot does not have read/write permission.");
 				}
-				
 			}
 			if (vc != null) {
 				SendMessage.sendMessage(e, "Error: Can not send message to a voice channel.");

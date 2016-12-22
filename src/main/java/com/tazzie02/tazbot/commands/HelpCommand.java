@@ -3,15 +3,17 @@ package com.tazzie02.tazbot.commands;
 import java.util.Arrays;
 import java.util.List;
 
-import net.dv8tion.jda.MessageBuilder;
-import net.dv8tion.jda.entities.User;
-import net.dv8tion.jda.events.message.MessageReceivedEvent;
 import org.apache.commons.lang3.StringUtils;
 
 import com.tazzie02.tazbot.managers.ConfigManager;
 import com.tazzie02.tazbot.managers.SettingsManager;
 import com.tazzie02.tazbot.util.SendMessage;
 import com.tazzie02.tazbot.util.UserUtil;
+
+import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.entities.ChannelType;
+import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 public class HelpCommand implements Command {
 	
@@ -26,10 +28,10 @@ public class HelpCommand implements Command {
 	
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
-		if(!e.isPrivate()) {
+		if(!e.isFromType(ChannelType.PRIVATE)) {
 			SendMessage.sendMessage(e, new MessageBuilder()
-					.appendMention(e.getAuthor())
-					.appendString(": Sending help information as a private message.")
+					.append(e.getAuthor())
+					.append(": Sending help information as a private message.")
 					.build());
 		}
 		sendHelp(e, args);
@@ -62,7 +64,7 @@ public class HelpCommand implements Command {
 				
 				CommandAccess access = c.getAccess();
 				if (access.equals(CommandAccess.MODERATOR)) {
-					if (!e.isPrivate()) {
+					if (!e.isFromType(ChannelType.PRIVATE)) {
 						// If moderator of guild or developer
 						if (UserUtil.isMod(author, e.getGuild()) || UserUtil.isDev(author)) {
 							mod.append(s);
@@ -102,7 +104,7 @@ public class HelpCommand implements Command {
 		else {
 			String prefix;
 			String command = args[1];
-			if (e.isPrivate()) {
+			if (e.isFromType(ChannelType.PRIVATE)) {
 				prefix = SettingsManager.getInstance(null).getSettings().getPrefix();
 			}
 			else {
@@ -118,7 +120,7 @@ public class HelpCommand implements Command {
 					CommandAccess access = c.getAccess();
 					
 					// If moderator command AND not private AND user is not moderator
-					if (access.equals(CommandAccess.MODERATOR) && !e.isPrivate() && !UserUtil.isMod(author, e.getGuild())) {
+					if (access.equals(CommandAccess.MODERATOR) && !e.isFromType(ChannelType.PRIVATE) && !UserUtil.isMod(author, e.getGuild())) {
 						return;
 					}
 					// If developer command AND user is not developer

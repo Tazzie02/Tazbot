@@ -6,10 +6,12 @@ import java.util.Random;
 
 import com.tazzie02.tazbot.commands.fun.CivDraftCommand;
 
-import net.dv8tion.jda.MessageBuilder;
-import net.dv8tion.jda.entities.Message;
-import net.dv8tion.jda.entities.User;
-import net.dv8tion.jda.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.entities.ChannelType;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.exceptions.RateLimitedException;
 
 public class CivDraft {
 	
@@ -210,14 +212,14 @@ public class CivDraft {
 		MessageBuilder pickString = new MessageBuilder();
 		for (int i = 1; i <= playersTotal; i++) {
 			if (i != 1) {
-				pickString.appendString("CivDraft: ");
+				pickString.append("CivDraft: ");
 			}
 			if (mentionedPlayers.isEmpty()) {
-				pickString.appendString("PLAYER " + i + ": Choose from ");
+				pickString.append("PLAYER " + i + ": Choose from ");
 			}
 			else {
-				pickString.appendMention(mentionedPlayers.get(i-1))
-						.appendString(": Choose from ");
+				pickString.append(mentionedPlayers.get(i-1))
+						.append(": Choose from ");
 			}
 			for (int j = 1; j <= civsEach; j++) {
 				String civ;
@@ -228,7 +230,7 @@ public class CivDraft {
 						continue;
 					}
 					else {
-						pickString.appendString((j == civsEach) ? (civ + "\n") : (civ + " / "));
+						pickString.append((j == civsEach) ? (civ + "\n") : (civ + " / "));
 						picks.add(civ);
 						break;
 					}
@@ -247,20 +249,26 @@ public class CivDraft {
 	}
 	
 	private Message sendMessage(Message message) {
-		if (e.isPrivate()) {
-			return e.getPrivateChannel().sendMessage(new MessageBuilder().appendString("CivDraft: ")
-					.appendString(message.getRawContent())
-					.build());
+		try {
+			if (e.isFromType(ChannelType.PRIVATE)) {
+				return e.getPrivateChannel().sendMessage(new MessageBuilder().append("CivDraft: ")
+						.append(message.getRawContent())
+						.build()).block();
+			}
+			else {
+				return e.getTextChannel().sendMessage(new MessageBuilder().append("CivDraft: ")
+						.append(message.getRawContent())
+						.build()).block();
+			}
 		}
-		else {
-			return e.getTextChannel().sendMessage(new MessageBuilder().appendString("CivDraft: ")
-					.appendString(message.getRawContent())
-					.build());
+		catch (RateLimitedException e) {
+			e.printStackTrace();
+			return null;
 		}
 	}
 	
 	private Message sendMessage(String message) {
-		return sendMessage(new MessageBuilder().appendString(message).build());
+		return sendMessage(new MessageBuilder().append(message).build());
 	}
 	
 	public String getUserId() {

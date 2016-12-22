@@ -14,7 +14,7 @@ import org.jsoup.select.Selector.SelectorParseException;
 import com.tazzie02.tazbot.commands.Command;
 import com.tazzie02.tazbot.util.SendMessage;
 
-import net.dv8tion.jda.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 public class CivInfoCommand implements Command {
 

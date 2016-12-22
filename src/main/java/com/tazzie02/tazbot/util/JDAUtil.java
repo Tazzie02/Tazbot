@@ -5,15 +5,15 @@ import java.util.List;
 import java.util.Optional;
 
 import com.tazzie02.tazbot.Bot;
-import com.tazzie02.tazbot.managers.ConfigManager;
 import com.tazzie02.tazbot.managers.SettingsManager;
 
-import net.dv8tion.jda.Permission;
-import net.dv8tion.jda.entities.Guild;
-import net.dv8tion.jda.entities.TextChannel;
-import net.dv8tion.jda.entities.User;
-import net.dv8tion.jda.entities.VoiceChannel;
-import net.dv8tion.jda.utils.PermissionUtil;
+import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.VoiceChannel;
+import net.dv8tion.jda.core.utils.PermissionUtil;
 
 public class JDAUtil {
 
@@ -25,7 +25,7 @@ public class JDAUtil {
 				sb.append("<@" + list.get(i) + ">");
 			}
 			else {
-				sb.append(u.getUsername()).append("#").append(u.getDiscriminator());
+				sb.append(u.getName()).append("#").append(u.getDiscriminator());
 			}
 			
 			if (i != list.size() - 1) {
@@ -42,7 +42,7 @@ public class JDAUtil {
 		if (user == null) {
 			return null;
 		}
-		return user.getUsername() + " (" + user.getId() + ")";
+		return user.getName() + " (" + user.getId() + ")";
 	}
 	
 	public static String userToString(String userID) {
@@ -51,7 +51,7 @@ public class JDAUtil {
 	
 	public static List<String> userListToString(List<User> users) {
 		List<String> l = new ArrayList<String>();
-		users.stream().forEach(u -> l.add(u.getUsername()));
+		users.stream().forEach(u -> l.add(u.getName()));
 		
 		return l;
 	}
@@ -107,15 +107,13 @@ public class JDAUtil {
 	
 	// https://github.com/kantenkugel/KanzeBot/blob/master/src/com/kantenkugel/discordbot/listener/InviteListener.java
 	public static TextChannel findTopWriteChannel(Guild guild) {
-		User self = Bot.getJDA().getSelfInfo();
-		
 		// Prefer public channel
-		if (PermissionUtil.checkPermission(self, Permission.MESSAGE_WRITE, guild.getPublicChannel())) {
+		if (PermissionUtil.checkPermission(guild.getPublicChannel(), guild.getSelfMember(), Permission.MESSAGE_WRITE)) {
 			return guild.getPublicChannel();
 		}
 		
 		Optional<TextChannel> first = guild.getTextChannels().parallelStream().filter(
-				c -> PermissionUtil.checkPermission(self, Permission.MESSAGE_WRITE, c))
+				c -> PermissionUtil.checkPermission(c, guild.getSelfMember(), Permission.MESSAGE_WRITE))
 				.sorted((c1, c2) -> Integer.compare(c1.getPosition(), c2.getPosition())).findFirst();
 		if (first.isPresent()) {
 			return first.get();
@@ -125,10 +123,9 @@ public class JDAUtil {
 		}
 	}
 	
-	public static String getInviteString() {
-		// https://discordapp.com/oauth2/authorize?&client_id=170563346607767554&scope=bot&permissions=0
-		String clientId = ConfigManager.getInstance().getConfig().getClientId();
-		String url = String.format("https://discordapp.com/oauth2/authorize?&client_id=%s&scope=bot&permissions=0", clientId);
+	public static String getInviteString(JDA jda) {
+		// https://discordapp.com/oauth2/authorize?&client_id=CLIENT_ID&scope=bot&permissions=0
+		String url = "Error: The invite link is not available at this time."; // TODO Get clientid or invite string from JDA
 
 		return "Note: You must have *Manage Server* pemission to add the bot to your guild.\n" + url;
 	}
@@ -144,12 +141,12 @@ public class JDAUtil {
 		}
 		
 		// Permission required to add as moderator
-		Permission perm = Permission.MANAGE_SERVER;
+		final Permission PERM = Permission.MANAGE_SERVER;
 		List<User> us = new ArrayList<User>();
 
-		guild.getUsers().parallelStream().forEach(u -> {
-			if (PermissionUtil.checkPermission(u, perm, guild)) {
-				us.add(u);
+		guild.getMembers().parallelStream().forEach(m -> {
+			if (PermissionUtil.checkPermission(guild, m, PERM)) {
+				us.add(m.getUser());
 			}
 		});
 		

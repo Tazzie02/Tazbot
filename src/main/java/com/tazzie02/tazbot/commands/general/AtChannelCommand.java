@@ -8,45 +8,45 @@ import org.apache.commons.lang3.StringUtils;
 import com.tazzie02.tazbot.commands.Command;
 import com.tazzie02.tazbot.util.SendMessage;
 
-import net.dv8tion.jda.MessageBuilder;
-import net.dv8tion.jda.entities.User;
-import net.dv8tion.jda.entities.VoiceStatus;
-import net.dv8tion.jda.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.entities.GuildVoiceState;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 public class AtChannelCommand implements Command {
 
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
-		VoiceStatus status = e.getGuild().getVoiceStatusOfUser(e.getAuthor());
-		if (!status.inVoiceChannel()) {
+		GuildVoiceState state = e.getMember().getVoiceState();
+		if (!state.inVoiceChannel()) {
 			return;
 		}
 		
-		List<User> users = status.getChannel().getUsers();
-		if (users.size() <= 1) {
+		
+		List<Member> members = state.getChannel().getMembers();
+		if (members.size() <= 1) {
 			return;
 		}
 		
 		MessageBuilder mb = new MessageBuilder();
 		
-		String channelName = status.getChannel().getName();
+		String channelName = state.getChannel().getName();
 		int maxNameLength = 25;
 		if (channelName.length() > maxNameLength) {
 			channelName = channelName.substring(0, maxNameLength) + "...";
 		}
 		
-		mb.appendMention(e.getAuthor())
-		.appendString(" *@" + channelName + "*: ");
+		mb.append(e.getAuthor()).append(" *@" + channelName + "*: ");
 		
-		users.forEach(u -> {
-			if (u.getId() != e.getAuthor().getId()) {
-				mb.appendMention(u)
-				.appendString(" ");
+		members.forEach(m -> {
+			if (m.getUser().getId() != e.getAuthor().getId()) {
+				mb.append(m).append(" ");
 			}
 		});
 		
 		if (args.length > 1) {
-			mb.appendString(StringUtils.join(args, " ", 1, args.length));
+			mb.append(StringUtils.join(args, " ", 1, args.length));
 		}
 		
 		SendMessage.sendMessage(e, mb.build());
@@ -74,8 +74,7 @@ public class AtChannelCommand implements Command {
 
 	@Override
 	public String getUsageInstructions() {
-		// TODO Auto-generated method stub
-		return null;
+		return "!@channel <message> - Mention all users in the channel and append <message>.";
 	}
 
 	@Override

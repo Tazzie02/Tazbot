@@ -1,13 +1,6 @@
 package com.tazzie02.tazbot.commands.secrethitler;
 
-import java.io.IOException;
-
-import javax.sound.sampled.UnsupportedAudioFileException;
-
-import com.tazzie02.tazbot.audio.AudioPlayer;
-import com.tazzie02.tazbot.exceptions.NoVoiceChannelException;
-
-import net.dv8tion.jda.entities.Guild;
+import net.dv8tion.jda.core.entities.Guild;
 
 public class Triggers {
 	
@@ -18,20 +11,20 @@ public class Triggers {
 	}
 	
 	private void sound(String s) {
-		try {
-			AudioPlayer.getInstance(guild.getId()).play(s);
-		} catch (NoVoiceChannelException ex) {
-			System.out.println("NoVoiceChannelException: Bot is not in a channel.");
-//			ex.printStackTrace();
-		} catch (IOException ex) {
-			System.out.println("IOException: Probably could not find the path: \"" + s + "\".");
-//			ex.printStackTrace();
-		} catch (UnsupportedAudioFileException ex) {
-			System.out.println("UnsupportedAudioFileException: Audio file is an unsupported format.");
-//			ex.printStackTrace();
-		} catch (NullPointerException ex) {
-			System.out.println("NullPointerException: Could not find the path \"" + s + "\".");
-		}
+//		try {
+//			AudioPlayer.getInstance(guild.getId()).play(s);
+//		} catch (NoVoiceChannelException ex) {
+//			System.out.println("NoVoiceChannelException: Bot is not in a channel.");
+////			ex.printStackTrace();
+//		} catch (IOException ex) {
+//			System.out.println("IOException: Probably could not find the path: \"" + s + "\".");
+////			ex.printStackTrace();
+//		} catch (UnsupportedAudioFileException ex) {
+//			System.out.println("UnsupportedAudioFileException: Audio file is an unsupported format.");
+////			ex.printStackTrace();
+//		} catch (NullPointerException ex) {
+//			System.out.println("NullPointerException: Could not find the path \"" + s + "\".");
+//		}
 	}
 	
 	protected void create() {

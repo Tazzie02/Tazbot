@@ -1,6 +1,6 @@
 package com.tazzie02.tazbot.commands.secrethitler;
 
-import net.dv8tion.jda.MessageBuilder;
+import net.dv8tion.jda.core.MessageBuilder;
 
 public class Election {
 	
@@ -12,14 +12,14 @@ public class Election {
 		this.presidentialCandidate = presidentialCandidate;
 		this.sh = sh;
 		MessageBuilder mb = new MessageBuilder();
-		mb.appendMention(presidentialCandidate.getUser())
-		.appendString(" is the Presidential Candidate.");
+		mb.append(presidentialCandidate.getUser())
+		.append(" is the Presidential Candidate.");
 		sh.gameMessage(mb.build());
 		
 		mb = new MessageBuilder();
-		mb.appendString("Presidential Candidate ")
-		.appendMention(presidentialCandidate.getUser())
-		.appendString(" you must elect a Chancellor Candidate by typing `!sh elect <@user>`.");
+		mb.append("Presidential Candidate ")
+		.append(presidentialCandidate.getUser())
+		.append(" you must elect a Chancellor Candidate by typing `!sh elect <@user>`.");
 		sh.gamePromptMessage(mb.build().getRawContent());
 		
 		if (sh.getSound()) {
@@ -48,9 +48,9 @@ public class Election {
 		
 		StringBuilder sb = new StringBuilder();
 		sb.append("Presidential Candidate ")
-		.append(presidentialCandidate.getUser().getUsername())
+		.append(presidentialCandidate.getUser().getName())
 		.append(" has elected ")
-		.append(chancellorCandidate.getUser().getUsername())
+		.append(chancellorCandidate.getUser().getName())
 		.append(" as their Chancellor Candidate.");
 		sh.gameMessage(sb.toString());
 		
@@ -72,11 +72,11 @@ public class Election {
 	
 	private void voteSuccess() {
 		MessageBuilder mb = new MessageBuilder()
-				.appendString("The proposed government has been voted in. ")
-				.appendMention(presidentialCandidate.getUser())
-				.appendString(" has become President and ")
-				.appendMention(chancellorCandidate.getUser())
-				.appendString(" has become Chancellor.");
+				.append("The proposed government has been voted in. ")
+				.append(presidentialCandidate.getUser())
+				.append(" has become President and ")
+				.append(chancellorCandidate.getUser())
+				.append(" has become Chancellor.");
 		presidentialCandidate.setPresident(true);
 		chancellorCandidate.setChancellor(true);
 		sh.gameMessage(mb.build());
@@ -85,7 +85,7 @@ public class Election {
 			StringBuilder sb2 = new StringBuilder()
 					.append("At least three Fascist policies have been enacted, meaning Fascist win if Hitler is elected as Chancellor.\n")
 					.append("Revealing if ")
-					.append(chancellorCandidate.getUser().getUsername())
+					.append(chancellorCandidate.getUser().getName())
 					.append(" is Hitler or not in ten seconds...");
 			sh.gameMessage(sb2.toString());
 			if (sh.getSound()) {
@@ -95,14 +95,14 @@ public class Election {
 				Thread.sleep(10000);
 				
 				if (chancellorCandidate.isHitler()) {
-					sh.gameMessage(chancellorCandidate.getUser().getUsername() + " is Hitler!");
+					sh.gameMessage(chancellorCandidate.getUser().getName() + " is Hitler!");
 					if (sh.getSound()) {
 						sh.triggers.isHitler(chancellorCandidate);
 					}
 					sh.results();
 				}
 				else {
-					sh.gameMessage(chancellorCandidate.getUser().getUsername() + " is not Hitler.");
+					sh.gameMessage(chancellorCandidate.getUser().getName() + " is not Hitler.");
 					if (sh.getSound()) {
 						sh.triggers.isNotHitler(chancellorCandidate);
 					}

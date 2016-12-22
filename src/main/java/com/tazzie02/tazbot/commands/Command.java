@@ -2,7 +2,7 @@ package com.tazzie02.tazbot.commands;
 
 import java.util.List;
 
-import net.dv8tion.jda.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 public interface Command {
 	

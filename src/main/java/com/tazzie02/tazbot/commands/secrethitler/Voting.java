@@ -5,8 +5,8 @@ import java.util.List;
 
 import com.tazzie02.tazbot.Bot;
 
-import net.dv8tion.jda.MessageBuilder;
-import net.dv8tion.jda.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 public class Voting {
 	
@@ -43,9 +43,9 @@ public class Voting {
 	private void privateVoting() {
 		sh.gameMessage(Images.VOTE_COMBINED.toString());
 		MessageBuilder mb = new MessageBuilder()
-				.appendString("Private message ")
-				.appendMention(Bot.getJDA().getSelfInfo())
-				.appendString(" `!sh vote <ja/nein>` to vote on the proposed government.");
+				.append("Private message ")
+				.append(Bot.getJDA().getSelfUser())
+				.append(" `!sh vote <ja/nein>` to vote on the proposed government.");
 		sh.gamePromptMessage(mb.build().getRawContent());
 		
 		sh.setExpectedPrivate(players);

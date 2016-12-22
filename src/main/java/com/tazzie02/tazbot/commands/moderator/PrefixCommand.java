@@ -7,13 +7,14 @@ import com.tazzie02.tazbot.commands.Command;
 import com.tazzie02.tazbot.managers.SettingsManager;
 import com.tazzie02.tazbot.util.SendMessage;
 
-import net.dv8tion.jda.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.entities.ChannelType;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 public class PrefixCommand implements Command {
 
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
-		if (e.isPrivate()) {
+		if (e.isFromType(ChannelType.PRIVATE)) {
 			SendMessage.sendMessage(e, "Error: Cannot set prefix in private message.");
 			return;
 		}

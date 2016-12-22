@@ -12,9 +12,10 @@ import com.tazzie02.tazbot.commands.Command;
 import com.tazzie02.tazbot.util.JDAUtil;
 import com.tazzie02.tazbot.util.SendMessage;
 
-import net.dv8tion.jda.entities.User;
-import net.dv8tion.jda.entities.VoiceChannel;
-import net.dv8tion.jda.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.VoiceChannel;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 public class TeamCommand implements Command {
 	
@@ -42,7 +43,7 @@ public class TeamCommand implements Command {
 				Integer position = Integer.parseInt(args[i]);
 				VoiceChannel vc = JDAUtil.getVoiceChannelAtPosition(e.getGuild(), position);
 				if (vc != null) {
-					users.addAll(vc.getUsers());
+					vc.getMembers().forEach(m -> users.add(m.getUser()));
 				}
 			}
 			i++;
@@ -61,7 +62,7 @@ public class TeamCommand implements Command {
 			List<String> usernames = new ArrayList<String>();
 			for (int k = 0; k < team.size(); k++) {
 				User u = team.get(k);
-				usernames.add(u.getUsername());
+				usernames.add(u.getName());
 			}
 			
 			output.append(String.format("Team %d: %s\n", (j + 1), StringUtils.join(usernames, ", ")));

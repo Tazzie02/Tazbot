@@ -9,9 +9,9 @@ import com.tazzie02.tazbot.commands.Command;
 import com.tazzie02.tazbot.util.CGUInformation;
 import com.tazzie02.tazbot.util.SendMessage;
 
-import net.dv8tion.jda.JDA;
-import net.dv8tion.jda.entities.User;
-import net.dv8tion.jda.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 public class UserInfoCommand implements Command {
 	
@@ -38,8 +38,8 @@ public class UserInfoCommand implements Command {
 	}
 	
 	private String getInfoString(MessageReceivedEvent e, User u) {
-		return "```" + CGUInformation.getUserInfo(u) + "\n"
-				+ CGUInformation.getExtraUserInfo(e, u, e.getJDA()) + "```";
+		return "```" + CGUInformation.getUserInfo(u) + "```"; 
+//				"\n" + CGUInformation.getExtraUserInfo(e, u, e.getJDA()) + "```";
 	}
 	
 	private User resolveUser(String s, JDA jda) {

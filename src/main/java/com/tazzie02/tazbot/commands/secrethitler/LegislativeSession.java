@@ -48,7 +48,7 @@ public class LegislativeSession {
 												+ "PM `!sh discard <liberal/fascist>` to discard a policy card.");
 		StringBuilder sb = new StringBuilder()
 				.append("President ")
-				.append(president.getUser().getUsername())
+				.append(president.getUser().getName())
 				.append(" has been PM'd three policy cards. The president will discard one and the other two will be passed to the chancellor.");
 		sh.gamePromptMessage(sb.toString());
 		if (sh.getSound()) {
@@ -91,7 +91,7 @@ public class LegislativeSession {
 		if (sh.getFascistPolicies() >= 5) {
 			sh.gamePrivateMessage(chancellor.getUser(), "The veto power is unlocked. You may veto a the agenda by PMing `!sh veto` or "
 														+ "enact a policy by PMing `!sh enact <liberal/fascist>`.");
-			sh.gameMessage("Chancellor " + chancellor.getUser().getUsername() + " may veto the agenda given by the President.");
+			sh.gameMessage("Chancellor " + chancellor.getUser().getName() + " may veto the agenda given by the President.");
 		}
 		else {
 			sh.gamePrivateMessage(chancellor.getUser(), "You must enact one policy. The other will be discarded.\n"
@@ -100,9 +100,9 @@ public class LegislativeSession {
 		
 		StringBuilder sb = new StringBuilder()
 				.append("President ")
-				.append(president.getUser().getUsername())
+				.append(president.getUser().getName())
 				.append(" has discarded a policy. Chancellor ")
-				.append(chancellor.getUser().getUsername())
+				.append(chancellor.getUser().getName())
 				.append(" has received the two remaining policies from the president.");
 		sh.gamePromptMessage(sb.toString());
 		waitingForChancellor = true;
@@ -120,7 +120,7 @@ public class LegislativeSession {
 		
 		StringBuilder sb = new StringBuilder()
 				.append("Chancellor ")
-				.append(chancellor.getUser().getUsername())
+				.append(chancellor.getUser().getName())
 				.append(" has enacted a ")
 				.append(card ? "Liberal policy." : "Fascist policy.");
 		
@@ -141,12 +141,12 @@ public class LegislativeSession {
 		
 		StringBuilder sb = new StringBuilder()
 				.append("Chancellor ")
-				.append(chancellor.getUser().getUsername())
+				.append(chancellor.getUser().getName())
 				.append(" has chosen to veto the current agenda.\n")
 				.append("President ")
-				.append(president.getUser().getUsername())
+				.append(president.getUser().getName())
 				.append(" may accept the veto call or decline it, forcing Chancellor ")
-				.append(chancellor.getUser().getUsername())
+				.append(chancellor.getUser().getName())
 				.append("to enact a policy.");
 		
 		sh.gamePrivateMessage(president.getUser(), "You may accept or decline the veto proposed by the Chancellor by PMing `!sh veto <accept/decline>`.");
@@ -165,7 +165,7 @@ public class LegislativeSession {
 		
 		StringBuilder sb = new StringBuilder()
 				.append("President ")
-				.append(president.getUser().getUsername())
+				.append(president.getUser().getName())
 				.append(" has agreed to veto the current agenda.");
 				
 		sh.gameMessage(sb.toString());
@@ -183,12 +183,12 @@ public class LegislativeSession {
 		
 		StringBuilder sb = new StringBuilder()
 				.append("President ")
-				.append(president.getUser().getUsername())
+				.append(president.getUser().getName())
 				.append(" has declined the action to veto the current agenda.\n")
 				.append("Chancellor ")
-				.append(chancellor.getUser().getUsername())
+				.append(chancellor.getUser().getName())
 				.append(" must enact one of the policies previously received from President ")
-				.append(president.getUser().getUsername())
+				.append(president.getUser().getName())
 				.append(".");
 		
 		sh.gamePromptMessage(sb.toString());

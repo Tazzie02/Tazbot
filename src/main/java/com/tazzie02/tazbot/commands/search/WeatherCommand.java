@@ -15,7 +15,7 @@ import com.tazzie02.tazbot.util.SendMessage;
 import com.tazzie02.tazbot.util.TazzieTime;
 import com.tazzie02.tazbot.util.TimeUtil;
 
-import net.dv8tion.jda.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 public class WeatherCommand implements Command {
 

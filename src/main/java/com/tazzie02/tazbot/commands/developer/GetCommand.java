@@ -9,18 +9,16 @@ import com.tazzie02.tazbot.commands.Command;
 import com.tazzie02.tazbot.util.CGUInformation;
 import com.tazzie02.tazbot.util.SendMessage;
 
-import net.dv8tion.jda.MessageHistory;
-import net.dv8tion.jda.Permission;
-import net.dv8tion.jda.entities.Guild;
-import net.dv8tion.jda.entities.Message;
-import net.dv8tion.jda.entities.PrivateChannel;
-import net.dv8tion.jda.entities.TextChannel;
-import net.dv8tion.jda.entities.User;
-import net.dv8tion.jda.entities.VoiceChannel;
-import net.dv8tion.jda.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.utils.InviteUtil;
-import net.dv8tion.jda.utils.InviteUtil.AdvancedInvite;
-import net.dv8tion.jda.utils.InviteUtil.InviteDuration;
+import net.dv8tion.jda.core.MessageHistory;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.PrivateChannel;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.VoiceChannel;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.exceptions.RateLimitedException;
 
 public class GetCommand implements Command {
 
@@ -40,13 +38,13 @@ public class GetCommand implements Command {
 					for (Guild g : e.getJDA().getGuilds()) {
 						sb.append(g.getName())
 						.append("(" + g.getId() + ") - ")
-						.append(g.getUsers().size() + " users\n");
+						.append(g.getMembers().size() + " members\n");
 					}
 					sb.append("```");
 				}
 				SendMessage.sendMessage(e, sb.toString());
 			}
-			else if (NumberUtils.isNumber(args[1])) {
+			else if (NumberUtils.isDigits(args[1])) {
 				User u = e.getJDA().getUserById(args[1]);
 				Guild g = e.getJDA().getGuildById(args[1]);
 				TextChannel tc = e.getJDA().getTextChannelById(args[1]);
@@ -106,10 +104,10 @@ public class GetCommand implements Command {
 				}
 				StringBuilder sb = new StringBuilder()
 						.append("Users in " + g.getName() + " (" + g.getId() + ")\n```");
-				for (User u : g.getUsers()) {
-					sb.append(u.getUsername())
+				for (Member m : g.getMembers()) {
+					User u = m.getUser();
+					sb.append(u.getName())
 					.append(" " + u.getId())
-					.append(" " + u.getOnlineStatus())
 					.append("\n");
 				}
 				sb.append("```");
@@ -141,32 +139,38 @@ public class GetCommand implements Command {
 				SendMessage.sendMessage(e, sb.toString());
 			}
 			else if (args[1].equalsIgnoreCase("history")) {
-				if (NumberUtils.isNumber(args[2])) {
+				if (NumberUtils.isDigits(args[2])) {
 					TextChannel tc = e.getJDA().getTextChannelById(args[2]);
 					PrivateChannel pc = e.getJDA().getPrivateChannelById(args[2]);
 					if (tc != null) {
 						MessageHistory mh = new MessageHistory(tc);
-						List<Message> history = mh.retrieve(10);
-						StringBuilder sb = new StringBuilder();
-						for (int i = history.size()-1; i >= 0; i--) {
-							Message m = history.get(i);
-							sb.append(m.getAuthor().getUsername())
-									.append(" <" + m.getAuthor().getId() + ">: ")
-									.append(m.getRawContent() + "\n");
+						try {
+							List<Message> history = mh.retrievePast(10).block();
+							StringBuilder sb = new StringBuilder();
+							for (int i = history.size()-1; i >= 0; i--) {
+								Message m = history.get(i);
+								sb.append(m.getAuthor().getName())
+										.append(" <" + m.getAuthor().getId() + ">: ")
+										.append(m.getRawContent() + "\n");
+							}
+							SendMessage.sendMessage(e, sb.toString());
 						}
-						SendMessage.sendMessage(e, sb.toString());
+						catch (RateLimitedException ignored) {}
 					}
 					else if (pc != null) {
-						MessageHistory mh = new MessageHistory(pc);
-						List<Message> history = mh.retrieve(10);
-						StringBuilder sb = new StringBuilder();
-						for (int i = history.size()-1; i >= 0; i--) {
-							Message m = history.get(i);
-							sb.append(m.getAuthor().getUsername())
-									.append(" <" + m.getAuthor().getId() + ">: ")
-									.append(m.getRawContent() + "\n");
+						try {
+							MessageHistory mh = new MessageHistory(pc);
+							List<Message> history = mh.retrievePast(10).block();
+							StringBuilder sb = new StringBuilder();
+							for (int i = history.size()-1; i >= 0; i--) {
+								Message m = history.get(i);
+								sb.append(m.getAuthor().getName())
+										.append(" <" + m.getAuthor().getId() + ">: ")
+										.append(m.getRawContent() + "\n");
+							}
+							SendMessage.sendMessage(e, sb.toString());
 						}
-						SendMessage.sendMessage(e, sb.toString());
+						catch (RateLimitedException ignored) {}
 					}
 					else {
 						SendMessage.sendMessage(e, "Error: Could not find a text channel or private channel with ID " + args[2] + ".");
@@ -175,48 +179,6 @@ public class GetCommand implements Command {
 				}
 				else {
 					SendMessage.sendMessage(e, "Error: Expected channel ID but got " + args[2] + ".");
-				}
-			}
-			else if (args[1].equalsIgnoreCase("invite")) {
-				if (NumberUtils.isNumber(args[2])) {
-					TextChannel tc = e.getJDA().getTextChannelById(args[2]);
-					Guild g = e.getJDA().getGuildById(args[2]);
-					// If ID is channel, set guild to guild containing channel
-					if (tc != null) {
-						g = tc.getGuild();
-					}
-					if (g != null) {
-						List<AdvancedInvite> invites = InviteUtil.getInvites(g);
-						
-						AdvancedInvite invite = null;
-						if (!invites.isEmpty()) {
-							invite = invites.get(0);
-						}
-						else {
-							for (TextChannel c : g.getTextChannels()) {
-								if (c.checkPermission(e.getJDA().getSelfInfo(), Permission.CREATE_INSTANT_INVITE)) {
-									invite = InviteUtil.createInvite(c, InviteDuration.THIRTY_MINUTES, 0, false);
-									break;
-								}
-							}
-						}
-						if (invite != null) {
-							SendMessage.sendMessage(e, "Invite for " + invite.getGuildName() + " (" + invite.getGuildId() + ")\n"
-									+ "Generated by " + invite.getInviter().getUsername() + " (" + invite.getInviter().getId() + ")\n"
-									+ "Duration: " + invite.getDuration() + ", Uses: " + invite.getUses() + ", Max Uses: " + invite.getMaxUses() + "\n"
-									+ invite.getCode());
-						}
-						else {
-							SendMessage.sendMessage(e, "Error: Could not get an invite for " + g.getName() + " (" + g.getId() + ").");
-						}
-					}
-					else {
-						SendMessage.sendMessage(e, "Error: Could not find a guild or text channel with ID " + args[2] + ".");
-						return;
-					}
-				}
-				else {
-					SendMessage.sendMessage(e, "Error: Expected guild or channel ID but got " + args[2] + ".");
 				}
 			}
 		}
@@ -229,23 +191,25 @@ public class GetCommand implements Command {
 						.append("Users in ");
 				if (tc != null) {
 					sb.append("text channel " + tc.getName() + " (" + tc.getId() + ")\n```");
-					for (User u : tc.getUsers()) {
+					for (Member m : tc.getMembers()) {
+						User u = m.getUser();
 						sb.append(u.getId())
-						.append(" " + u.getUsername())
+						.append(" " + u.getName())
 						.append("\n");
 					}
 				}
 				if (vc != null) {
 					sb.append("voice channel " + vc.getName() + " (" + vc.getId() + ")\n```");
-					for (User u : vc.getUsers()) {
+					for (Member m : vc.getMembers()) {
+						User u = m.getUser();
 						sb.append(u.getId())
-						.append(" " + u.getUsername())
+						.append(" " + u.getName())
 						.append("\n");
 					}
 				}
 				if (pc != null) {
 					sb.append("private channel ID " + pc.getId() + "\n```")
-					.append(pc.getUser().getUsername())
+					.append(pc.getUser().getName())
 					.append(" " + pc.getUser().getId())
 					.append("\n");
 				}

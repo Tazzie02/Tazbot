@@ -6,21 +6,24 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-import com.tazzie02.tazbot.audio.AudioPlayer;
 import com.tazzie02.tazbot.commands.fun.SecretHitlerCommand;
 
-import net.dv8tion.jda.MessageBuilder;
-import net.dv8tion.jda.Permission;
-import net.dv8tion.jda.entities.Message;
-import net.dv8tion.jda.entities.Guild;
-import net.dv8tion.jda.entities.Role;
-import net.dv8tion.jda.entities.TextChannel;
-import net.dv8tion.jda.entities.User;
-import net.dv8tion.jda.entities.VoiceChannel;
-import net.dv8tion.jda.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.managers.ChannelManager;
-import net.dv8tion.jda.managers.PermissionOverrideManager;
-import net.dv8tion.jda.utils.PermissionUtil;
+import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.ChannelType;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.Role;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.VoiceChannel;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.exceptions.RateLimitedException;
+import net.dv8tion.jda.core.managers.ChannelManager;
+import net.dv8tion.jda.core.managers.PermOverrideManager;
+import net.dv8tion.jda.core.managers.PermOverrideManagerUpdatable;
+import net.dv8tion.jda.core.utils.PermissionUtil;
 
 public class SecretHitler {
 	
@@ -53,13 +56,13 @@ public class SecretHitler {
 	
 	public void messageReceived(MessageReceivedEvent e, String[] args) {
 		// Ignore messages from text channels that are not the game channel
-		if (!e.isPrivate() && !e.getTextChannel().getId().equals(gameChannel.getId())) {
+		if (!e.isFromType(ChannelType.PRIVATE) && !e.getTextChannel().getId().equals(gameChannel.getId())) {
 			shHandler.basicCommands(e, args);
 			return;
 		}
 		
 		// Ignore private messages unless they are from expected users
-		if (e.isPrivate()) {
+		if (e.isFromType(ChannelType.PRIVATE)) {
 			boolean found = false;
 			for (Player p : expectedPrivate) {
 				if (e.getPrivateChannel().getId().equals(p.getUser().getPrivateChannel().getId())) {
@@ -111,7 +114,7 @@ public class SecretHitler {
 			}
 		}
 		else if (args[1].equalsIgnoreCase("rotation")) {
-			if (e.isPrivate()) {
+			if (e.isFromType(ChannelType.PRIVATE)) {
 				e.getPrivateChannel().sendMessage("Rotation is: " + Util.appendUsersRawAndInfo(players));
 			}
 			else {
@@ -156,19 +159,19 @@ public class SecretHitler {
 			}
 		}
 		else if (args[1].equalsIgnoreCase("vote") && currentVoting != null) {
-			if (privateVoting && !e.isPrivate()) {
+			if (privateVoting && !e.isFromType(ChannelType.PRIVATE)) {
 				MessageBuilder mb = new MessageBuilder()
-						.appendString("Private voting is enabled. ")
-						.appendString(commandPrompt);
+						.append("Private voting is enabled. ")
+						.append(commandPrompt);
 				gameMessage(mb.build());
 				return;
 			}
-			else if (!privateVoting && e.isPrivate()) {
+			else if (!privateVoting && e.isFromType(ChannelType.PRIVATE)) {
 				gamePrivateMessage(e.getAuthor(), "Public voting is enabled. You must vote publicly in the game channel.");
 				return;
 			}
 			if (args.length < 3) {
-				if (e.isPrivate()) {
+				if (e.isFromType(ChannelType.PRIVATE)) {
 					gamePrivateMessage(e.getAuthor(), commandPrompt);
 				}
 				else {
@@ -198,7 +201,7 @@ public class SecretHitler {
 				}
 			}
 			else {
-				if (e.isPrivate()) {
+				if (e.isFromType(ChannelType.PRIVATE)) {
 					gamePrivateMessage(e.getAuthor(), commandPrompt);
 				}
 				else {
@@ -211,7 +214,7 @@ public class SecretHitler {
 			currentVoting.waitingVotes();
 		}
 		// Legislative Session commands
-		else if (currentLegislativeSession != null && e.isPrivate()) {
+		else if (currentLegislativeSession != null && e.isFromType(ChannelType.PRIVATE)) {
 			// At top since args.length can be 2
 			if (args[1].equalsIgnoreCase("veto") && fascistPolicies >= 5) {
 				Player p = getPlayerFromUser(e.getAuthor());
@@ -364,7 +367,7 @@ public class SecretHitler {
 		}
 		
 		// Check that the bot has permission to create channels, otherwise set dedi to no
-		if (dedicatedChannel != 0 && !PermissionUtil.checkPermission(e.getJDA().getSelfInfo(), Permission.MANAGE_CHANNEL, e.getGuild())) {
+		if (dedicatedChannel != 0 && !PermissionUtil.checkPermission(e.getGuild(), e.getGuild().getSelfMember(), Permission.MANAGE_CHANNEL)) {
 			e.getTextChannel().sendMessage("Bot does not have permission to manage channels. Setting Dedicated Channels to no.");
 			dedicatedChannel = 0;
 		}
@@ -388,14 +391,14 @@ public class SecretHitler {
 		}
 		
 		MessageBuilder mb = new MessageBuilder()
-				.appendString("Secret Hitler game has been created in ")
-				.appendMention(gameChannel);
+				.append("Secret Hitler game has been created in ")
+				.append(gameChannel);
 		e.getTextChannel().sendMessage(mb.build());
 		
 		mb = new MessageBuilder()
-				.appendString("Welcome to the Secret Hitler game channel.\n")
-				.appendString("Players: ")
-				.appendString(Util.appendUsersRaw(players));
+				.append("Welcome to the Secret Hitler game channel.\n")
+				.append("Players: ")
+				.append(Util.appendUsersRaw(players));
 		
 		gameMessage(mb.build());
 		gameCreated = true;
@@ -449,14 +452,14 @@ public class SecretHitler {
 				.append("Hitler was ");
 		for (Player p : players) {
 			if (p.isHitler()) {
-				sb.append(p.getUser().getUsername());
+				sb.append(p.getUser().getName());
 				break;
 			}
 		}
 		sb.append("\nThe Fascists were ");
 		for (Player p : players) {
 			if (p.isFascist() && !p.isHitler()) {
-				sb.append(p.getUser().getUsername())
+				sb.append(p.getUser().getName())
 				.append(" ");
 			}
 		}
@@ -464,7 +467,7 @@ public class SecretHitler {
 		sb.append("\nIn memory of: ");
 		for (Player p : players) {
 			if (!p.isAlive()) {
-				sb.append(p.getUser().getUsername())
+				sb.append(p.getUser().getName())
 				.append(" ");
 			}
 		}
@@ -480,15 +483,20 @@ public class SecretHitler {
 	private void endGame() {
 		gameMessage("Removing created channels and game instance.");
 		
-		if (this.dedicatedChannel == 1) {
-			gameChannel.getManager().delete();
+		try {
+			if (this.dedicatedChannel == 1) {
+				gameChannel.delete().block();
+			}
+			else if (this.dedicatedChannel == 2) {
+				voiceChannel.delete().block();
+			}
+			else if (this.dedicatedChannel == 3) {
+				gameChannel.delete().block();
+				voiceChannel.delete().block();
+			}
 		}
-		else if (this.dedicatedChannel == 2) {
-			voiceChannel.getManager().delete();
-		}
-		else if (this.dedicatedChannel == 3) {
-			gameChannel.getManager().delete();
-			voiceChannel.getManager().delete();
+		catch (RateLimitedException e) {
+			e.printStackTrace();
 		}
 		
 		if (getSound()) {
@@ -546,7 +554,7 @@ public class SecretHitler {
 			
 			Player nextCandidate = players.get(rotationNumber%players.size());
 			while (!nextCandidate.isAlive()) {
-				gameMessage(nextCandidate.getUser().getUsername() + " is dead. Skipping rotation.");
+				gameMessage(nextCandidate.getUser().getName() + " is dead. Skipping rotation.");
 				rotationNumber++;
 				nextCandidate = players.get(rotationNumber%players.size());
 			}
@@ -555,70 +563,77 @@ public class SecretHitler {
 	}
 	
 	private TextChannel createTextChannel(MessageReceivedEvent e, String name) {
-		ChannelManager cm = e.getGuild().createTextChannel(name);
-		cm.setTopic(new MessageBuilder().appendString("Hosted by ")
-				.appendMention(e.getAuthor())
-				.build()
-				.getRawContent());
-		if (PermissionUtil.checkPermission(e.getJDA().getSelfInfo(), Permission.MANAGE_PERMISSIONS, e.getGuild())) {
-			for (Player p : players) {
-				User u = p.getUser();
-				PermissionOverrideManager pom = cm.getChannel().createPermissionOverride(u);
-				pom.grant(Permission.MESSAGE_READ);
-				pom.grant(Permission.MESSAGE_WRITE);
-				pom.grant(Permission.MESSAGE_HISTORY);
-				pom.update();
+		try {
+			ChannelManager cm = e.getGuild().getController().createTextChannel(name).block().getManager();
+			cm.setTopic(new MessageBuilder().append("Hosted by ")
+					.append(e.getAuthor())
+					.build()
+					.getRawContent()).queue();
+			if (PermissionUtil.checkPermission(e.getGuild(), e.getGuild().getSelfMember(), Permission.MANAGE_PERMISSIONS)) {
+				for (Player p : players) {
+					Member m = e.getGuild().getMember(p.getUser());
+					PermOverrideManagerUpdatable pom = cm.getChannel().createPermissionOverride(m).block().getManagerUpdatable();
+					pom.grant(Permission.MESSAGE_READ);
+					pom.grant(Permission.MESSAGE_WRITE);
+					pom.grant(Permission.MESSAGE_HISTORY);
+					pom.update();
+				}
+				for (Role r : e.getGuild().getRoles()) {
+					PermOverrideManager pom = cm.getChannel().createPermissionOverride(r).block().getManager();
+					pom.deny(Permission.MESSAGE_READ).block();
+				}
 			}
-			for (Role r : e.getGuild().getRoles()) {
-				PermissionOverrideManager pom = cm.getChannel().createPermissionOverride(r);
-				pom.deny(Permission.MESSAGE_READ);
-				pom.update();
-			}
+			return e.getJDA().getTextChannelById(cm.getChannel().getId());
 		}
-		
-		cm.update();
-		return e.getJDA().getTextChannelById(cm.getChannel().getId());
+		catch (RateLimitedException ex) {
+			return null;
+		}
 	}
 	
 	private VoiceChannel createVoiceChannel(MessageReceivedEvent e, String name) {
-		ChannelManager cm = e.getGuild().createVoiceChannel(name);
-		VoiceChannel vc = e.getJDA().getVoiceChannelById(cm.getChannel().getId());
-		AudioPlayer.getInstance(e.getGuild().getId()).join(vc);
-		return vc;
+		try {
+			ChannelManager cm = e.getGuild().getController().createVoiceChannel(name).block().getManager();
+			VoiceChannel vc = e.getJDA().getVoiceChannelById(cm.getChannel().getId());
+//			AudioPlayer.getInstance(e.getGuild().getId()).join(vc); // TODO
+			return vc;
+		}
+		catch (RateLimitedException ex) {
+			return null;
+		}
 	}
 	
 	private void printConfig(MessageReceivedEvent e) {
 		MessageBuilder mb = new MessageBuilder();
-		mb.appendString("Players: ");
+		mb.append("Players: ");
 		for (int i = 0; i < getPlayers().size(); i++) {
 			Player p = getPlayers().get(i);
-			mb.appendMention(p.getUser());
+			mb.append(p.getUser());
 			if (p.isHost()) {
-				mb.appendString("(Host)");
+				mb.append("(Host)");
 			}
 			if (i < getPlayers().size() - 1) {
-				mb.appendString(", ");
+				mb.append(", ");
 			}
 		}
-		mb.appendString("\nDedicated Channel: ");
+		mb.append("\nDedicated Channel: ");
 		if (dedicatedChannel == 0) {
-			mb.appendString("No\n");
+			mb.append("No\n");
 		}
 		else if (dedicatedChannel == 1) {
-			mb.appendString("Text Channel ")
-			.appendMention(gameChannel)
-			.appendString("\n");
+			mb.append("Text Channel ")
+			.append(gameChannel)
+			.append("\n");
 		}
 		else if (dedicatedChannel == 2) {
-			mb.appendString("Voice Channel " + voiceChannel.getName() + "\n");
+			mb.append("Voice Channel " + voiceChannel.getName() + "\n");
 		}
 		else if (dedicatedChannel == 3) {
-			mb.appendString("Text Channel ")
-			.appendMention(gameChannel)
-			.appendString(" and Voice Channel " + voiceChannel.getName() + "\n");
+			mb.append("Text Channel ")
+			.append(gameChannel)
+			.append(" and Voice Channel " + voiceChannel.getName() + "\n");
 		}
 		
-		mb.appendString("Voting type: " + (privateVoting ? "Private" : "Public"));
+		mb.append("Voting type: " + (privateVoting ? "Private" : "Public"));
 		e.getTextChannel().sendMessage(mb.build());
 	}
 	
@@ -681,7 +696,7 @@ public class SecretHitler {
 					sb.append(" Your fascist friend is ");
 					for (Player pl : players) {
 						if (pl.isFascist() && !pl.getUser().getId().equals(p.getUser().getId())) {
-							sb.append(pl.getUser().getUsername());
+							sb.append(pl.getUser().getName());
 						}
 					}
 				}
@@ -698,12 +713,12 @@ public class SecretHitler {
 				}
 				for (Player pl : players) {
 					if (pl.isFascist() && !pl.getUser().getId().equals(p.getUser().getId()) && !pl.isHitler()) {
-						sb.append(pl.getUser().getUsername() + " ");
+						sb.append(pl.getUser().getName() + " ");
 					}
 				}
 				for (Player pl : players) {
 					if (pl.isFascist() && !pl.getUser().getId().equals(p.getUser().getId()) && pl.isHitler()) {
-						sb.append("\nHitler is " + pl.getUser().getUsername());
+						sb.append("\nHitler is " + pl.getUser().getName());
 					}
 				}
 				gamePrivateMessage(p.getUser(), sb.toString());
@@ -878,22 +893,22 @@ public class SecretHitler {
 	}
 	
 	void gameMessage(Message message) {
-		gameChannel.sendMessageAsync(message, null);
+		gameChannel.sendMessage(message).queue();
 	}
 	
 	void gameMessage(String message) {
 		//return gameMessage(new MessageBuilder().appendString(message).build());
-		gameMessage(new MessageBuilder().appendString(message).build());
+		gameMessage(new MessageBuilder().append(message).build());
 	}
 	
 	void gamePrivateMessage(User u, Message message) {
 		//return u.getPrivateChannel().sendMessage(message);
-		u.getPrivateChannel().sendMessageAsync(message, null);
+		u.getPrivateChannel().sendMessage(message).queue();
 	}
 	
 	void gamePrivateMessage(User u, String message) {
 		//return gamePrivateMessage(u, new MessageBuilder().appendString(message).build());
-		gamePrivateMessage(u, new MessageBuilder().appendString(message).build());
+		gamePrivateMessage(u, new MessageBuilder().append(message).build());
 	}
 	
 	void gamePromptMessage(String message) {
@@ -1118,7 +1133,7 @@ public class SecretHitler {
 			return false;
 		}
 		
-		boolean hasPermission = PermissionUtil.checkPermission(e.getJDA().getSelfInfo(), Permission.MANAGE_CHANNEL, e.getGuild());
+		boolean hasPermission = PermissionUtil.checkPermission(e.getGuild(), e.getGuild().getSelfMember(), Permission.MANAGE_CHANNEL);
 		
 		if (!hasPermission) {
 			this.dedicatedChannel = 0;

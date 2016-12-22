@@ -15,8 +15,8 @@ import com.tazzie02.tazbot.exceptions.MaxDurationException;
 import com.tazzie02.tazbot.exceptions.UnsupportedAudioFormatException;
 
 import javazoom.spi.mpeg.sampled.file.MpegAudioFileReader;
-import net.dv8tion.jda.MessageBuilder;
-import net.dv8tion.jda.entities.Message.Attachment;
+import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.entities.Message.Attachment;
 
 public class Util {
 	
@@ -24,9 +24,9 @@ public class Util {
 		MessageBuilder mb = new MessageBuilder();
 		for (int i = 0; i < players.size(); i++) {
 			Player p = players.get(i);
-			mb.appendMention(p.getUser());
+			mb.append(p.getUser());
 			if (i < players.size() - 1) {
-				mb.appendString(", ");
+				mb.append(", ");
 			}
 		}
 		return mb.build().getRawContent();
@@ -36,7 +36,7 @@ public class Util {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < players.size(); i++) {
 			Player p = players.get(i);
-			sb.append(p.getUser().getUsername());
+			sb.append(p.getUser().getName());
 			if (i < players.size() - 1) {
 				sb.append(", ");
 			}
@@ -48,24 +48,24 @@ public class Util {
 		MessageBuilder mb = new MessageBuilder();
 		for (int i = 0; i < players.size(); i++) {
 			Player p = players.get(i);
-			mb.appendMention(p.getUser());
+			mb.append(p.getUser());
 			if (!p.isAlive()) {
-				mb.appendString(" dead");
+				mb.append(" dead");
 			}
 			if (p.isChancellor()) {
-				mb.appendString(" chancellor");
+				mb.append(" chancellor");
 			}
 			if (p.isPresident()) {
-				mb.appendString(" president");
+				mb.append(" president");
 			}
 			if (p.isPreviousChancellor()) {
-				mb.appendString(" previousChancellor");
+				mb.append(" previousChancellor");
 			}
 			if (p.isPreviousPresident()) {
-				mb.appendString(" previousPresident");
+				mb.append(" previousPresident");
 			}
 			if (i < players.size() - 1) {
-				mb.appendString(", ");
+				mb.append(", ");
 			}
 		}
 		return mb.build().getRawContent();
