@@ -10,26 +10,12 @@ import com.tazzie02.tazbot.util.WebPage;
 
 public abstract class Overwatch {
 	
-	private final String BASE_URL = "https://api.lootbox.eu/";
+	protected final static String BASE_URL = "https://api.lootbox.eu";
+	
+	protected abstract String getSearchUrl();
 	protected JSONObject data;
 	
-	protected abstract String getURLEnd();
-	
-	public Overwatch(String battleTag, String platform, String region) throws IOException {
-		battleTag = fixBattleTag(battleTag);
-		
-		String url = String.format("%s%s/%s/%s/%s", BASE_URL, platform, region, battleTag, getURLEnd());
-		search(url);
-	}
-	
-	public Overwatch(String battleTag, String platform, String region, OverwatchGameMode mode) throws IOException {
-		battleTag = fixBattleTag(battleTag);
-		
-		String url = String.format("%s%s/%s/%s/%s/%s", BASE_URL, platform, region, battleTag, mode.toString(), getURLEnd());
-		search(url);
-	}
-	
-	private String fixBattleTag(String battleTag) {
+	protected String fixBattleTag(String battleTag) {
 		if (battleTag.contains("#")) {
 			battleTag = battleTag.replace("#", "-");
 		}
@@ -47,6 +33,26 @@ public abstract class Overwatch {
 		
 		String json = webPage.getWebPage();
 		data = new JSONObject(json);
+	}
+	
+	public enum OverwatchQueryType {
+		ACHIEVEMENTS("achievements"),
+		PROFILE("profile"),
+		ALL_HEROES("allHeroes"),
+		HERO("hero"),
+		HEROES("heroes")
+		;
+		
+		private final String s;
+		
+		private OverwatchQueryType(final String s) {
+			this.s = s;
+		}
+		
+		@Override
+		public String toString() {
+			return s;
+		}
 	}
 	
 	public enum OverwatchGameMode {

@@ -11,15 +11,26 @@ import com.tazzie02.tazbot.util.WebPage;
 
 public class OverwatchHeroes extends Overwatch {
 	
+	private final OverwatchQueryType queryType;
+	protected String battleTag;
+	protected String platform;
+	protected String region;
+	protected OverwatchGameMode mode;
+	
 	protected JSONArray data;
 
 	public OverwatchHeroes(String battleTag, String platform, String region, OverwatchGameMode mode) throws IOException {
-		super(battleTag, platform, region, mode);
+		this.queryType = OverwatchQueryType.HEROES;
+		this.battleTag = fixBattleTag(battleTag);
+		this.platform = platform;
+		this.region = region;
+		this.mode = mode;
+		search(getSearchUrl());
 	}
-
+	
 	@Override
-	protected String getURLEnd() {
-		return "heroes";
+	protected String getSearchUrl() {
+		return String.format("%s/%s/%s/%s/%s/%s", Overwatch.BASE_URL, platform, region, battleTag, mode.toString(), queryType.toString());
 	}
 	
 	@Override

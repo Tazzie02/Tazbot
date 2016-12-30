@@ -1,4 +1,4 @@
-package com.tazzie02.tazbot.commands.moderator;
+package com.tazzie02.tazbot.commands.fun;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -118,7 +118,7 @@ public class LaughCommand implements Command {
 
 	@Override
 	public CommandAccess getAccess() {
-		return CommandAccess.MODERATOR;
+		return CommandAccess.ALL;
 	}
 
 	@Override

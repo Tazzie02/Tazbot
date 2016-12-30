@@ -5,14 +5,23 @@ import java.io.IOException;
 import org.json.JSONObject;
 
 public class OverwatchProfile extends Overwatch {
+	
+	private final OverwatchQueryType queryType;
+	protected String battleTag;
+	protected String platform;
+	protected String region;
 
 	public OverwatchProfile(String battleTag, String platform, String region) throws IOException {
-		super(battleTag, platform, region);
+		this.queryType = OverwatchQueryType.PROFILE;
+		this.battleTag = fixBattleTag(battleTag);
+		this.platform = platform;
+		this.region = region;
+		search(getSearchUrl());
 	}
-
+	
 	@Override
-	protected String getURLEnd() {
-		return "profile";
+	protected String getSearchUrl() {
+		return String.format("%s/%s/%s/%s/%s", Overwatch.BASE_URL, platform, region, battleTag, queryType.toString());
 	}
 	
 	public String getUsername() {

@@ -1,10 +1,16 @@
 package com.tazzie02.tazbot.audio;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import com.tazzie02.tazbot.Bot;
@@ -61,11 +67,11 @@ public class AudioPlayer {
 	}
 	
 	public void play(String path) throws NoVoiceChannelException, IOException, UnsupportedAudioFileException {
-		if (path == null || path.length() == 0) {
-			throw new IOException();
+		if (path == null) {
+			throw new NullPointerException();
 		}
-		if (!audioManager.isConnected()) {
-			throw new NoVoiceChannelException();
+		if (path.length() == 0) {
+			throw new IOException();
 		}
 		
 		File file = new File(path);
@@ -73,7 +79,49 @@ public class AudioPlayer {
 			throw new IOException();
 		}
 		
-		player = new FilePlayer(file);
+		Player player = new FilePlayer(file);
+		play(player);
+	}
+	
+	public void play(Path path) throws NoVoiceChannelException, IOException, UnsupportedAudioFileException {
+		if (path == null) {
+			throw new NullPointerException();
+		}
+		if (!Files.exists(path) || Files.isDirectory(path)) {
+			throw new IOException();
+		}
+		
+		Player player = new FilePlayer(path.toFile());
+		play(player);
+	}
+	
+//	public void play(AudioInputStream stream) throws NoVoiceChannelException {
+//		if (stream == null) {
+//			throw new NullPointerException();
+//		}
+//		
+//		Player player = new FilePlayer();
+//		player.setAudioSource(stream);
+//		play(player);
+//	}
+	
+//	public void play(InputStream stream) throws UnsupportedAudioFileException, IOException, NoVoiceChannelException {
+//		if (stream == null) {
+//			throw new NullPointerException();
+//		}
+//		AudioInputStream ais = AudioSystem.getAudioInputStream(stream);
+//		play(ais);
+//	}
+	
+	private void play(Player player) throws NoVoiceChannelException {
+		if (player == null) {
+			throw new NullPointerException();
+		}
+		if (!audioManager.isConnected()) {
+			throw new NoVoiceChannelException();
+		}
+		
+		this.player = player;
 		setVolume(volume);
 		audioManager.setSendingHandler(player);
 		player.play();

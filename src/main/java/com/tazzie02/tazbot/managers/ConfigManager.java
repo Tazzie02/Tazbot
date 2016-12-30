@@ -73,7 +73,7 @@ public class ConfigManager {
 	private Config getDefaultConfig() {
 		Config newConfig = new Config();
 		newConfig.setBotToken("token");
-		newConfig.setCliendId("id");
+		newConfig.setCliendId("id"); // TODO This can be retrieved with ApplicationUtil.getApplicationId(JDA)
 		newConfig.setBotName("Tazbot");
 		newConfig.setBotGame("Mention for help");
 		newConfig.setPublicGuildInvite("discord.gg/link");

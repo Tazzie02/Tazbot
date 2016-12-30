@@ -46,6 +46,17 @@ public class MessageLogger {
 		writeLog(s);
 	}
 	
+	public static void receiveMessage(MessageReceivedEvent e) {
+		String s = getDate();
+		if (e.isPrivate()) {
+			s += " FROM PRIVATE " + JDAUtil.userToString(e.getAuthor()) + " CHANNEL ID " + e.getChannel().getId() + ": " + stripNewLine(e.getMessage());
+		}
+		else {
+			s += " FROM GUILD " + JDAUtil.guildToString(e.getGuild()) + " CHANNEL " + JDAUtil.textChannelToString(e.getTextChannel()) + " " + JDAUtil.userToString(e.getAuthor()) + ": " + stripNewLine(e.getMessage());
+		}
+		writeLog(s);
+	}
+	
 	public static void guildEvent(Guild g, String text) {
 		String s = getDate() + " " + text;
 		writeLog(s);

@@ -1,5 +1,8 @@
 package com.tazzie02.tazbot.util;
 
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -10,6 +13,7 @@ import com.tazzie02.tazbot.managers.SettingsManager;
 
 import net.dv8tion.jda.Permission;
 import net.dv8tion.jda.entities.Guild;
+import net.dv8tion.jda.entities.Message.Attachment;
 import net.dv8tion.jda.entities.TextChannel;
 import net.dv8tion.jda.entities.User;
 import net.dv8tion.jda.entities.VoiceChannel;
@@ -179,6 +183,41 @@ public class JDAUtil {
 	public static int getHighestVoiceChannelPosition(List<VoiceChannel> voiceChannels) {
 		int position = voiceChannels.size() - 1; // Minus 1 for zero based positions
 		return position;
+	}
+	
+	public static Path downloadAttachment(Attachment att, Path directory, List<String> extensions) throws UnsupportedOperationException {
+		String name = att.getFileName().replaceFirst("[.][^.]+$", "").replace(" ", "_").replace("/", "");
+		String ext = "";
+		
+		if (att.getFileName().contains(".")) {
+			ext = att.getFileName().substring(att.getFileName().lastIndexOf('.') + 1);
+		}
+		
+		if (extensions != null && !extensions.isEmpty()) {
+			boolean found = false;
+			for (String s : extensions) {
+				if (s.equalsIgnoreCase(ext)) {
+					found = true;
+					break;
+				}
+			}
+			
+			if (!found) {
+				throw new UnsupportedOperationException("Attachment extension not included in extensions list.");
+			}
+		}
+		
+		Path file = directory.resolve(name + (ext.isEmpty() ? "" : "." + ext));
+		
+		int i = 0;
+		while (Files.exists(file, LinkOption.NOFOLLOW_LINKS)) {
+			file = directory.resolve(name + "_" + i + (ext.isEmpty() ? "" : "." + ext));
+			i++;
+		}
+		
+		att.download(file.toFile());
+		
+		return file;
 	}
 	
 }

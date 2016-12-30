@@ -1,7 +1,7 @@
 package com.tazzie02.tazbot.helpers;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -78,44 +78,41 @@ public class Youtube {
 //		return sb.toString();
 //	}
 	
-	public static File downloadAudio(String title, String id) {
-		try {
-			String path = "secrethitler/";
-			File file = new File(path + title + ".mp3");
-			if (file.isFile()) {
-				return file;
-			}
-			Process p = Runtime.getRuntime().exec(new String[] {"youtube-dl", "--no-playlist", "--restrict-filenames", "--extract-audio", "--audio-format", "mp3", "-o", path + title + ".%(ext)s", id}); 
-			p.waitFor();
-//			BufferedReader stdInput = new BufferedReader(new 
-//					InputStreamReader(p.getInputStream()));
+	public static Path downloadAudio(String id, Path directory) throws IOException, InterruptedException, QuotaExceededException {
+		final String AUDIO_FORMAT = "mp3";
+		
+		String name = getTitle(id) + "_" + id;
+		String ext = AUDIO_FORMAT;
+		
+		Path file = directory.resolve(name + "." + ext);
+		
+		if (file.toFile().isFile()) {
+			return file;
+		}
+		Process p = Runtime.getRuntime().exec(new String[] {"youtube-dl", "--no-playlist", "--restrict-filenames", "--extract-audio", "--audio-format", AUDIO_FORMAT, "-o", file.toFile().getCanonicalFile().toString(), id}); 
+		p.waitFor();
+//		BufferedReader stdInput = new BufferedReader(new 
+//				InputStreamReader(p.getInputStream()));
 //
-//			BufferedReader stdError = new BufferedReader(new 
-//					InputStreamReader(p.getErrorStream()));
+//		BufferedReader stdError = new BufferedReader(new 
+//				InputStreamReader(p.getErrorStream()));
 //
-//			// read the output from the command
-//			System.out.println("Here is the standard output of the command:\n");
-//			String s = null;
-//			while ((s = stdInput.readLine()) != null) {
-//				System.out.println(s);
-//			}
+//		// read the output from the command
+//		System.out.println("Here is the standard output of the command:\n");
+//		String s = null;
+//		while ((s = stdInput.readLine()) != null) {
+//			System.out.println(s);
+//		}
 //
-//			// read any errors from the attempted command
-//			System.out.println("Here is the standard error of the command (if any):\n");
-//			while ((s = stdError.readLine()) != null) {
-//				System.out.println(s);
-//			}
-			if (file.isFile()) {
-				return file;
-			}
-			else {
-				return null;
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		} catch (InterruptedException e) {
-			e.printStackTrace();
+//		// read any errors from the attempted command
+//		System.out.println("Here is the standard error of the command (if any):\n");
+//		while ((s = stdError.readLine()) != null) {
+//			System.out.println(s);
+//		}
+		if (file.toFile().isFile()) {
+			return file;
+		}
+		else {
 			return null;
 		}
 	}

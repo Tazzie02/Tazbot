@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
 import com.tazzie02.tazbot.audio.AudioPlayer;
@@ -25,16 +26,11 @@ import net.dv8tion.jda.utils.PermissionUtil;
 public class SecretHitler {
 	
 	private final SecretHitlerCommand shHandler;
-	private List<Player> players = new ArrayList<Player>();
-	private int dedicatedChannel = 1;
-	private boolean privateVoting = true;
-	private boolean sound = false;
-	private TextChannel gameChannel = null;
-	private VoiceChannel voiceChannel = null;
+	private Configuration config;
+	private Deck deck;
 	private boolean gameCreated = false;
 	private String commandPrompt;
 	private List<Player> expectedPrivate = new ArrayList<Player>();
-	private List<Boolean> drawDeck = new ArrayList<Boolean>();
 	private int rotationNumber = 0;
 	private int liberalPolicies = 0;
 	private int fascistPolicies = 0;
@@ -46,8 +42,9 @@ public class SecretHitler {
 	private boolean endOfGame = false;
 	protected Triggers triggers;
 	
-	public SecretHitler(SecretHitlerCommand handler, Guild guild) {
+	public SecretHitler(SecretHitlerCommand handler, Guild guild, User host) {
 		this.shHandler = handler;
+		this.config = new Configuration(host);
 		this.triggers = new Triggers(guild);
 	}
 	
@@ -622,22 +619,6 @@ public class SecretHitler {
 		e.getTextChannel().sendMessage(mb.build());
 	}
 	
-	private void resetDrawDeck() {
-		drawDeck = new ArrayList<Boolean>();
-		
-		for (int i = 0; i < 11 - fascistPolicies; i++) {
-			drawDeck.add(false);
-		}
-		for (int i = 0; i < 6 - liberalPolicies; i++) {
-			drawDeck.add(true);
-		}
-		
-		Collections.shuffle(drawDeck);
-		if (getSound()) {
-			triggers.resetDrawDeck();
-		}
-	}
-	
 	private void setPlayerRoles() {
 		int fascists = 0;
 		int playerNum = players.size();
@@ -882,17 +863,14 @@ public class SecretHitler {
 	}
 	
 	void gameMessage(String message) {
-		//return gameMessage(new MessageBuilder().appendString(message).build());
 		gameMessage(new MessageBuilder().appendString(message).build());
 	}
 	
 	void gamePrivateMessage(User u, Message message) {
-		//return u.getPrivateChannel().sendMessage(message);
 		u.getPrivateChannel().sendMessageAsync(message, null);
 	}
 	
 	void gamePrivateMessage(User u, String message) {
-		//return gamePrivateMessage(u, new MessageBuilder().appendString(message).build());
 		gamePrivateMessage(u, new MessageBuilder().appendString(message).build());
 	}
 	
@@ -906,23 +884,6 @@ public class SecretHitler {
 		this.commandPrompt = message.getRawContent();
 		//return gameMessage(message);
 		gameMessage(message);
-	}
-	
-	private boolean hasHost(User u) {
-		for (Player p : players) {
-			if (p.isHost()) {
-				if (u.getId().equals(p.getUser().getId())) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-	
-	public boolean drawCard() {
-		boolean card = drawDeck.get(0);
-		drawDeck.remove(0);
-		return card;
 	}
 	
 	public void playCard(boolean card) {
@@ -1079,29 +1040,12 @@ public class SecretHitler {
 		this.expectedPrivate = pList;
 	}
 	
-	public boolean setPlayers(User owner, List<User> users) {
-		boolean ownerFound = false;
-		for (User u : users) {
-			if (u.getId().equals(owner.getId())) {
-				players.add(new Player(u, true));
-				ownerFound = true;
-				continue;
-			}
-			players.add(new Player(u, false));
-		}
-		
-		if (!ownerFound) {
-			players.add(new Player(owner, true));
-		}
-		
-		// Acceptable amount of players
-		if (players.size() >= 5 && players.size() <= 10) {
-			return true;
-		}
-		else {
-			players.clear();
-			return false;
-		}
+	public boolean addPlayer(User user) {
+		return config.addPlayer(user);
+	}
+	
+	public boolean removePlayer(User user) {
+		return config.removePlayer(user);
 	}
 	
 	public Player containsPlayer(Player p, List<Player> pList) {
@@ -1113,43 +1057,14 @@ public class SecretHitler {
 		return null;
 	}
 	
-	public boolean setDedicatedChannel(int dedicatedChannel, MessageReceivedEvent e) {
-		if (dedicatedChannel < 0 || dedicatedChannel > 3) {
-			return false;
-		}
-		
-		boolean hasPermission = PermissionUtil.checkPermission(e.getJDA().getSelfInfo(), Permission.MANAGE_CHANNEL, e.getGuild());
-		
-		if (!hasPermission) {
-			this.dedicatedChannel = 0;
-			return false;
-		}
-		else {
-			this.dedicatedChannel = dedicatedChannel;
-			return true;
-		}
-	}
-	
-	public void setPrivateVoting(boolean privateVoting) {
-		this.privateVoting = privateVoting;
-	}
-	
-	public void setSound(boolean sound) {
-		this.sound = sound;
-	}
-	
-	public boolean getSound() {
-		return this.sound;
-	}
-	
 	public boolean isGameCreated() {
 		return this.gameCreated;
 	}
 	
-	/** Return a non-null list of players from list of users
-	 * @param users
-	 * @return
-	 */
+	public Configuration getConfig() {
+		return config;
+	}
+	
 	public List<Player> getPlayersFromUsers(List<User> users) {
 		List<Player> pList = new ArrayList<Player>();
 		for (User u : users) {
@@ -1176,7 +1091,13 @@ public class SecretHitler {
 	}
 	
 	public List<Player> getPlayers() {
-		return Collections.unmodifiableList(players);
+		return players;
+	}
+	
+	public List<String> getPlayersUsernames() {
+		List<String> names = new ArrayList<String>();
+		getPlayers().forEach(p -> names.add(p.getUser().getUsername()));
+		return names;
 	}
 	
 }

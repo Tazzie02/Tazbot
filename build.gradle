@@ -47,6 +47,7 @@ dependencies {
 	compile 'com.google.code.gson:gson:2.7'
 	compile 'org.jsoup:jsoup:1.8.3'
 	compile 'com.googlecode.soundlibs:mp3spi:1.9.5-1'
+	compile 'com.amazonaws:aws-java-sdk-polly:1.11.66'
 	
 
     testCompile 'junit:junit:4.12'

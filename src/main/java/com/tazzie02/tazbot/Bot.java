@@ -89,6 +89,7 @@ public class Bot {
 		registry.registerCommand(new EvalCommand());
 		registry.registerCommand(new GetCommand());
 		registry.registerCommand(new MessageCommand());
+		registry.registerCommand(new ReadCommand());
 		registry.registerCommand(new SetCommand());
 		registry.registerCommand(new ShutdownCommand());
 

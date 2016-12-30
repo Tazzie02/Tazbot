@@ -25,7 +25,7 @@ public class CivInfoCommand implements Command {
 			return;
 		}
 
-		String url = "http://civilization.wikia.com/wiki/" + args[1] + "_(Civ5)";
+		String url = "http://civilization.wikia.com/wiki/" + args[1] + "_(Civ6)";
 		StringBuilder sb = new StringBuilder();
 		
 		try {

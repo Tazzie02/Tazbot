@@ -147,7 +147,6 @@ public class PurgeCommand implements Command {
 			amount -= numFoundByUser;
 		}
 		
-		System.out.println("Returning " + messages.size() + " messages by " + user.getUsername());
 		return messages;
 	}
 	

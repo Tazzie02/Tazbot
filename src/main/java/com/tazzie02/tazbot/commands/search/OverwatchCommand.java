@@ -28,40 +28,79 @@ public class OverwatchCommand implements Command {
 	private final String DEFAULT_REGION = "us";
 	private final int TIMEOUT = 15000;
 	
+	private OverwatchProfile profile;
+	private OverwatchHeroes heroesQuick;
+	private OverwatchHeroes heroesComp;
+	
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
 		if (args.length == 1) {
-			SendMessage.sendMessage(e, "Error: BattleTag not found.");
+			SendMessage.sendMessage(e, "Error: BattleTag was not specified.");
 		}
 		else if (args.length == 2) {
 			if (args[1].contains("#") || args[1].contains("-")) {
+				String battleTag = args[1].replace("#", "-");
 				Message message = e.getTextChannel().sendMessage("*Looking up stats for " + args[1] + ".*");
 				
-				Runnable runnable = new Runnable() {
+				Thread profileThread = new Thread(new Runnable() {
 					@Override
 					public void run() {
-						String battleTag = args[1].replace("#", "-");
 						try {
-							OverwatchProfile profile = new OverwatchProfile(battleTag, DEFAULT_PLATFORM, DEFAULT_REGION);
-							OverwatchHeroes heroesQuick = new OverwatchHeroes(battleTag, DEFAULT_PLATFORM, DEFAULT_REGION, OverwatchGameMode.QUICK);
-							OverwatchHeroes heroesComp = new OverwatchHeroes(battleTag, DEFAULT_PLATFORM, DEFAULT_REGION, OverwatchGameMode.COMPETITIVE);
-
+							profile = new OverwatchProfile(battleTag, DEFAULT_PLATFORM, DEFAULT_REGION);
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					}
+				});
+				
+				Thread heroesQuickThread = new Thread(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							heroesQuick = new OverwatchHeroes(battleTag, DEFAULT_PLATFORM, DEFAULT_REGION, OverwatchGameMode.QUICK);
+						} catch (IOException e) {
+							e.printStackTrace();
+						} catch (NotFoundException ignored) {}
+					}
+				});
+				
+				Thread heroesCompThread = new Thread(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							heroesComp = new OverwatchHeroes(battleTag, DEFAULT_PLATFORM, DEFAULT_REGION, OverwatchGameMode.COMPETITIVE);
+						} catch (IOException e) {
+							e.printStackTrace();
+						} catch (NotFoundException ignored) {}
+					}
+				});
+				
+				Runnable mainRun = new Runnable() {
+					@Override
+					public void run() {
+						try {
+							profileThread.start();
+							heroesQuickThread.start();
+							heroesCompThread.start();
+							
+							profileThread.join();
+							heroesQuickThread.join();
+							heroesCompThread.join();
+							
 							message.updateMessage(getOutput(battleTag.replace("-", "#"), profile, heroesQuick, heroesComp));
-
-						} catch (IOException ex) {
-							message.updateMessage("Error: Could not connect to web page.");
-							ex.printStackTrace();
 						} catch (NotFoundException ex) {
 							message.updateMessage("Error: Could not find user " + args[1] + ".");
+						} catch (InterruptedException e) {
+							e.printStackTrace();
 						}
 					}
 				};
-
+				
 				new Thread(new Runnable() {
 					@Override
 					public void run() {
 						ExecutorService executor = Executors.newSingleThreadExecutor();
-						Future<?> future = executor.submit(runnable);
+						Future<?> future = executor.submit(mainRun);
 
 						try {
 							future.get(TIMEOUT, TimeUnit.MILLISECONDS);
