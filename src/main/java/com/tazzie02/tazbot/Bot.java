@@ -79,6 +79,7 @@ public class Bot {
 		registry.registerCommand(new InsultCommand());
 		registry.registerCommand(new ImageSearchCommand());
 		registry.registerCommand(new JoinCommand());
+		registry.registerCommand(new OrderCommand());
 //		registry.registerCommand(new OverwatchCommand());
 		registry.registerCommand(new PingCommand());
 		registry.registerCommand(new TeamCommand());
