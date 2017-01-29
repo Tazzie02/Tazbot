@@ -27,16 +27,21 @@ public class OrderCommand implements Command {
 		}
 		
 		List<Member> members = new ArrayList<Member>(e.getMember().getVoiceState().getChannel().getMembers());
+		
+		SendMessage.sendMessage(e, getOrder(members));
+	}
+	
+	public static String getOrder(List<Member> members) {
 		Collections.shuffle(members);
 		
 		StringBuilder sb = new StringBuilder();
 		sb.append("Order is:\n");
 		for (int i = 0; i < members.size(); i++) {
-			String num = "[" + i + "]";
+			String num = "[" + (i + 1) + "]";
 			sb.append(String.format("%-10s%s\n", num, members.get(i).getEffectiveName()));
 		}
 		
-		SendMessage.sendMessage(e, sb.toString());
+		return sb.toString();
 	}
 
 	@Override
