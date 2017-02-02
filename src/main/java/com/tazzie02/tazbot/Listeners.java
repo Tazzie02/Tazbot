@@ -1,80 +1,74 @@
 package com.tazzie02.tazbot;
 
 import com.tazzie02.tazbot.util.JDAUtil;
-import com.tazzie02.tazbot.util.MessageLogger;
-import com.tazzie02.tazbot.util.SendMessage;
+import com.tazzie02.tazbotdiscordlib.SendMessage;
+import com.tazzie02.tazbotdiscordlib.filehandling.CommandSettingsImpl;
+import com.tazzie02.tazbotdiscordlib.filehandling.FileLogger;
+import com.tazzie02.tazbotdiscordlib.filehandling.LocalFiles;
 
+import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
-import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
-import java.util.List;
-
-import org.apache.commons.lang3.StringUtils;
-
-import com.tazzie02.tazbot.managers.ConfigManager;
-import com.tazzie02.tazbot.managers.SettingsManager;
+import java.io.IOException;
 
 public class Listeners extends ListenerAdapter {
 	
-	@Override
-	public void onPrivateMessageReceived(PrivateMessageReceivedEvent e) {
-		if (!e.getAuthor().getId().equals(e.getJDA().getSelfUser().getId())) {
-			MessageLogger.receivePrivateMessage(e);
-		}
-	}
+	private final String RESET_GUILD_SETTINGS_COMMAND = "ResetSettings";
 	
 	@Override
 	public void onGuildJoin(GuildJoinEvent e) {
-		Guild g = e.getGuild();
+		JDA jda = e.getJDA();
+		Guild guild = e.getGuild();
+		CommandSettingsImpl settings = LocalFiles.getInstance(jda).getCommandSettings(guild);
 		
-		// Check if bot is already in the guild.
-		// If there is a discord outage, onGuildJoin may be fired incorrectly.
-		if (SettingsManager.getInstance(g.getId()).getSettings().isJoined()) {
-			return;
+		try {
+			String message = "Joined " + guild.getName() + " (" + guild.getId() + ").";
+			System.out.println(message);
+			FileLogger.log(message, guild, e.getJDA());
+		} catch (IOException ex) {
+			ex.printStackTrace();
 		}
 		
-		String message = "JOINED GUILD " + JDAUtil.guildToString(g);
+		String s;
+		String welcome = getBasicWelcome(guild);
 		
-		MessageLogger.guildEvent(g, message);
-		SendMessage.sendDeveloper(message);
-		
-		String botName = ConfigManager.getInstance().getConfig().getBotName();
-		StringBuilder sb = new StringBuilder()
-				.append("Hello! Thank you for adding ").append(botName).append(" to ").append(g.getName()).append(".\n");
-		
-		SettingsManager manager = SettingsManager.getInstance(g.getId());
-		
-		if (!manager.getSettings().getModerators().isEmpty()) {
-			sb.append("Since this is not the first time ").append(botName).append(" has been joined ").append(g.getName()).append(", please note that your settings have been reset.\n");
-			manager.resetSettings();
+		if (settings.getModerators().isEmpty()) {
+			s = "Hello! Since I am new here, let me tell you the basics.\n";
+			s += welcome;
+		}
+		else {
+			s = "Hello! It seems I've been here before. Previous settings have been loaded.\n";
+			s += welcome;
+			s += "To reset these settings, a moderator can use the " + RESET_GUILD_SETTINGS_COMMAND + " command."; // TODO
 		}
 		
-		List<User> us = JDAUtil.addDefaultModerators(g);
+		SendMessage.sendMessage(JDAUtil.findTopWriteChannel(guild), s);
+	}
+	
+	private String getBasicWelcome(Guild guild) {
+		String s;
+		s = "The moderators of this guild are " + "LIST_OF_MODERATORS" + ".\n" // TODO
+				+ "The guild owner (currently " + "GUILD_OWNER" + ") may add or remove moderators at any time.\n" // TODO
+				+ "The command prefix is \"" + "COMMAND_PREFIX" + "\". I can be mentioned instead of using a prefix as well.\n" // TODO
+				+ "Check out the help and about commands for more information.";
 		
-		sb.append("Added ").append(StringUtils.join(JDAUtil.userListToString(us), ", ")).append(" as moderators.\n")
-		.append("The guild owner (currently " + g.getOwner().getEffectiveName() + ") may add or remove moderators at any time.\n")
-		.append("The default command prefix is \"" + manager.getSettings().getPrefix() + "\". You can also mention instead of using a prefix.\n")
-		.append("Use the help and about commands for more information.");
-		
-		SendMessage.sendMessage(JDAUtil.findTopWriteChannel(g), sb.toString());
+		return s;
 	}
 	
 	@Override
 	public void onGuildLeave(GuildLeaveEvent e) {
-		Guild g = e.getGuild();
-		String message = "LEFT GUILD " + JDAUtil.guildToString(g);
+		Guild guild = e.getGuild();
 		
-		// Set joined to false in settings file
-		SettingsManager settingsManager = SettingsManager.getInstance(g.getId());
-		settingsManager.getSettings().setJoined(false);
-		settingsManager.saveSettings();
-		
-		MessageLogger.guildEvent(g, message);
-		SendMessage.sendDeveloper(message);
+		try {
+			String message = "Left " + guild.getName() + " (" + guild.getId() + ").";
+			System.out.println(message);
+			FileLogger.log(message, guild, e.getJDA());
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
 	}
 	
 }

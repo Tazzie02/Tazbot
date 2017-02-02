@@ -1,4 +1,4 @@
-package com.tazzie02.tazbot.commands.developer;
+package com.tazzie02.tazbot.commands.owner;
 
 import java.util.Arrays;
 import java.util.List;

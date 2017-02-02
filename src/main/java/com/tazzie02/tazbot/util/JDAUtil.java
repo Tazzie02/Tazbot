@@ -3,6 +3,7 @@ package com.tazzie02.tazbot.util;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.tazzie02.tazbot.Bot;
 import com.tazzie02.tazbot.managers.SettingsManager;
@@ -10,12 +11,21 @@ import com.tazzie02.tazbot.managers.SettingsManager;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.utils.PermissionUtil;
 
 public class JDAUtil {
+	
+	public static List<Member> getMembersWithPermission(Guild guild, Permission permission) {
+		return guild.getMembers().parallelStream()
+			.filter(m -> m.hasPermission(permission))
+			.collect(Collectors.toList());
+	}
+	
+	//-----------------------------------------------------------------------------------------
 
 	public static String idListToUserString(List<String> list, String separator) {
 		StringBuilder sb = new StringBuilder();
