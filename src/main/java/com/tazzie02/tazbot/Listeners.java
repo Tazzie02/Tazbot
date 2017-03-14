@@ -41,19 +41,20 @@ public class Listeners extends ListenerAdapter {
 		}
 		else {
 			s = "Hello! It seems I've been here before. Previous settings have been loaded.\n";
+			s += "To reset these settings, a moderator can use the " + RESET_GUILD_SETTINGS_COMMAND + " command.\n"; // TODO
 			s += welcome;
-			s += "To reset these settings, a moderator can use the " + RESET_GUILD_SETTINGS_COMMAND + " command."; // TODO
 		}
 		
 		SendMessage.sendMessage(JDAUtil.findTopWriteChannel(guild), s);
 	}
 	
 	private String getBasicWelcome(Guild guild) {
-		String s;
-		s = "The moderators of this guild are " + "LIST_OF_MODERATORS" + ".\n" // TODO
-				+ "The guild owner (currently " + "GUILD_OWNER" + ") may add or remove moderators at any time.\n" // TODO
-				+ "The command prefix is \"" + "COMMAND_PREFIX" + "\". I can be mentioned instead of using a prefix as well.\n" // TODO
-				+ "Check out the help and about commands for more information.";
+		LocalFiles files = LocalFiles.getInstance(guild.getJDA());
+		
+		String s = String.format("The moderators of this guild are %s.\n", String.join(", ", JDAUtil.idsToEffectiveName(files.getModerators(guild), guild)));
+		s += String.format("The guild owner (currently %s) may add or remove moderators at any time.\n", guild.getOwner().getEffectiveName());
+		s += String.format("The command prefix is \"%s\". I can be mentioned instead of using a prefix as well.\n", files.getPrefix(guild));
+		s += "Check out the help and about commands for more information.";
 		
 		return s;
 	}

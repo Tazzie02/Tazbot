@@ -1,8 +1,11 @@
 package com.tazzie02.tazbot.util;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.tazzie02.tazbot.Bot;
@@ -23,6 +26,17 @@ public class JDAUtil {
 		return guild.getMembers().parallelStream()
 			.filter(m -> m.hasPermission(permission))
 			.collect(Collectors.toList());
+	}
+	
+	public static List<String> idsToEffectiveName(Collection<String> ids, Guild guild) {
+		List<String> names = new ArrayList<>();
+		for (String id : ids) {
+			Member member = guild.getMemberById(id);
+			if (member != null) {
+				names.add(member.getEffectiveName());
+			}
+		}
+		return names;
 	}
 	
 	//-----------------------------------------------------------------------------------------
