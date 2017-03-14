@@ -5,8 +5,8 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.tazzie02.tazbot.commands.Command;
-import com.tazzie02.tazbot.util.SendMessage;
+import com.tazzie02.tazbotdiscordlib.Command;
+import com.tazzie02.tazbotdiscordlib.SendMessage;
 
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.GuildVoiceState;
@@ -20,12 +20,13 @@ public class AtChannelCommand implements Command {
 	public void onCommand(MessageReceivedEvent e, String[] args) {
 		GuildVoiceState state = e.getMember().getVoiceState();
 		if (!state.inVoiceChannel()) {
+			SendMessage.sendMessage(e, "Error: User not in voice channel.");
 			return;
 		}
 		
-		
 		List<Member> members = state.getChannel().getMembers();
 		if (members.size() <= 1) {
+			SendMessage.sendMessage(e, "Error: Why are you using this command with only you in the channel?");
 			return;
 		}
 		
@@ -45,7 +46,7 @@ public class AtChannelCommand implements Command {
 			}
 		});
 		
-		if (args.length > 1) {
+		if (args.length > 0) {
 			mb.append(StringUtils.join(args, " ", 1, args.length));
 		}
 		
@@ -73,8 +74,8 @@ public class AtChannelCommand implements Command {
 	}
 
 	@Override
-	public String getUsageInstructions() {
-		return "!@channel <message> - Mention all users in the channel and append <message>.";
+	public String getDetails() {
+		return "@channel <message> - Mention all users in the channel and append <message>.";
 	}
 
 	@Override
