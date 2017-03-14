@@ -147,13 +147,6 @@ public class JDAUtil {
 		}
 	}
 	
-	public static String getInviteString(JDA jda) {
-		// https://discordapp.com/oauth2/authorize?&client_id=CLIENT_ID&scope=bot&permissions=0
-		String url = "Error: The invite link is not available at this time."; // TODO Get clientid or invite string from JDA
-
-		return "Note: You must have *Manage Server* pemission to add the bot to your guild.\n" + url;
-	}
-	
 	public static List<User> addDefaultModerators(Guild guild) {
 		SettingsManager manager = SettingsManager.getInstance(guild.getId());
 

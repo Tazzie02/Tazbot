@@ -3,17 +3,24 @@ package com.tazzie02.tazbot.commands.general;
 import java.util.Arrays;
 import java.util.List;
 
-import com.tazzie02.tazbot.commands.Command;
-import com.tazzie02.tazbot.util.JDAUtil;
-import com.tazzie02.tazbot.util.SendMessage;
+import com.tazzie02.tazbotdiscordlib.Command;
+import com.tazzie02.tazbotdiscordlib.SendMessage;
 
+import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 public class JoinCommand implements Command {
 	
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
-		SendMessage.sendMessage(e, JDAUtil.getInviteString(e.getJDA()));
+		SendMessage.sendMessage(e, getInviteString(e.getJDA()));
+	}
+	
+	private String getInviteString(JDA jda) {
+		// https://discordapp.com/oauth2/authorize?&client_id=CLIENT_ID&scope=bot&permissions=0
+		String url = "Error: The invite link is not available at this time."; // TODO Get clientid or invite string from JDA
+
+		return "Note: You must have *Manage Server* pemission to add the bot to your guild.\n" + url;
 	}
 	
 	@Override
@@ -37,7 +44,7 @@ public class JoinCommand implements Command {
 	}
 
 	@Override
-	public String getUsageInstructions() {
+	public String getDetails() {
 		return "join - Get the authorize URL to invite the bot to a guild.";
 	}
 
