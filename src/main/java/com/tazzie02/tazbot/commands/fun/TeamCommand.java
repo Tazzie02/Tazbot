@@ -8,10 +8,10 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
-import com.tazzie02.tazbot.commands.Command;
-import com.tazzie02.tazbot.util.JDAUtil;
-import com.tazzie02.tazbot.util.SendMessage;
+import com.tazzie02.tazbotdiscordlib.Command;
+import com.tazzie02.tazbotdiscordlib.SendMessage;
 
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.entities.VoiceChannel;
@@ -19,63 +19,117 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 public class TeamCommand implements Command {
 	
+	private final int TEAM_COUNT_DEFAULT = 2;
+	
+	// TODO Clean up, too many if else
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
-		List<User> users = new ArrayList<User>();
+		List<Member> members = new ArrayList<>();
+		int teamCount = TEAM_COUNT_DEFAULT;
+		List<User> mentioned = e.getMessage().getMentionedUsers();
 		
-		users.addAll(e.getMessage().getMentionedUsers());
-		
-		if (args.length == 1) {
-			SendMessage.sendMessage(e, "Error: No users were added.");
+		if (!mentioned.isEmpty() && mentioned.size() <= 2) {
+			SendMessage.sendMessage(e, "Error: At least 3 users must be mentioned.");
 			return;
 		}
 		
-		int teamCount = 2;
-		int i = 1;
-		if (args.length > 2 && NumberUtils.isDigits(args[1])) {
-			teamCount = Integer.parseInt(args[1]);
-			i = 2;
+		// team
+		if (args.length == 0) {
+			VoiceChannel vc = e.getMember().getVoiceState().getChannel();
+			if (vc != null) {
+				members.addAll(vc.getMembers());
+			}
+			else {
+				SendMessage.sendMessage(e, "Error: User not in voice channel.");
+				return;
+			}
 		}
-		
-		while (i < args.length) {
-			// Channel position
-			if (NumberUtils.isDigits(args[i])) {
-				Integer position = Integer.parseInt(args[i]);
-				VoiceChannel vc = JDAUtil.getVoiceChannelAtPosition(e.getGuild(), position);
+		// team <teamCount>
+		else if (args.length == 1) {
+			if (NumberUtils.isDigits(args[0])) {
+				teamCount = Integer.parseInt(args[0]);
+				
+				VoiceChannel vc = e.getMember().getVoiceState().getChannel();
 				if (vc != null) {
-					vc.getMembers().forEach(m -> users.add(m.getUser()));
+					members.addAll(vc.getMembers());
+				}
+				else {
+					SendMessage.sendMessage(e, "Error: User not in voice channel.");
+					return;
 				}
 			}
-			i++;
+			else {
+				SendMessage.sendMessage(e, "Error: Incorrect usage. Expected number of teams.");
+				return;
+			}
+		}
+		else {
+			// team <@user> <...>
+			if (args.length == mentioned.size()) {
+				Guild guild = e.getGuild();
+				mentioned.forEach(m -> members.add(guild.getMember(m)));
+			}
+			else {
+				if (NumberUtils.isDigits(args[0])) {
+					teamCount = Integer.parseInt(args[0]);
+					// team <teamCount> <@user> <...>
+					if (args.length == mentioned.size() - 1) {
+						Guild guild = e.getGuild();
+						mentioned.forEach(m -> members.add(guild.getMember(m)));
+					}
+					// team <teamCount> <voicePosition> <...>
+					else {
+						for (int i = 1; i < args.length; i++) {
+							if (NumberUtils.isDigits(args[i])) {
+								int pos = Integer.parseInt(args[i]);
+								List<VoiceChannel> vcs = e.getGuild().getVoiceChannels();
+								if (pos > vcs.size()) {
+									SendMessage.sendMessage(e, "Error: Voice channel position is higher than number of voice channels.");
+									return;
+								}
+								members.addAll(vcs.get(pos).getMembers());
+							}
+							else {
+								SendMessage.sendMessage(e, "Error: Incorrect usage. Expected voice channel positions.");
+								return;
+							}
+						}
+					}
+				}
+				else {
+					SendMessage.sendMessage(e, "Error: Incorrect usage. Expected first argument to be number of teams.");
+					return;
+				}
+			}
 		}
 		
-		if (users.isEmpty()) {
-			SendMessage.sendMessage(e, "Error: No users were added.");
+		if (members.size() <= teamCount) {
+			SendMessage.sendMessage(e, "Error: Number of users is less than or equal to number of teams.");
 			return;
 		}
 		
-		List<List<User>> teams = shuffleTeams(users, teamCount);
+		List<List<Member>> teams = shuffleTeams(members, teamCount);
 		
 		StringBuilder output = new StringBuilder();
-		for (int j = 0; j < teams.size(); j++) {
-			List<User> team = teams.get(j);
-			List<String> usernames = new ArrayList<String>();
-			for (int k = 0; k < team.size(); k++) {
-				User u = team.get(k);
-				usernames.add(u.getName());
+		for (int i = 0; i < teams.size(); i++) {
+			List<Member> team = teams.get(i);
+			List<String> names = new ArrayList<>();
+			for (int j = 0; j < team.size(); j++) {
+				Member u = team.get(j);
+				names.add(u.getEffectiveName());
 			}
 			
-			output.append(String.format("Team %d: %s\n", (j + 1), StringUtils.join(usernames, ", ")));
+			output.append(String.format("Team %d: %s\n", (i + 1), StringUtils.join(names, ", ")));
 		}
 		
 		SendMessage.sendMessage(e, output.toString());
 	}
 	
-	private List<List<User>> shuffleTeams(List<User> users, int teamCount) {
-		List<List<User>> teams = new ArrayList<List<User>>();
+	private List<List<Member>> shuffleTeams(List<Member> users, int teamCount) {
+		List<List<Member>> teams = new ArrayList<>();
 		
 		for (int i = 0; i < teamCount; i++) {
-			teams.add(new ArrayList<User>());
+			teams.add(new ArrayList<Member>());
 		}
 		
 		Collections.shuffle(users);
@@ -99,7 +153,7 @@ public class TeamCommand implements Command {
 
 	@Override
 	public String getDescription() {
-		return "Randomly add users to two teams.";
+		return "Randomly split users into teams.";
 	}
 
 	@Override
@@ -108,12 +162,13 @@ public class TeamCommand implements Command {
 	}
 
 	@Override
-	public String getUsageInstructions() {
-		return "team <@user> <...> - Randomly split users into two teams.\n"
-				+ "team <teamCount> <@user> <...> - Randomly split users in to teamCount teams."
-				+ "team <voicePosition> - Randomly split users at position voicePosition into two teams.\n"
-				+ "team <teamCount> <voicePosition> <...> - Randomly split users into teamCount teams."
-				+ "**NOTE:** If multiple voicePositions are mentioned, the first argument MUST be teamCount.";
+	public String getDetails() {
+		String s = "team - Randomly split users in current voice channel into " + TEAM_COUNT_DEFAULT + " teams.\n";
+		s += "team <teamCount> - Randomly split users in current voice channel into <teamCount> teams.\n";
+		s += "team <@user> <...> - Randomly split users into " + TEAM_COUNT_DEFAULT + " teams.\n";
+		s += "team <teamCount> <@user> <...> - Randomly split users in to <teamCount> teams.\n";
+		s += "team <teamCount> <voicePosition> <...> - Randomly split users into <teamCount> teams.";
+		return s;
 	}
 
 	@Override
