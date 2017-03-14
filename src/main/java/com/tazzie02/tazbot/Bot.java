@@ -1,20 +1,10 @@
 package com.tazzie02.tazbot;
 
 import java.nio.file.Paths;
+import java.util.List;
 
 import javax.security.auth.login.LoginException;
 
-//import com.tazzie02.tazbot.commands.CommandRegistry;
-//import com.tazzie02.tazbot.commands.MentionedReply;
-//import com.tazzie02.tazbot.commands.developer.*;
-//import com.tazzie02.tazbot.commands.fun.*;
-//import com.tazzie02.tazbot.commands.general.*;
-//import com.tazzie02.tazbot.commands.informative.*;
-//import com.tazzie02.tazbot.commands.moderator.*;
-//import com.tazzie02.tazbot.commands.search.*;
-//import com.tazzie02.tazbot.helpers.structures.Config;
-//import com.tazzie02.tazbotdiscordlib.CommandRegistry;
-import com.tazzie02.tazbot.managers.ConfigManager;
 import com.tazzie02.tazbotdiscordlib.CommandRegistry;
 import com.tazzie02.tazbotdiscordlib.TazbotDiscordLib;
 import com.tazzie02.tazbotdiscordlib.TazbotDiscordLibBuilder;
@@ -25,27 +15,29 @@ import com.tazzie02.tazbotdiscordlib.filehandling.LocalFiles;
 import com.tazzie02.tazbotdiscordlib.impl.MessageLoggerImpl;
 import com.tazzie02.tazbotdiscordlib.impl.MessageSenderImpl;
 
-import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.JDABuilder;
-import net.dv8tion.jda.core.entities.Game;
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
-import net.dv8tion.jda.core.managers.AccountManager;
 
 public class Bot {
 
+	private static final String BOT_TOKEN;
 	private static TazbotDiscordLib tdl;
 	
-	public static void start(String token) {
+	static {
+		BOT_TOKEN = System.getenv("TAZBOT_TOKEN");
+	}
+	
+	public static void start() {
 		if (tdl != null) {
 			throw new IllegalStateException("Already started.");
 		}
 		
-		TazbotDiscordLibBuilder builder = new TazbotDiscordLibBuilder(token);
+		TazbotDiscordLibBuilder builder = new TazbotDiscordLibBuilder(BOT_TOKEN);
 		builder.setFilePath(Paths.get(""));
 		
 		try {
-			TazbotDiscordLib tdl = builder.build();
+			tdl = builder.build();
 			
 			MessageLoggerImpl logger = new MessageLoggerImpl();
 			MessageSenderImpl sender = new MessageSenderImpl();
@@ -65,11 +57,19 @@ public class Bot {
 			
 			tdl.addListener(registry);
 			
-//			tdl.getJDA().getSelfUser().getManager().setName("").queue();
-//			tdl.getJDA().getPresence().setGame(Game.of(""));
+			JDA jda = tdl.getJDA();
 			
-			System.out.println("Number of Guilds: " + tdl.getJDA().getGuilds().size());
-			System.out.println("Number of Users: " + tdl.getJDA().getUsers().size());
+//			jda.getSelfUser().getManager().setName(BOT_NAME).queue();
+//			jda.getPresence().setGame(Game.of(BOT_GAME));
+			
+			List<Guild> guilds = jda.getGuilds();
+			StringBuilder sb = new StringBuilder();
+			sb.append("Number of Guilds: " + guilds.size() + "\n");
+			for (Guild guild : guilds) {
+				sb.append("    - " + guild.getName() + "\n");
+			}
+			sb.append("Number of Users: " + jda.getUsers().size());
+			System.out.println(sb.toString());
 			
 		} catch (LoginException e) {
 			e.printStackTrace();
@@ -83,6 +83,7 @@ public class Bot {
 	}
 	
 	private static void addCommands(CommandRegistry registry) {
+		// Default TDL commands
 		registry.registerCommand(new HelpCommand(registry));
 		registry.registerCommand(new ShutdownCommand());
 		registry.registerCommand(new PingCommand());
@@ -106,43 +107,6 @@ public class Bot {
 		return tdl;
 	}
 	
-//	public void startBot() {
-//		Config config = ConfigManager.getInstance().getConfig();
-//
-//		JDABuilder jdaBuilder = new JDABuilder(AccountType.BOT).setToken(config.getBotToken());
-//		
-//		jdaBuilder.setBulkDeleteSplittingEnabled(false);
-//		
-//		jdaBuilder.addListener(createCommandRegistry());
-//		jdaBuilder.addListener(new MentionedReply());
-//		jdaBuilder.addListener(new Listeners());
-//
-//		try {
-//			jda = jdaBuilder.buildBlocking();
-//			
-//			AccountManager manager = jda.getSelfUser().getManager();
-//			
-//			manager.setName(config.getBotName());
-//			jda.getPresence().setGame(Game.of(ConfigManager.getInstance().getConfig().getBotGame()));
-//
-//			System.out.println("Number of Guilds: " + jda.getGuilds().size());
-//			System.out.println("Number of Users: " + jda.getUsers().size());
-//
-//		} catch (LoginException e) {
-//			System.out.println("Error: Email and Password combination set in config.json was incorrect.");
-//			System.exit(0); // TODO Change exit code
-//		} catch (IllegalArgumentException e) {
-//			System.out.println("Error: No login details were set in config.json.");
-//			System.exit(0); // TODO Change exit code
-//		} catch (InterruptedException e) {
-//			System.out.println("Error: Interrupted Exception");
-//			System.exit(0); // TODO Change exit code
-//		} catch (RateLimitedException e) {
-//			System.out.println("Error: Rate limited.");
-//			System.exit(0); // TODO Change exit code
-//		}
-//	}
-//	
 //	private CommandRegistry createCommandRegistry() {
 //		CommandRegistry registry = new CommandRegistry();
 //
@@ -194,10 +158,6 @@ public class Bot {
 ////		registry.registerCommand(new VolumeCommand());
 //		
 //		return registry;
-//	}
-//
-//	public static JDA getJDA() {
-//		return jda;
 //	}
 
 }
