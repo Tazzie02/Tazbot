@@ -1,4 +1,4 @@
-package com.tazzie02.tazbot.commands.fun;
+package com.tazzie02.tazbot.commands.general;
 
 import java.util.Arrays;
 import java.util.List;
