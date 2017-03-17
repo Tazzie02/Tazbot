@@ -16,11 +16,9 @@ public class JoinCommand implements Command {
 		SendMessage.sendMessage(e, getInviteString(e.getJDA()));
 	}
 	
-	// TODO Find clientid through JDA.
-	// There used to be a Util class that was used to find the clientid but can't find it.
 	private String getInviteString(JDA jda) {
 		// https://discordapp.com/oauth2/authorize?&client_id=CLIENT_ID&scope=bot&permissions=0
-		String url = "Error: The invite link is not available at this time."; // TODO Get clientid or invite string from JDA
+		String url = jda.asBot().getInviteUrl();
 
 		return "Note: You must have *Manage Server* pemission to add the bot to your guild.\n" + url;
 	}
