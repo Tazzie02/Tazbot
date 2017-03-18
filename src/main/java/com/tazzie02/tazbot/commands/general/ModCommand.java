@@ -52,19 +52,7 @@ public class ModCommand implements Command {
 			// mod <add/remove> <@user/userID>
 			else if (args.length >= 2) {
 				List<Member> mentioned = new ArrayList<>();
-				// Add users by id
-				for (int i = 1; i < args.length; i++) {
-					if (NumberUtils.isDigits(args[i])) {
-						Member m = guild.getMemberById(args[i]);
-						if (m != null) {
-							mentioned.add(m);
-						}
-					}
-				}
-				// Add users by mention
-				if (!e.getMessage().getMentionedUsers().isEmpty()) {
-					e.getMessage().getMentionedUsers().forEach(u -> mentioned.add(guild.getMember(u)));
-				}
+				mentioned.addAll(UserUtil.getMembersFromMessage(e.getMessage()));
 				
 				// Return if no user is included in message
 				if (mentioned.isEmpty()) {
