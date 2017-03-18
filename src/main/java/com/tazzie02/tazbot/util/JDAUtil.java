@@ -147,32 +147,6 @@ public class JDAUtil {
 		}
 	}
 	
-	public static List<User> addDefaultModerators(Guild guild) {
-		SettingsManager manager = SettingsManager.getInstance(guild.getId());
-
-		// Remove current moderators
-		List<String> currentMods = manager.getSettings().getModerators();
-		for (int i = 0; i < currentMods.size(); i++) {
-			String mod = currentMods.get(i);
-			manager.getSettings().removeModerator(mod);
-		}
-		
-		// Permission required to add as moderator
-		final Permission PERM = Permission.MANAGE_SERVER;
-		List<User> us = new ArrayList<User>();
-
-		guild.getMembers().parallelStream().forEach(m -> {
-			if (PermissionUtil.checkPermission(guild, m, PERM)) {
-				us.add(m.getUser());
-			}
-		});
-		
-		us.stream().forEach(u -> manager.getSettings().addModerator(u.getId()));
-		manager.saveSettings();
-		
-		return us;
-	}
-	
 	public static VoiceChannel getVoiceChannelAtPosition(Guild guild, int position) {
 		return getVoiceChannelAtPosition(guild.getVoiceChannels(), position);
 	}
