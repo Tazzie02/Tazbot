@@ -5,9 +5,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import com.tazzie02.tazbot.commands.Command;
-import com.tazzie02.tazbot.util.SendMessage;
+import com.tazzie02.tazbot.util.UserUtil;
+import com.tazzie02.tazbotdiscordlib.Command;
+import com.tazzie02.tazbotdiscordlib.SendMessage;
 
+import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.GuildVoiceState;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
@@ -16,17 +18,28 @@ public class OrderCommand implements Command {
 	
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
-		if (e.getGuild() == null) {
+		if (!e.getChannelType().equals(ChannelType.TEXT)) {
 			SendMessage.sendMessage(e, "Error: Can only be used in a guild.");
 		}
 		
-		GuildVoiceState state = e.getMember().getVoiceState();
-		
-		if (!state.inVoiceChannel()) {
-			SendMessage.sendMessage(e, "Error: You must be in a voice channel.");
+		List<Member> members = new ArrayList<>();
+		if (args.length == 0) {
+			GuildVoiceState state = e.getMember().getVoiceState();
+			
+			if (!state.inVoiceChannel()) {
+				SendMessage.sendMessage(e, "Error: You must be in a voice channel.");
+				return;
+			}
+			members.addAll(state.getChannel().getMembers());
+		}
+		else {
+			members.addAll(UserUtil.getMembersFromMessage(e.getMessage()));
 		}
 		
-		List<Member> members = new ArrayList<Member>(e.getMember().getVoiceState().getChannel().getMembers());
+		if (members.isEmpty()) {
+			SendMessage.sendMessage(e, "Error: No users were added.");
+			return;
+		}
 		
 		SendMessage.sendMessage(e, getOrder(members));
 	}
@@ -35,7 +48,7 @@ public class OrderCommand implements Command {
 		Collections.shuffle(members);
 		
 		StringBuilder sb = new StringBuilder();
-		sb.append("Order is:\n");
+		sb.append("Random order:\n");
 		for (int i = 0; i < members.size(); i++) {
 			String num = "[" + (i + 1) + "]";
 			sb.append(String.format("%-10s%s\n", num, members.get(i).getEffectiveName()));
@@ -60,7 +73,7 @@ public class OrderCommand implements Command {
 	}
 	
 	@Override
-	public String getUsageInstructions() {
+	public String getDetails() {
 		return "order - Output a random order of the users in the voice channel.";
 	}
 
