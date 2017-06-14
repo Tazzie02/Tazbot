@@ -3,9 +3,9 @@ package com.tazzie02.tazbot.commands.informative;
 import java.util.Arrays;
 import java.util.List;
 
-import com.tazzie02.tazbot.commands.Command;
 import com.tazzie02.tazbot.util.CGUInformation;
-import com.tazzie02.tazbot.util.SendMessage;
+import com.tazzie02.tazbotdiscordlib.Command;
+import com.tazzie02.tazbotdiscordlib.SendMessage;
 
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
@@ -37,7 +37,7 @@ public class GuildInfoCommand implements Command {
 	}
 	
 	@Override
-	public String getUsageInstructions() {
+	public String getDetails() {
 		return "guildinfo - Return information about the guild.";
 	}
 	
