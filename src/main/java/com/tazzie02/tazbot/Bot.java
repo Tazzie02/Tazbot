@@ -98,6 +98,9 @@ public class Bot {
 		registry.registerCommand(new RollCommand());
 		registry.registerCommand(new TeamCommand());
 		registry.registerCommand(new TempCommand());
+		
+		// Informative commands
+		registry.registerCommand(new AboutCommand());
 	}
 	
 	public static void shutdown(boolean free) {
