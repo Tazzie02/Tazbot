@@ -41,7 +41,7 @@ public class TempCommand implements Command {
 			SendMessage.sendMessage(e, "Error: Command must be used in a guild.");
 			return;
 		}
-		if (!PermissionUtil.checkPermission(guild, guild.getSelfMember(), PERMISSION)) {
+		if (!PermissionUtil.checkPermission(guild.getSelfMember(), PERMISSION)) {
 			SendMessage.sendMessage(e, "Error: Bot requires " + PERMISSION.getName() + " to create void channels.");
 			return;
 		}
