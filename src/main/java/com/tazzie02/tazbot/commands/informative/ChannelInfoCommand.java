@@ -3,12 +3,11 @@ package com.tazzie02.tazbot.commands.informative;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
-import com.tazzie02.tazbot.commands.Command;
 import com.tazzie02.tazbot.util.CGUInformation;
-import com.tazzie02.tazbot.util.SendMessage;
+import com.tazzie02.tazbotdiscordlib.Command;
+import com.tazzie02.tazbotdiscordlib.SendMessage;
 
 import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -19,7 +18,7 @@ public class ChannelInfoCommand implements Command {
 	
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
-		if (args.length == 1) {
+		if (args.length == 0) {
 			if (e.isFromType(ChannelType.PRIVATE)) {
 				SendMessage.sendMessage(e, CGUInformation.getChannelInfo(e.getPrivateChannel()));
 			}
@@ -28,7 +27,7 @@ public class ChannelInfoCommand implements Command {
 			}
 		}
 		else {
-			String name = StringUtils.join(args, " ", 1, args.length);
+			String name = String.join(" ", args);
 			StringBuilder sb = new StringBuilder();
 			
 			List<TextChannel> tcs = e.getJDA().getTextChannelsByName(name, true);
@@ -57,9 +56,9 @@ public class ChannelInfoCommand implements Command {
 			}
 			
 			// IDs
-			for (int i = 1; i < args.length; i++) {
-				if (NumberUtils.isDigits(args[i])) {
-					sb.append(CGUInformation.getChannelInfo(args[i], e.getJDA()));
+			for (String arg : args) {
+				if (NumberUtils.isDigits(arg)) {
+					sb.append(CGUInformation.getChannelInfo(arg, e.getJDA()));
 				}
 			}
 			
@@ -92,12 +91,12 @@ public class ChannelInfoCommand implements Command {
 	}
 	
 	@Override
-	public String getUsageInstructions() {
+	public String getDetails() {
 		return "channelinfo - Return information about the channel the message was sent from.\n"
-			 + "channelinfo <channelID> <...> - Return information about the channel with <channelID>."
-			 + "channelinfo <channelName> <...> - Return information about the channel called <channelName>."
-			 + "channelinfo <#channel> <...> - Return information about <#channel>.\n"
-			 + "Note: Channel must be in the same guild as the message was sent from.";
+				+ "channelinfo <channelName> - Return information about the channel called <channelName>."
+				+ "channelinfo <channelID> <...> - Return information about the channels with <channelID>."
+				+ "channelinfo <#channel> <...> - Return information about <#channel>s.\n"
+				+ "Note: Channel must be in the same guild as the message was sent from.";
 	}
 	
 	@Override

@@ -102,6 +102,7 @@ public class Bot {
 		// Informative commands
 		registry.registerCommand(new AboutCommand());
 		registry.registerCommand(new AvatarCommand());
+		registry.registerCommand(new ChannelInfoCommand());
 	}
 	
 	public static void shutdown(boolean free) {
