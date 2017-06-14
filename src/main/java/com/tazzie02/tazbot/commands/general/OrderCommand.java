@@ -36,6 +36,12 @@ public class OrderCommand implements Command {
 			members.addAll(UserUtil.getMembersFromMessage(e.getMessage()));
 		}
 		
+		if (members.size() == 1) {
+			SendMessage.sendMessage(e, "Error: You don't understand this command.");
+			return;
+		}
+		
+		// Shouldn't happen
 		if (members.isEmpty()) {
 			SendMessage.sendMessage(e, "Error: No users were added.");
 			return;
