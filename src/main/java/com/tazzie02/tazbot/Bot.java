@@ -95,6 +95,7 @@ public class Bot {
 		registry.registerCommand(new JoinCommand());
 		//registry.registerCommand(new ModCommand());
 		registry.registerCommand(new OrderCommand());
+		registry.registerCommand(new RollCommand());
 	}
 	
 	public static void shutdown(boolean free) {
