@@ -11,10 +11,12 @@ import com.tazzie02.tazbotdiscordlib.SendMessage;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.GuildVoiceState;
 import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 public class AtChannelCommand implements Command {
+	
+	private final int MAX_CHANNEL_NAME_LENGTH = 25;
 
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
@@ -26,17 +28,13 @@ public class AtChannelCommand implements Command {
 		
 		List<Member> members = state.getChannel().getMembers();
 		if (members.size() <= 1) {
-			SendMessage.sendMessage(e, "Error: Why are you using this command with only you in the channel?");
+			SendMessage.sendMessage(e, "Error: You don't understand this command.");
 			return;
 		}
 		
 		MessageBuilder mb = new MessageBuilder();
 		
-		String channelName = state.getChannel().getName();
-		int maxNameLength = 25;
-		if (channelName.length() > maxNameLength) {
-			channelName = channelName.substring(0, maxNameLength) + "...";
-		}
+		String channelName = getChannelName(state.getChannel());
 		
 		mb.append(e.getAuthor()).append(" *@" + channelName + "*: ");
 		
@@ -51,6 +49,14 @@ public class AtChannelCommand implements Command {
 		}
 		
 		SendMessage.sendMessage(e, mb.build());
+	}
+	
+	private String getChannelName(VoiceChannel channel) {
+		String channelName = channel.getName();
+		if (channelName.length() > MAX_CHANNEL_NAME_LENGTH) {
+			channelName = channelName.substring(0, MAX_CHANNEL_NAME_LENGTH) + "...";
+		}
+		return channelName;
 	}
 	
 	@Override

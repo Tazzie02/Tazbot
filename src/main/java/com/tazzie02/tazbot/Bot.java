@@ -5,6 +5,8 @@ import java.util.List;
 
 import javax.security.auth.login.LoginException;
 
+import com.tazzie02.tazbot.commands.general.*;
+import com.tazzie02.tazbot.commands.informative.*;
 import com.tazzie02.tazbotdiscordlib.CommandRegistry;
 import com.tazzie02.tazbotdiscordlib.TazbotDiscordLib;
 import com.tazzie02.tazbotdiscordlib.TazbotDiscordLibBuilder;
@@ -88,7 +90,8 @@ public class Bot {
 		registry.registerCommand(new ShutdownCommand());
 		registry.registerCommand(new PingCommand());
 		
-		
+		// General commands
+		registry.registerCommand(new AtChannelCommand());
 	}
 	
 	public static void shutdown(boolean free) {
