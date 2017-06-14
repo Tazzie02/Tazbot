@@ -104,6 +104,7 @@ public class Bot {
 		registry.registerCommand(new AvatarCommand());
 		registry.registerCommand(new ChannelInfoCommand());
 		registry.registerCommand(new GuildInfoCommand());
+		registry.registerCommand(new UptimeCommand());
 	}
 	
 	public static void shutdown(boolean free) {

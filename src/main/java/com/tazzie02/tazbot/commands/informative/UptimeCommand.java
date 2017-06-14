@@ -4,10 +4,9 @@ import java.lang.management.ManagementFactory;
 import java.util.Arrays;
 import java.util.List;
 
-import com.tazzie02.tazbot.Bot;
-import com.tazzie02.tazbot.commands.Command;
-import com.tazzie02.tazbot.util.SendMessage;
 import com.tazzie02.tazbot.util.TazzieTime;
+import com.tazzie02.tazbotdiscordlib.Command;
+import com.tazzie02.tazbotdiscordlib.SendMessage;
 
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
@@ -19,7 +18,7 @@ public class UptimeCommand implements Command {
 		long time = ManagementFactory.getRuntimeMXBean().getUptime();
 		TazzieTime tazzieTime = new TazzieTime(time);
 		
-		JDA jda = Bot.getJDA();
+		JDA jda = e.getJDA();
 		int serverCount = jda.getGuilds().size();
 		int userCount = jda.getUsers().size();
 		int textCount = jda.getTextChannels().size();
@@ -55,7 +54,7 @@ public class UptimeCommand implements Command {
 	}
 
 	@Override
-	public String getUsageInstructions() {
+	public String getDetails() {
 		return "uptime - Get uptime and other information about totals.";
 	}
 
