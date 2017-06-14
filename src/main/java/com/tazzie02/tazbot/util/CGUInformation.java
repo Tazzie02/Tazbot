@@ -1,11 +1,12 @@
 package com.tazzie02.tazbot.util;
 
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.PrivateChannel;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -13,6 +14,8 @@ import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 
 public class CGUInformation {
+	
+	private final static String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
 	
 	/*
 	 * Channel information methods
@@ -97,8 +100,8 @@ public class CGUInformation {
 				+ "Private Channel ID: %s\n"
 				+ "Created Date/Time: %s\n"
 				+ "Avatar: %s",
-				u.getName(), u.getId(), u.getDiscriminator(), u.getPrivateChannel().getId(),
-				u.getCreationTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")), u.getAvatarUrl());
+				u.getName(), u.getId(), u.getDiscriminator(), u.openPrivateChannel().complete().getId(),
+				u.getCreationTime().format(DateTimeFormatter.ofPattern(DATE_TIME_FORMAT)), u.getAvatarUrl());
 	}
 	
 	public static String getUserInfo(String id, JDA jda) {
@@ -109,42 +112,21 @@ public class CGUInformation {
 		return null;
 	}
 	
-//	public static String getExtraUserInfo(MessageReceivedEvent e, User u, JDA jda) {
-//		return String.format("Join Date/Time: %s\n"
-//				+ "Roles: %s\n"
-//				+ "Visible Guilds: %s",
-//				e.getGuild().getJoinDateForUser(u).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")),
-//				getRolesString(e.getGuild().getRolesForUser(u)),
-//				getUsersGuilds(u, jda));
-//	}
-	
-	private static String getRolesString(List<Role> roles) {
-		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < roles.size(); i++) {
-			sb.append(roles.get(i).getName());
-			if (i != roles.size() - 1) {
-				sb.append(", ");
-			}
-		}
-		return sb.toString();
+	public static String getUserInfo(User u, Guild g) {
+		return getUserInfo(g.getMember(u));
 	}
 	
-	private static String getUsersGuilds(User user, JDA jda) {
-		StringBuilder sb = new StringBuilder();
-		Stream<Guild> guilds = jda.getGuilds().parallelStream()
-				.filter(g -> g.getMembers().parallelStream()
-				.anyMatch(m -> m.getUser().getId().equals(user.getId())));
+	public static String getUserInfo(Member m) {
+		return String.format("Join Date/Time: %s\nRoles: %s",
+				m.getJoinDate().format(DateTimeFormatter.ofPattern(DATE_TIME_FORMAT)),
+				getRolesString(m.getRoles()));
+	}
+	
+	private static String getRolesString(List<Role> roles) {
+		List<String> roleNames = new ArrayList<>();
+		roles.forEach(role -> roleNames.add(role.getName()));
 		
-		Object[] objs = guilds.toArray();
-		
-		for (int i = 0; i < objs.length; i++) {
-			Guild g = (Guild) objs[i];
-			sb.append(g.getName());
-			if (i != objs.length - 1) {
-				sb.append(", ");
-			}
-		}
-		return sb.toString();
+		return String.join(", ", roleNames);
 	}
 	
 }

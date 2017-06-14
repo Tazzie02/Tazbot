@@ -5,9 +5,9 @@ import java.util.List;
 
 import org.apache.commons.lang3.math.NumberUtils;
 
-import com.tazzie02.tazbot.commands.Command;
 import com.tazzie02.tazbot.util.CGUInformation;
-import com.tazzie02.tazbot.util.SendMessage;
+import com.tazzie02.tazbotdiscordlib.Command;
+import com.tazzie02.tazbotdiscordlib.SendMessage;
 
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.User;
@@ -17,20 +17,21 @@ public class UserInfoCommand implements Command {
 	
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
-		if (args.length == 1) {
+		if (args.length == 0) {
 			SendMessage.sendMessage(e, getInfoString(e, e.getAuthor()));
 			return;
 		}
+		
 		StringBuilder sb = new StringBuilder();
 		String[] raw = e.getMessage().getRawContent().split(" ");
 		
-		for (int i = 1; i < raw.length; i++) {
-			User u = resolveUser(raw[i], e.getJDA());
+		for (String arg : raw) {
+			User u = resolveUser(arg, e.getJDA());
 			if (u != null) {
 				sb.append(getInfoString(e, u)).append("\n");
 			}
 			else {
-				sb.append("Could not resolve \"").append(raw[i]).append("\" as mention or ID.\n");
+				sb.append("Could not resolve \"").append(arg).append("\" as mention or ID.\n");
 			}
 		}
 		
@@ -73,7 +74,7 @@ public class UserInfoCommand implements Command {
 	}
 	
 	@Override
-	public String getUsageInstructions() {
+	public String getDetails() {
 		return "userinfo - Return information about the user.\n"
 				+ "userinfo <@user/userId> <...> - Return information about <@user/userId>.\n"
 				+ "Information includes name, ID, discriminator, status, current game, private channel ID, "
