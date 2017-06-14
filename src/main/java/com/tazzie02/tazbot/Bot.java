@@ -93,7 +93,7 @@ public class Bot {
 		// General commands
 		registry.registerCommand(new AtChannelCommand());
 		registry.registerCommand(new JoinCommand());
-		//registry.registerCommand(new ModCommand());
+		registry.registerCommand(new ModCommand());
 		registry.registerCommand(new OrderCommand());
 		registry.registerCommand(new RollCommand());
 		registry.registerCommand(new TeamCommand());

@@ -6,8 +6,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang3.math.NumberUtils;
-
 import com.tazzie02.tazbot.util.ModeratorUtil;
 import com.tazzie02.tazbot.util.OwnerUtil;
 import com.tazzie02.tazbot.util.UserUtil;
