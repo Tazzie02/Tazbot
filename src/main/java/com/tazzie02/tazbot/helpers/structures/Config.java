@@ -6,7 +6,6 @@ import java.util.List;
 
 public class Config {
 
-	private String botToken;
 	private String botName;
 	private String botGame;
 	private String publicGuildInvite;
@@ -14,7 +13,6 @@ public class Config {
 	private String googleKey;
 	private String bingKey;
 	private String openWeatherMapKey;
-	private List<UserDetails> devs = new ArrayList<UserDetails>();
 	
 	public String getBotToken() {
 		return botToken;
