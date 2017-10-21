@@ -19,7 +19,6 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 public class ImageSearchCommand implements Command {
 	
-	protected final int MAX_RANDOM_RANGE = 20;
 	private ImageSearch imageSearch = null;
 	private String search = null;
 	private int index = 0;
@@ -93,7 +92,7 @@ public class ImageSearchCommand implements Command {
 			}
 		}
 		else {
-			int random = new Random().nextInt(MAX_RANDOM_RANGE);
+			int random = new Random().nextInt(imageSearch.getLength());
 			sb.append(imageSearch.getTitle(random) + "\n")
 			.append(imageSearch.getUrl(random) + "\n");
 		}
@@ -172,7 +171,7 @@ public class ImageSearchCommand implements Command {
 
 	@Override
 	public String getDetails() {
-		return "image <search> - Get a random image from the first " + MAX_RANDOM_RANGE + " results for <search>.";
+		return "image <search> - Get a random image from the first number of results for <search>.";
 		
 	}
 

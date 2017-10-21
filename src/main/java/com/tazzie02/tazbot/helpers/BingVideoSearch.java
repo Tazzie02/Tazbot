@@ -14,11 +14,10 @@ import org.json.JSONObject;
 import com.tazzie02.tazbot.exceptions.QuotaExceededException;
 import com.tazzie02.tazbot.util.WebPage;
 
-// TODO Update to most recent API
-public class BingImageSearch implements ImageSearch {
+public class BingVideoSearch {
 	
 	private static final String KEY;
-	private static final String BASE_URL = "https://api.cognitive.microsoft.com/bing/v7.0/images/search";
+	private static final String BASE_URL = "https://api.cognitive.microsoft.com/bing/v7.0/videos/search";
 	private static final String MKT = "en-US";
 	private static final String SAFE_SEARCH = "Off";
 	
@@ -31,7 +30,7 @@ public class BingImageSearch implements ImageSearch {
 		KEY = System.getenv("BING_API_KEY");
 	}
 	
-	public BingImageSearch(String query, int index) throws IOException, QuotaExceededException, URISyntaxException {
+	public BingVideoSearch(String query, int index) throws IOException, QuotaExceededException, URISyntaxException {
 		if (index < 0) {
 			index = 0;
 		}
@@ -61,21 +60,6 @@ public class BingImageSearch implements ImageSearch {
 		}
 	}
 	
-	@Override
-	public String getTitle(int index) {
-		return getName(index);
-	}
-	
-	@Override
-	public String getUrl(int index) {
-		return getContentUrl(index);
-	}
-	
-	@Override
-	public int getLength() {
-		return items.length();
-	}
-	
 	public String getWebSearchUrl() {
 		return webSearchUrl;
 	}
@@ -86,6 +70,10 @@ public class BingImageSearch implements ImageSearch {
 	
 	public String getName(int index) {
 		return items.getJSONObject(index).getString("name");
+	}
+	
+	public String getDescription(int index) {
+		return items.getJSONObject(index).getString("description");
 	}
 	
 	public String getWebSearchUrl(int index) {
@@ -101,7 +89,15 @@ public class BingImageSearch implements ImageSearch {
 	}
 	
 	public String getDatePublished(int index) {
-		return items.getJSONObject(index).getString("daatePublished");
+		return items.getJSONObject(index).getString("datePublished");
+	}
+	
+	public JSONArray getPublisher(int index) {
+		return items.getJSONObject(index).getJSONArray("publisher");
+	}
+	
+	public JSONObject getCreator(int index) {
+		return items.getJSONObject(index).getJSONObject("creator");
 	}
 	
 	public String getContentUrl(int index) {
@@ -116,12 +112,8 @@ public class BingImageSearch implements ImageSearch {
 		return items.getJSONObject(index).getString("hostPageUrlPingSuffix");
 	}
 	
-	public String getContentSize(int index) {
-		return items.getJSONObject(index).getString("contentSize");
-	}
-	
 	public String getEncodingFormat(int index) {
-		return items.getJSONObject(index).getString("encodingFormat");
+		return items.getJSONObject(index).getString("encodingFormaat");
 	}
 	
 	public String getHostPageDisplayUrl(int index) {
@@ -136,28 +128,36 @@ public class BingImageSearch implements ImageSearch {
 		return items.getJSONObject(index).getInt("height");
 	}
 	
-	public int getThumbnailWidth(int index) {
-		return items.getJSONObject(index).getJSONObject("thumbnail").getInt("width");
+	public String getDuration(int index) {
+		return items.getJSONObject(index).getString("duration");
 	}
 	
-	public int getThumbnailHeight(int index) {
-		return items.getJSONObject(index).getJSONObject("thumbnail").getInt("height");
+	public String getMotionThumbnailUrl(int index) {
+		return items.getJSONObject(index).getString("motionThumbnailUrl");
 	}
 	
-	public String getImageInsightsToken(int index) {
-		return items.getJSONObject(index).getString("imageInsightsToken");
+	public String getEmbedHtml(int index) {
+		return items.getJSONObject(index).getString("embedHtml");
 	}
 	
-	public JSONObject getInsightsSourceSummary(int index) {
-		return items.getJSONObject(index).getJSONObject("insightsSourceSummary");
+	public boolean getAllowHttpsEmbed(int index) {
+		return items.getJSONObject(index).getBoolean("allowHttpsEmbed");
 	}
 	
-	public String getImageId(int index) {
-		return items.getJSONObject(index).getString("imageId");
+	public int getViewCount(int index) {
+		return items.getJSONObject(index).getInt("viewCount");
 	}
 	
-	public String getAccentColor(int index) {
-		return items.getJSONObject(index).getString("accentColor");
+	public String getThumbnailWidth(int index) {
+		return items.getJSONObject(index).getJSONObject("thumbnail").getString("width");
 	}
 	
+	public String getThumbnailHeight(int index) {
+		return items.getJSONObject(index).getJSONObject("thumbnail").getString("height");
+	}
+	
+	public String getVideoId(int index) {
+		return items.getJSONObject(index).getString("videoId");
+	}
+
 }

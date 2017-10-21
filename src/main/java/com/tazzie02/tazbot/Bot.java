@@ -18,6 +18,8 @@ import com.tazzie02.tazbot.commands.informative.GuildInfoCommand;
 import com.tazzie02.tazbot.commands.informative.UptimeCommand;
 import com.tazzie02.tazbot.commands.informative.UserInfoCommand;
 import com.tazzie02.tazbot.commands.search.BingImageSearchCommand;
+import com.tazzie02.tazbot.commands.search.BingVideoSearchCommand;
+import com.tazzie02.tazbot.commands.search.BingWebSearchCommand;
 import com.tazzie02.tazbot.commands.search.GoogleImageSearchCommand;
 import com.tazzie02.tazbot.commands.search.GoogleSearchCommand;
 import com.tazzie02.tazbot.commands.search.ImageSearchCommand;
@@ -122,7 +124,9 @@ public class Bot {
 		registry.registerCommand(new UserInfoCommand());
 		
 		// Search commands
-//		registry.registerCommand(new BingImageSearchCommand());
+		registry.registerCommand(new BingImageSearchCommand());
+		registry.registerCommand(new BingVideoSearchCommand());
+		registry.registerCommand(new BingWebSearchCommand());
 		registry.registerCommand(new GoogleImageSearchCommand());
 		registry.registerCommand(new GoogleSearchCommand());
 		registry.registerCommand(new ImageSearchCommand());

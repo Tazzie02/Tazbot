@@ -19,7 +19,7 @@ public class GoogleImageSearch implements ImageSearch {
 	
 	private static final String KEY;
 	private static final String BASE_URL = "https://www.googleapis.com/customsearch/v1";
-	private static final String CX = "008767657928653378542%3Aexkjxlpb2ug";
+	private static final String CX = "008767657928653378542:exkjxlpb2ug";
 	private static final String SAFE = "off";
 	private static final String SEARCH_TYPE = "image";
 	
@@ -38,6 +38,7 @@ public class GoogleImageSearch implements ImageSearch {
 		search(query, index);
 	}
 	
+	// The standard API call returns 10 results
 	private void search(String query, int index) throws IOException, QuotaExceededException, URISyntaxException {
 		URIBuilder builder = new URIBuilder(BASE_URL);
 		builder.setParameter("q", query);
@@ -48,7 +49,6 @@ public class GoogleImageSearch implements ImageSearch {
 		builder.setParameter("key", KEY);
 		
 		HttpGet request = new HttpGet(builder.build());
-		System.out.println(request.getURI());
 		
 		WebPage webPage;
 		

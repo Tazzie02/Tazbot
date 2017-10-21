@@ -9,16 +9,16 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.tazzie02.tazbot.exceptions.NotFoundException;
 import com.tazzie02.tazbot.exceptions.QuotaExceededException;
-import com.tazzie02.tazbot.helpers.GoogleSearch;
+import com.tazzie02.tazbot.helpers.BingWebSearch;
 import com.tazzie02.tazbotdiscordlib.Command;
 import com.tazzie02.tazbotdiscordlib.SendMessage;
 
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
-public class GoogleSearchCommand implements Command {
+public class BingWebSearchCommand implements Command {
 	
-	private final int DEFAULT_START_INDEX = 1; // Google CSE starts at 1
-	private final int DEFAULT_RESULT_INDEX = 0; // Index of the result on the page 
+	private final int DEFAULT_START_INDEX = 0;
+	private final int DEFAULT_RESULT_INDEX = 0; 
 	
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
@@ -30,12 +30,12 @@ public class GoogleSearchCommand implements Command {
 		String search = StringUtils.join(args, " ");
 		
 		try {
-			GoogleSearch googleSearch = new GoogleSearch(search, DEFAULT_START_INDEX);
+			BingWebSearch bingSearch = new BingWebSearch(search, DEFAULT_START_INDEX);
 			
 			String output = "*Result for \"" + search + "\".*\n"
-					+ googleSearch.getTitle(DEFAULT_RESULT_INDEX) + "\n"
-					+ googleSearch.getSnippet(DEFAULT_RESULT_INDEX).replace("\n", " ") + "\n"
-					+ googleSearch.getLink(DEFAULT_RESULT_INDEX) + "\n";
+					+ bingSearch.getName(DEFAULT_RESULT_INDEX) + "\n"
+					+ bingSearch.getSnippet(DEFAULT_RESULT_INDEX).replace("\n", " ") + "\n"
+					+ bingSearch.getUrl(DEFAULT_RESULT_INDEX) + "\n";
 			
 			SendMessage.sendMessage(e, output);
 		} catch (IOException ex) {
@@ -48,7 +48,7 @@ public class GoogleSearchCommand implements Command {
 			SendMessage.sendMessage(e, "Error: Internal syntax error.");
 		}
 	}
-	
+
 	@Override
 	public CommandAccess getAccess() {
 		return CommandAccess.ALL;
@@ -56,27 +56,27 @@ public class GoogleSearchCommand implements Command {
 
 	@Override
 	public List<String> getAliases() {
-		return Arrays.asList("google", "gsearch");
+		return Arrays.asList("bing", "bsearch");
 	}
 
 	@Override
 	public String getDescription() {
-		return "Search Google.";
-	}
-
-	@Override
-	public String getName() {
-		return "Google Command";
+		return "Search Bing";
 	}
 
 	@Override
 	public String getDetails() {
-		return "google <search> - Get the first result for <search>.";
+		return "bing <search> - Get the first result for <search>.";
+	}
+
+	@Override
+	public String getName() {
+		return "Bing Command";
 	}
 
 	@Override
 	public boolean isHidden() {
 		return false;
 	}
-	
+
 }

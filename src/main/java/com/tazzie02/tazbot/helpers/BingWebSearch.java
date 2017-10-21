@@ -1,7 +1,6 @@
 package com.tazzie02.tazbot.helpers;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 
 import org.apache.http.HttpResponse;
@@ -35,10 +34,31 @@ public class BingWebSearch {
 		if (index < 0) {
 			index = 0;
 		}
-		try {
-			search(query, index);
+		
+		search(query, index);
+	}
+	
+	private void search(String query, int index) throws IOException, QuotaExceededException, URISyntaxException {
+		try (CloseableHttpClient client = HttpClients.createDefault()) {
+			URIBuilder builder = new URIBuilder(BASE_URL);
+			builder.setParameter("q", query);
+			builder.setParameter("offset", Integer.toString(index));
+			builder.setParameter("mkt", MKT);
+			builder.setParameter("safesearch", SAFE_SEARCH);
+			
+			HttpGet request = new HttpGet(builder.build());
+			request.setHeader("Ocp-Apim-Subscription-Key", KEY);
+			
+			HttpResponse response = client.execute(request);
+			WebPage webPage = new WebPage(response);
+			
+			responseContent = new JSONObject(webPage.getContent());
+			JSONObject jsonWebPages = responseContent.getJSONObject("webPages");
+			
+			webSearchUrl = jsonWebPages.getString("webSearchUrl");
+			totalEstimatedMatches = jsonWebPages.getInt("totalEstimatedMatches");
+			items = jsonWebPages.getJSONArray("value");
 		}
-		catch (UnsupportedEncodingException ignored) {}
 	}
 	
 	public String getWebSearchUrl() {
@@ -89,27 +109,4 @@ public class BingWebSearch {
 		return items.length();				
 	}
 	
-	private void search(String query, int index) throws IOException, QuotaExceededException, URISyntaxException {
-		try (CloseableHttpClient client = HttpClients.createDefault()) {
-			URIBuilder builder = new URIBuilder(BASE_URL);
-			builder.setParameter("q", query);
-			builder.setParameter("offset", Integer.toString(index));
-			builder.setParameter("mkt", MKT);
-			builder.setParameter("safesearch", SAFE_SEARCH);
-			
-			HttpGet request = new HttpGet(builder.build());
-			request.setHeader("Ocp-Apim-Subscription-Key", KEY);
-			
-			HttpResponse response = client.execute(request);
-			WebPage webPage = new WebPage(response);
-			
-			responseContent = new JSONObject(webPage.getContent());
-			JSONObject jsonWebPages = responseContent.getJSONObject("webPages");
-			
-			webSearchUrl = jsonWebPages.getString("webSearchUrl");
-			totalEstimatedMatches = jsonWebPages.getInt("totalEstimatedMatches");
-			items = jsonWebPages.getJSONArray("value");
-		}
-	}
-
 }
