@@ -13,20 +13,19 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.tazzie02.tazbot.exceptions.QuotaExceededException;
-import com.tazzie02.tazbot.managers.ConfigManager;
 import com.tazzie02.tazbot.util.WebUtil;
 
 public class Youtube {
 	
-	private static final String key;
+	private static final String KEY;
 	
 	static {
-		key = ConfigManager.getInstance().getConfig().getGoogleKey();
+		KEY = System.getenv("GOOGLE_API_KEY");
 	}
 	
 	public static int getDuration(String id) throws IOException, JSONException, QuotaExceededException {
 		try {
-			String apiString = "https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=" + id + "&key=" + key;
+			String apiString = "https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=" + id + "&key=" + KEY;
 			String response = WebUtil.getWebPage(apiString); //siteToString(new URL(apiString));
 			JSONObject js = new JSONObject(response);
 			Duration dur = DatatypeFactory.newInstance().newDuration(
@@ -54,7 +53,7 @@ public class Youtube {
 	}
 	
 	public static String getTitle(String id) throws IOException, JSONException, QuotaExceededException {
-		String apiString = "https://www.googleapis.com/youtube/v3/videos?part=snippet&id=" + id + "&key=" + key;
+		String apiString = "https://www.googleapis.com/youtube/v3/videos?part=snippet&id=" + id + "&key=" + KEY;
 		String response = WebUtil.getWebPage(apiString); //siteToString(new URL(apiString));
 		JSONObject js = new JSONObject(response);
 		String title = js.getJSONArray("items").getJSONObject(0).getJSONObject("snippet").getString("title");

@@ -4,11 +4,13 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import com.tazzie02.tazbot.commands.Command;
+import org.apache.commons.lang3.StringUtils;
+
 import com.tazzie02.tazbot.exceptions.NotFoundException;
 import com.tazzie02.tazbot.exceptions.QuotaExceededException;
 import com.tazzie02.tazbot.helpers.GoogleSearch;
-import com.tazzie02.tazbot.util.SendMessage;
+import com.tazzie02.tazbotdiscordlib.Command;
+import com.tazzie02.tazbotdiscordlib.SendMessage;
 
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
@@ -19,7 +21,13 @@ public class GoogleSearchCommand implements Command {
 	
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
-		String search = e.getMessage().getContent().substring(e.getMessage().getContent().indexOf(" ") + 1);
+		if (args.length == 0) {
+			SendMessage.sendMessage(e, "Error: No search terms entered.");
+			return;
+		}
+		
+		String search = StringUtils.join(args, " ");
+		System.out.println("SEARCH: \"" + search + "\"");
 		try {
 			GoogleSearch googleSearch = new GoogleSearch(search, DEFAULT_START_INDEX);
 			
@@ -59,7 +67,7 @@ public class GoogleSearchCommand implements Command {
 	}
 
 	@Override
-	public String getUsageInstructions() {
+	public String getDetails() {
 		return "google <search> - Get the first result for <search>.";
 	}
 

@@ -1,6 +1,7 @@
 package com.tazzie02.tazbot.commands.search;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -11,7 +12,7 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 public class GoogleImageSearchCommand extends ImageSearchCommand {
 	
 	@Override
-	protected void doSearch(MessageReceivedEvent e) throws IOException, QuotaExceededException {
+	protected void doSearch(MessageReceivedEvent e) throws IOException, QuotaExceededException, URISyntaxException {
 		doGoogleSearch(e);
 	}
 
@@ -31,7 +32,7 @@ public class GoogleImageSearchCommand extends ImageSearchCommand {
 	}
 
 	@Override
-	public String getUsageInstructions() {
+	public String getDetails() {
 		return "gimage <search> - Search Google images.";
 	}
 

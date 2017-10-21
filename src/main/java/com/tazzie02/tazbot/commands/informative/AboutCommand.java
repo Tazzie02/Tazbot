@@ -6,8 +6,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.tazzie02.tazbot.helpers.structures.Config;
-import com.tazzie02.tazbot.managers.ConfigManager;
 import com.tazzie02.tazbotdiscordlib.Command;
 import com.tazzie02.tazbotdiscordlib.SendMessage;
 import com.tazzie02.tazbotdiscordlib.filehandling.LocalFiles;
@@ -32,10 +30,8 @@ public class AboutCommand implements Command {
 			}
 		} catch (URISyntaxException ignored) {}
 		
-		Config config = ConfigManager.getInstance().getConfig();
-		
 		StringBuilder sb = new StringBuilder()
-				.append("**").append(config.getBotName()).append("**\n")
+				.append("**").append(e.getJDA().getSelfUser().getName()).append("**\n")
 				.append("Created by tazzie#3859\n")
 				.append("\n");
 		

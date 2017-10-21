@@ -1,18 +1,19 @@
 package com.tazzie02.tazbot.commands.search;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
-import com.tazzie02.tazbot.commands.Command;
 import com.tazzie02.tazbot.exceptions.NotFoundException;
 import com.tazzie02.tazbot.exceptions.QuotaExceededException;
 import com.tazzie02.tazbot.helpers.BingImageSearch;
 import com.tazzie02.tazbot.helpers.GoogleImageSearch;
 import com.tazzie02.tazbot.helpers.ImageSearch;
-import com.tazzie02.tazbot.helpers.Roll;
-import com.tazzie02.tazbot.util.SendMessage;
+import com.tazzie02.tazbotdiscordlib.Command;
+import com.tazzie02.tazbotdiscordlib.SendMessage;
 
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
@@ -26,15 +27,15 @@ public class ImageSearchCommand implements Command {
 
 	@Override
 	public void onCommand(MessageReceivedEvent e, String[] args) {
-		if (args.length == 1) {
+		if (args.length == 0) {
 			SendMessage.sendMessage(e, "Error: No search terms entered.");
 			return;
 		}
 		
 		imageSearch = null;
-		search = getString(e.getMessage().getContent().substring(e.getMessage().getContent().indexOf(" ") + 1));
-		index = getIndex(args);
-		amount = getAmount(args);
+		setSearchString(args);
+		setIndex(args);
+		setAmount(args);
 		
 		try {
 			doSearch(e);
@@ -44,6 +45,8 @@ public class ImageSearchCommand implements Command {
 			SendMessage.sendMessage(e, "Error: Cannot process any more API requests.");
 		} catch (NotFoundException ex) {
 			SendMessage.sendMessage(e, "*No results found for " + search + ".*");
+		} catch (URISyntaxException ex) {
+			SendMessage.sendMessage(e, "Error: Internal syntax error.");
 		}
 		
 		if (imageSearch != null) {
@@ -51,7 +54,7 @@ public class ImageSearchCommand implements Command {
 		}
 	}
 	
-	protected void doSearch(MessageReceivedEvent e) throws IOException, QuotaExceededException {
+	protected void doSearch(MessageReceivedEvent e) throws IOException, QuotaExceededException, URISyntaxException {
 		try {
 			doGoogleSearch(e);
 		} catch (QuotaExceededException ex) {
@@ -59,21 +62,21 @@ public class ImageSearchCommand implements Command {
 		}
 	}
 	
-	protected void doGoogleSearch(MessageReceivedEvent e) throws IOException, QuotaExceededException {
+	protected void doGoogleSearch(MessageReceivedEvent e) throws IOException, QuotaExceededException, URISyntaxException {
 		if (index != -1) {
 			imageSearch = new GoogleImageSearch(search, index);
 		}
 		else {
-			imageSearch = new GoogleImageSearch(search, Roll.random(MAX_RANDOM_RANGE));
+			imageSearch = new GoogleImageSearch(search, 0);
 		}
 	}
 	
-	protected void doBingSearch(MessageReceivedEvent e) throws IOException, QuotaExceededException {
+	protected void doBingSearch(MessageReceivedEvent e) throws IOException, QuotaExceededException, URISyntaxException {
 		if (index != -1) {
 			imageSearch = new BingImageSearch(search, index);
 		}
 		else {
-			imageSearch = new BingImageSearch(search, Roll.random(MAX_RANDOM_RANGE));
+			imageSearch = new BingImageSearch(search, 0);
 		}
 	}
 	
@@ -81,54 +84,57 @@ public class ImageSearchCommand implements Command {
 		StringBuilder sb = new StringBuilder();
 		sb.append("*Result for \"" + search + "\".*\n");
 		if (amount != -1) {
-			if (amount > imageSearch.getCount()) {
-				amount = imageSearch.getCount();
+			if (amount > imageSearch.getLength()) {
+				amount = imageSearch.getLength();
 			}
 			for (int i = 0; i < amount; i++) {
 				sb.append(imageSearch.getTitle(i) + "\n")
-				.append(imageSearch.getImage(i) + "\n");
+				.append(imageSearch.getUrl(i) + "\n");
 			}
 		}
 		else {
-			sb.append(imageSearch.getTitle(0) + "\n")
-			.append(imageSearch.getImage(0) + "\n");
+			int random = new Random().nextInt(MAX_RANDOM_RANGE);
+			sb.append(imageSearch.getTitle(random) + "\n")
+			.append(imageSearch.getUrl(random) + "\n");
 		}
 		return sb.toString();
 	}
 	
-	private int getIndex(String[] args) {
-		for (int i = 1; i < args.length; i++) {
-			String s = args[i].toLowerCase();
+	private void setIndex(String[] inputArgs) {
+		int index = -1;
+		for (String arg : inputArgs) {
+			String s = arg.toLowerCase();
 			if (s.startsWith("-i") && s.length() > 2) {
 				s = s.substring(2);
 				try {
-					int index = Integer.parseInt(s);
-					return index;
+					index = Integer.parseInt(s);
 				}
 				catch (NumberFormatException ignored) {}
 			}
 		}
-		return -1;
+
+		this.index = index;
 	}
 	
-	private int getAmount(String[] args) {
-		for (int i = 1; i < args.length; i++) {
-			String s = args[i].toLowerCase();
+	private void setAmount(String[] inputArgs) {
+		int amount = -1;
+		for (String arg : inputArgs) {
+			String s = arg.toLowerCase();
 			if (s.startsWith("-a") && s.length() > 2) {
 				s = s.substring(2);
 				try {
-					int amount = Integer.parseInt(s);
-					return amount;
+					amount = Integer.parseInt(s);
 				}
 				catch (NumberFormatException ignored) {}
 			}
 		}
-		return -1;
+		
+		this.amount = amount;
 	}
 	
-	private String getString(String search) {
+	private void setSearchString(String[] inputArgs) {
 		List<String> list = new ArrayList<String>();
-		for (String s : search.split(" ")) {
+		for (String s : inputArgs) {
 			if (!(s.startsWith("-i") || s.startsWith("-a"))) {
 				list.add(s);
 			}
@@ -140,7 +146,8 @@ public class ImageSearchCommand implements Command {
 				sb.append(" ");
 			}
 		}
-		return sb.toString();
+		
+		this.search =  sb.toString();
 	}
 	
 	@Override
@@ -164,7 +171,7 @@ public class ImageSearchCommand implements Command {
 	}
 
 	@Override
-	public String getUsageInstructions() {
+	public String getDetails() {
 		return "image <search> - Get a random image from the first " + MAX_RANDOM_RANGE + " results for <search>.";
 		
 	}

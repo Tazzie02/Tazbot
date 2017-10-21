@@ -10,17 +10,16 @@ import org.json.JSONObject;
 
 import com.tazzie02.tazbot.exceptions.NotFoundException;
 import com.tazzie02.tazbot.exceptions.QuotaExceededException;
-import com.tazzie02.tazbot.managers.ConfigManager;
 import com.tazzie02.tazbot.util.WebUtil;
 
 public class YoutubeSearch {
 	
-	private static final String API_KEY;
+	private static final String KEY;
 	private JSONArray items;
 	private final String YOUTUBE_WATCH_BASE_URL = "https://www.youtube.com/watch?v=";
 	
 	static {
-		API_KEY = ConfigManager.getInstance().getConfig().getGoogleKey();
+		KEY = System.getenv("GOOGLE_API_KEY");
 	}
 	
 	public YoutubeSearch(String query) throws IOException, QuotaExceededException {
@@ -29,7 +28,7 @@ public class YoutubeSearch {
 					+ "q=" + URLEncoder.encode(query, "UTF-8")
 					+ "&part=id%2Csnippet"
 					+ "&safeSearch=none"
-					+ "&key=" + API_KEY;
+					+ "&key=" + KEY;
 			search(url);
 		}
 		catch (UnsupportedEncodingException ignored) {}

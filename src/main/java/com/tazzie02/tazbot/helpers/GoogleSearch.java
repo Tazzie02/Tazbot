@@ -10,16 +10,15 @@ import org.json.JSONObject;
 
 import com.tazzie02.tazbot.exceptions.NotFoundException;
 import com.tazzie02.tazbot.exceptions.QuotaExceededException;
-import com.tazzie02.tazbot.managers.ConfigManager;
 import com.tazzie02.tazbot.util.WebUtil;
 
 public class GoogleSearch {
 	
-	private static final String API_KEY;
+	private static final String KEY;
 	private JSONArray items;
 	
 	static {
-		API_KEY = ConfigManager.getInstance().getConfig().getGoogleKey();
+		KEY = System.getenv("GOOGLE_API_KEY");
 	}
 	
 	public GoogleSearch(String query, int index) throws IOException, QuotaExceededException {
@@ -32,7 +31,7 @@ public class GoogleSearch {
 					+ "&cx=008767657928653378542%3Axtic4speosc"
 					+ "&safe=off"
 					+ "&start=" + index
-					+ "&key=" + API_KEY;
+					+ "&key=" + KEY;
 			search(url);
 		}
 		catch (UnsupportedEncodingException ignored) {}

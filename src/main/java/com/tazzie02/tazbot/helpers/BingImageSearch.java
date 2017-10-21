@@ -1,130 +1,164 @@
 package com.tazzie02.tazbot.helpers;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.util.Base64;
+import java.net.URISyntaxException;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import com.tazzie02.tazbot.exceptions.NotFoundException;
 import com.tazzie02.tazbot.exceptions.QuotaExceededException;
-import com.tazzie02.tazbot.managers.ConfigManager;
-import com.tazzie02.tazbot.util.WebUtil;
+import com.tazzie02.tazbot.util.WebPage;
 
+// TODO Update to most recent API
 public class BingImageSearch implements ImageSearch {
 	
-	private static final String key;
+	private static final String KEY;
+	private static final String BASE_URL = "https://api.cognitive.microsoft.com/bing/v7.0/images/search";
+	private static final String MKT = "en-US";
+	private static final String SAFE_SEARCH = "Off";
+	
+	private JSONObject responseContent;
+	private String webSearchUrl;
+	private int totalEstimatedMatches;
 	private JSONArray items;
 	
 	static {
-		key = ConfigManager.getInstance().getConfig().getBingKey();
+		KEY = System.getenv("BING_API_KEY");
 	}
 	
-	public BingImageSearch(String query, int index) throws IOException, QuotaExceededException {
+	public BingImageSearch(String query, int index) throws IOException, QuotaExceededException, URISyntaxException {
 		if (index < 0) {
 			index = 0;
 		}
-		try {
-			StringBuilder sb = new StringBuilder()
-					.append("https://api.datamarket.azure.com/Bing/Search/v1/Image?Query=%27")
-					.append(URLEncoder.encode(query, "UTF-8"))
-					.append("%27&Options=%27DisableLocationDetection%27&Adult=%27Off%27")
-					.append("&$skip=" + index)
-					.append("&$format=JSON");
-			search(sb.toString());
+		
+		search(query, index);
+	}
+	
+	private void search(String query, int index) throws IOException, QuotaExceededException, URISyntaxException {
+		try (CloseableHttpClient client = HttpClients.createDefault()) {
+			URIBuilder builder = new URIBuilder(BASE_URL);
+			builder.setParameter("q", query);
+			builder.setParameter("offset", Integer.toString(index));
+			builder.setParameter("mkt", MKT);
+			builder.setParameter("safesearch", SAFE_SEARCH);
+			
+			HttpGet request = new HttpGet(builder.build());
+			request.setHeader("Ocp-Apim-Subscription-Key", KEY);
+			
+			HttpResponse response = client.execute(request);
+			WebPage webPage = new WebPage(response);
+			
+			responseContent = new JSONObject(webPage.getContent());
+			JSONObject jsonWebPages = responseContent.getJSONObject("webPages");
+			
+			webSearchUrl = jsonWebPages.getString("webSearchUrl");
+			totalEstimatedMatches = jsonWebPages.getInt("totalEstimatedMatches");
+			items = jsonWebPages.getJSONArray("value");
 		}
-		catch (UnsupportedEncodingException ignored) {}
 	}
 	
-	public String getID(int index) {
-		return items.getJSONObject(index).getString("ID");
-	}
-	
-	// Implemented
+	@Override
 	public String getTitle(int index) {
-		return items.getJSONObject(index).getString("Title");
+		return getName(index);
 	}
 	
-	// Implemented
-	// "MediaUrl"
-	public String getImage(int index) {
-		return items.getJSONObject(index).getString("MediaUrl");
+	@Override
+	public String getUrl(int index) {
+		return getContentUrl(index);
 	}
 	
-	// Implemented
-	public String getSourceUrl(int index) {
-		return items.getJSONObject(index).getString("SourceUrl");
-	}
-	
-	// Implemented
-	public String getDisplayUrl(int index) {
-		return items.getJSONObject(index).getString("displayUrl");
-	}
-	
-	// Implemented
-	public int getWidth(int index) {
-		return Integer.parseInt(items.getJSONObject(index).getString("Width"));
-	}
-	
-	// Implemented
-	public int getHeight(int index) {
-		return Integer.parseInt(items.getJSONObject(index).getString("Height"));
-	}
-	
-	// Implemented
-	public long getFileSize(int index) {
-		return Long.parseLong(items.getJSONObject(index).getString("FileSize"));
-	}
-	
-	// Implemented
-	// ContentType
-	public String getType(int index) {
-		return items.getJSONObject(index).getString("ContentType");
-	}
-	
-	// Implemented
-	// Thumbnail.MediaUrl
-	public String getThumbnailImage(int index) {
-		return items.getJSONObject(index).getJSONObject("Thumbnail").getString("MediaUrl");
-	}
-	
-	public String getThumbnailContentType(int index) {
-		return items.getJSONObject(index).getJSONObject("Thumbnail").getString("ContentType");
-	}
-	
-	// Implemented
-	public int getThumbnailWidth(int index) {
-		return Integer.parseInt(items.getJSONObject(index).getJSONObject("Thumbnail").getString("Width"));
-	}
-	
-	// Implemented
-	public int getThumbnailHeight(int index) {
-		return Integer.parseInt(items.getJSONObject(index).getJSONObject("Thumbnail").getString("Height"));
-	}
-	
-	public long getThumbnailFileSize(int index) {
-		return Long.parseLong(items.getJSONObject(index).getJSONObject("Thumbnail").getString("FileSize"));
-	}
-	
-	public int getCount() {
+	@Override
+	public int getLength() {
 		return items.length();
 	}
 	
-	private void search(String url) throws IOException, QuotaExceededException {
-		String encodedKey = Base64.getEncoder().encodeToString((key + ":" + key).getBytes());
-		HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
-		conn.setRequestProperty("Authorization", "Basic " + encodedKey);
-		String json = WebUtil.getWebPage(conn);
-		
-		JSONObject obj = new JSONObject(json);
-		items = obj.getJSONObject("d").getJSONArray("results");
-		if (items.length() == 0) {
-			throw new NotFoundException("No results found.");
-		}
+	public String getWebSearchUrl() {
+		return webSearchUrl;
+	}
+	
+	public int getTotalEstimatedMatches() {
+		return totalEstimatedMatches;
+	}
+	
+	public String getName(int index) {
+		return items.getJSONObject(index).getString("name");
+	}
+	
+	public String getWebSearchUrl(int index) {
+		return items.getJSONObject(index).getString("webSearchUrl");
+	}
+	
+	public String getWebSearchUrlPingSuffix(int index) {
+		return items.getJSONObject(index).getString("webSearchUrlPingSuffix");
+	}
+	
+	public String getThumbnailUrl(int index) {
+		return items.getJSONObject(index).getString("thumbnailUrl");
+	}
+	
+	public String getDatePublished(int index) {
+		return items.getJSONObject(index).getString("daatePublished");
+	}
+	
+	public String getContentUrl(int index) {
+		return items.getJSONObject(index).getString("contentUrl");
+	}
+	
+	public String getHostPageUrl(int index) {
+		return items.getJSONObject(index).getString("hostPageUrl");
+	}
+	
+	public String getHostPageUrlPingSuffix(int index) {
+		return items.getJSONObject(index).getString("hostPageUrlPingSuffix");
+	}
+	
+	public String getContentSize(int index) {
+		return items.getJSONObject(index).getString("contentSize");
+	}
+	
+	public String getEncodingFormat(int index) {
+		return items.getJSONObject(index).getString("encodingFormat");
+	}
+	
+	public String getHostPageDisplayUrl(int index) {
+		return items.getJSONObject(index).getString("hostPageDisplayUrl");
+	}
+	
+	public int getWidth(int index) {
+		return items.getJSONObject(index).getInt("width");
+	}
+	
+	public int getHeight(int index) {
+		return items.getJSONObject(index).getInt("height");
+	}
+	
+	public int getThumbnailWidth(int index) {
+		return items.getJSONObject(index).getJSONObject("thumbnail").getInt("width");
+	}
+	
+	public int getThumbnailHeight(int index) {
+		return items.getJSONObject(index).getJSONObject("thumbnail").getInt("height");
+	}
+	
+	public String getImageInsightsToken(int index) {
+		return items.getJSONObject(index).getString("imageInsightsToken");
+	}
+	
+	public JSONObject getInsightsSourceSummary(int index) {
+		return items.getJSONObject(index).getJSONObject("insightsSourceSummary");
+	}
+	
+	public String getImageId(int index) {
+		return items.getJSONObject(index).getString("imageId");
+	}
+	
+	public String getAccentColor(int index) {
+		return items.getJSONObject(index).getString("accentColor");
 	}
 	
 }

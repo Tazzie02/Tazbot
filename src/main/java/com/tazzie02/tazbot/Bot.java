@@ -5,8 +5,23 @@ import java.util.List;
 
 import javax.security.auth.login.LoginException;
 
-import com.tazzie02.tazbot.commands.general.*;
-import com.tazzie02.tazbot.commands.informative.*;
+import com.tazzie02.tazbot.commands.general.AtChannelCommand;
+import com.tazzie02.tazbot.commands.general.JoinCommand;
+import com.tazzie02.tazbot.commands.general.OrderCommand;
+import com.tazzie02.tazbot.commands.general.RollCommand;
+import com.tazzie02.tazbot.commands.general.TeamCommand;
+import com.tazzie02.tazbot.commands.general.TempCommand;
+import com.tazzie02.tazbot.commands.informative.AboutCommand;
+import com.tazzie02.tazbot.commands.informative.AvatarCommand;
+import com.tazzie02.tazbot.commands.informative.ChannelInfoCommand;
+import com.tazzie02.tazbot.commands.informative.GuildInfoCommand;
+import com.tazzie02.tazbot.commands.informative.UptimeCommand;
+import com.tazzie02.tazbot.commands.informative.UserInfoCommand;
+import com.tazzie02.tazbot.commands.search.BingImageSearchCommand;
+import com.tazzie02.tazbot.commands.search.GoogleImageSearchCommand;
+import com.tazzie02.tazbot.commands.search.GoogleSearchCommand;
+import com.tazzie02.tazbot.commands.search.ImageSearchCommand;
+import com.tazzie02.tazbot.commands.search.YoutubeSearchCommand;
 import com.tazzie02.tazbotdiscordlib.CommandRegistry;
 import com.tazzie02.tazbotdiscordlib.TazbotDiscordLib;
 import com.tazzie02.tazbotdiscordlib.TazbotDiscordLibBuilder;
@@ -93,7 +108,6 @@ public class Bot {
 		// General commands
 		registry.registerCommand(new AtChannelCommand());
 		registry.registerCommand(new JoinCommand());
-		registry.registerCommand(new ModCommand());
 		registry.registerCommand(new OrderCommand());
 		registry.registerCommand(new RollCommand());
 		registry.registerCommand(new TeamCommand());
@@ -106,15 +120,27 @@ public class Bot {
 		registry.registerCommand(new GuildInfoCommand());
 		registry.registerCommand(new UptimeCommand());
 		registry.registerCommand(new UserInfoCommand());
+		
+		// Search commands
+//		registry.registerCommand(new BingImageSearchCommand());
+		registry.registerCommand(new GoogleImageSearchCommand());
+		registry.registerCommand(new GoogleSearchCommand());
+		registry.registerCommand(new ImageSearchCommand());
+		registry.registerCommand(new YoutubeSearchCommand());
 	}
 	
-	public static void shutdown(boolean free) {
+	public static void shutdown(boolean now) {
 		if (tdl == null) {
 			return;
 		}
 		
 		if (!tdl.isShutdown()) {
-			tdl.shutdown(free);
+			if (now) {
+				tdl.shutdownNow();
+			}
+			else {
+				tdl.shutdown();
+			}
 		}
 		
 		tdl = null;
